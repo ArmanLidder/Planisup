@@ -1,0 +1,82 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title class="login-title">PlaniSup - Connexion</mat-card-title>
+      <mat-card-subtitle>Système de planification des études supérieures</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Code utilisateur -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Code utilisateur</mat-label>
+          <input
+            matInput
+            formControlName="usercode"
+            placeholder="Entrez votre code utilisateur"
+            autocomplete="username"
+          />
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error>{{ getFieldError('usercode') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Prénom -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Prénom</mat-label>
+          <input matInput formControlName="firstName" placeholder="Entrez votre prénom" />
+          <mat-icon matSuffix>person_outline</mat-icon>
+          <mat-error>{{ getFieldError('firstName') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Nom de famille -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nom de famille</mat-label>
+          <input matInput formControlName="lastName" placeholder="Entrez votre nom de famille" />
+          <mat-icon matSuffix>person_outline</mat-icon>
+          <mat-error>{{ getFieldError('lastName') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rôle</mat-label>
+          <mat-select formControlName="role" placeholder="Sélectionnez votre rôle">
+            <mat-option *ngFor="let role of userRoles" [value]="role">
+              {{ getRoleDisplayName(role) }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>assignment_ind</mat-icon>
+          <mat-error>{{ getFieldError('role') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="error-message">
+          <mat-icon>error</mat-icon>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Bouton de connexion -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="login-button full-width"
+          [disabled]="isLoading"
+        >
+          <mat-spinner *ngIf="isLoading" diameter="20" class="spinner"></mat-spinner>
+          <span *ngIf="!isLoading">Se connecter</span>
+          <span *ngIf="isLoading">Connexion en cours...</span>
+        </button>
+
+        <!-- Bouton bypass -->
+        <button
+          mat-stroked-button
+          color="accent"
+          type="button"
+          class="bypass-button full-width"
+          (click)="bypassLogin()"
+        >
+          temp: bypass login
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

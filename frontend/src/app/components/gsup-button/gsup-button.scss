@@ -1,0 +1,56 @@
+button {
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  color: white;
+  height: 70px; /* tu peux aussi mettre min-height */
+  width: 100%; /* <-- bouton prend toute la largeur de son conteneur */
+  max-width: 90%; /* garde une marge si nécessaire */
+}
+
+button:hover {
+  filter: brightness(60%);
+}
+
+button:active {
+  transform: scale(0.8);
+}
+
+/* ================== Couleurs ================== */
+.black {
+  background-color: black;
+}
+
+.red {
+  background-color: red;
+}
+
+.blue {
+  background-color: blue;
+}
+
+.green {
+  background-color: green;
+}
+
+.orange {
+  background-color: orange;
+}
+
+/* ================== Tailles ================== */
+.small {
+  font-size: 20px;
+  width: 250px;
+}
+
+.medium {
+  font-size: 22px;
+  width: 375px;
+}
+
+.large {
+  font-size: 26px;
+  width: 500px;
+}

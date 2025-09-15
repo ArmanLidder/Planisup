@@ -1,0 +1,10 @@
+<div class="header">
+  <div class="left-container">
+    <img src="assets/logo.png" class="logo" />
+    <p class="title">PlaniSup</p>
+  </div>
+  <div class="right-container">
+    <p class="text" *ngIf="currentUser" routerLink="/accueil">Accueil</p>
+    <p class="text" *ngIf="currentUser" (click)="logout()">Déconnexion</p>
+  </div>
+</div>

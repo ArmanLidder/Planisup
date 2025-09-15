@@ -1,0 +1,81 @@
+.study-module {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  
+  .module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    h2 {
+      color: #2c3e50;
+      margin: 0;
+      font-size: 20px;
+    }
+    
+    .module-credits {
+      text-align: center;
+      
+      .credits-count {
+        display: block;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      
+      .credits-label {
+        font-size: 12px;
+        color: #7f8c8d;
+      }
+    }
+  }
+  
+  .progress-bar {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+.sub-modules {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #dee2e6;
+  
+  .sub-module {
+    margin-bottom: 20px;
+    
+    h3 {
+      color: #495057;
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+    
+    .sub-module-header {
+      margin-bottom: 10px;
+      
+      .sub-module-credits {
+        font-size: 14px;
+        color: #6c757d;
+        font-style: italic;
+      }
+    }
+    
+    .courses-list {
+      margin-left: 20px;
+      border-left: 2px solid #dee2e6;
+      padding-left: 15px;
+    }
+  }
+}

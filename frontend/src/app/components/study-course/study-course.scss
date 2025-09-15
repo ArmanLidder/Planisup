@@ -1,0 +1,96 @@
+.study-course {
+  margin-bottom: 12px;
+  padding: 12px 15px;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #3498db;
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.1);
+  }
+  
+  &.selected {
+    background-color: #e8f4fd;
+    border-color: #3498db;
+  }
+  
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .course-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    margin: 0;
+    
+    input[type="checkbox"] {
+      opacity: 0;
+      position: absolute;
+      cursor: pointer;
+      
+      &:checked ~ .checkmark {
+        background-color: #3498db;
+        border-color: #3498db;
+        
+        &:after {
+          display: block;
+        }
+      }
+    }
+    
+    .checkmark {
+      position: relative;
+      height: 20px;
+      width: 20px;
+      background-color: white;
+      border: 2px solid #adb5bd;
+      border-radius: 4px;
+      margin-right: 12px;
+      flex-shrink: 0;
+      
+      &:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    }
+    
+    .course-code {
+      font-weight: bold;
+      color: #2c3e50;
+      width: 90px;
+      flex-shrink: 0;
+    }
+    
+    .course-name {
+      flex-grow: 1;
+      margin: 0 10px;
+    }
+    
+    .course-credits {
+      color: #6c757d;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+  }
+  
+  .special-note {
+    font-size: 12px;
+    color: #e74c3c;
+    margin-top: 5px;
+    margin-left: 32px;
+    font-style: italic;
+  }
+}

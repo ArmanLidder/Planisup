@@ -1,0 +1,103 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #3498db;
+  
+  h1 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 28px;
+  }
+  
+  .total-credits {
+    text-align: center;
+    
+    .credits-count {
+      display: block;
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .credits-label {
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+  }
+}
+
+.module-info {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  
+  .description {
+    margin-top: 0;
+    line-height: 1.5;
+  }
+  
+  .conditions {
+    margin: 15px 0;
+    
+    p {
+      margin: 8px 0;
+      font-weight: 500;
+    }
+  }
+  
+  .note {
+    background-color: #fff3cd;
+    padding: 12px 15px;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    font-style: italic;
+    color: #856404;
+    margin: 0;
+  }
+}
+
+.modules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 30px;
+  
+  .btn-primary {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+    
+    &:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

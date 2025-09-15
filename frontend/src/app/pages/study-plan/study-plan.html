@@ -1,0 +1,36 @@
+<div class="container">
+  <header>
+    <h1>Plan d'Études - Planetude</h1>
+    <div class="total-credits">
+      <span class="credits-count">{{ totalCredits }} / 15</span>
+      <span class="credits-label">Crédits reçus</span>
+    </div>
+  </header>
+  
+  <div class="module-info">
+    <p class="description">Module visant une couverture du domaine de la cybernécarité orientée vers les solutions de protection et de défense des systèmes contre les cybermeuses.</p>
+    
+    <div class="conditions">
+      <p><strong>6 crédits</strong> au choix parmi les cours fondamentaux (Module A1)</p>
+      <p><strong>6 crédits</strong> au choix parmi les cours complémentaires (Module A2)</p>
+    </div>
+    
+    <div class="note">
+      <p>Note: Le cours INF44504 sera accepté en République avec un niveau de protection. Vous ne pouvez choisir qu'un seul de ces deux cours.</p>
+    </div>
+  </div>
+
+  <div class="modules-container">
+    <app-study-module 
+      *ngFor="let module of modules" 
+      [module]="module"
+      [progressStyle]="getProgressStyle(module.selectedCredits, module.maxCredits)"
+      (courseSelectionChange)="onCourseSelectionChange($event)"
+      (subModuleCourseSelectionChange)="onSubModuleCourseSelectionChange($event)">
+    </app-study-module>
+  </div>
+
+  <div class="actions">
+    <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
+  </div>
+</div>

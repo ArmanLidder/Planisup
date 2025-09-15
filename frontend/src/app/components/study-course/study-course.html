@@ -1,0 +1,15 @@
+<div class="study-course" [class.selected]="course.selected" [class.disabled]="course.disabled">
+  <label class="course-checkbox">
+    <input type="checkbox" 
+           [checked]="course.selected" 
+           [disabled]="course.disabled"
+           (change)="onSelectionChange($event.target.checked)">
+    <span class="checkmark"></span>
+    <span class="course-code">{{ course.code }}</span>
+    <span class="course-name">{{ course.name }}</span>
+    <span class="course-credits">{{ course.credits }} crédits</span>
+  </label>
+  <div *ngIf="course.specialNote" class="special-note">
+    {{ course.specialNote }}
+  </div>
+</div>

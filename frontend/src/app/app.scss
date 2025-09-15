@@ -1,0 +1,21 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background: url('./../assets/background.png') no-repeat center center;
+  background-size: cover;
+  overflow: auto;
+}
+
+.header {
+  flex-shrink: 0;
+  padding: 2rem;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,18 @@
+<div class="container-modal" *ngIf="modalService.showModal">
+  <div class="modal-header">{{ modalService.title }}</div>
+  <div class="modal-body">{{ modalService.message }}</div>
+  <div class="modal-button">
+    <app-gsup-button
+      [title]="'NON'"
+      [color]="'red'"
+      [size]="'small'"
+      (clicked)="onClickingNo()"
+    ></app-gsup-button>
+    <app-gsup-button
+      [title]="'OUI'"
+      [color]="'blue'"
+      [size]="'small'"
+      (clicked)="onClickingYes()"
+    ></app-gsup-button>
+  </div>
+</div>

@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProgrammeService } from '../../services/program/program';
-import { TitleCasePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-program',
   standalone: true,
-  imports: [TitleCasePipe, CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './program.html',
   styleUrl: './program.scss',
 })

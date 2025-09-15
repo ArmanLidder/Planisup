@@ -5,7 +5,7 @@
   background: white;
   border-radius: 10px;
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.5);
-  padding: 1rem 2rem;
+  padding: 0.5rem 1rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -19,7 +19,7 @@
 }
 
 .title {
-  font-size: clamp(14px, 2.5vw, 24px);
+  font-size: clamp(8px, 2vw, 16px);
   font-weight: bold;
   color: black;
   white-space: nowrap;
@@ -28,7 +28,7 @@
 }
 
 .logo {
-  width: clamp(100px, 15vw, 230px);
+  width: clamp(50px, 10vw, 140px);
   height: auto;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .text {
-  font-size: clamp(10px, 2.5vw, 20px);
+  font-size: clamp(8px, 2vw, 16px);
   font-weight: bold;
   color: black;
   cursor: pointer;

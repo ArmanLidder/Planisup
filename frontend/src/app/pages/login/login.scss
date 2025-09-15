@@ -2,7 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px;
 }
 
 .login-card {
@@ -30,8 +29,6 @@ mat-card-subtitle {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
 }
 
 .full-width {

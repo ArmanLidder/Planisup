@@ -14,7 +14,7 @@ export const routes: Routes = [
   /*{ path: 'plan', component: StudyPlan, canActivate: [AuthGuard] },
   { path: 'dess', component: StudyPlan, canActivate: [AuthGuard] },
   { path: 'maitrise', component: StudyPlan, canActivate: [AuthGuard] },
-  { path: 'doctorat', component: StudyPlan, canActivate: [AuthGuard] },
+  { path: 'doctorat', component: StudyPlan, canActivate: [AuthGuard] },*/
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

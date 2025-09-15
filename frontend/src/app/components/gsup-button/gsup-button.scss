@@ -5,9 +5,10 @@ button {
   cursor: pointer;
   transition: 0.3s ease;
   color: white;
-  height: 70px; /* tu peux aussi mettre min-height */
-  width: 100%; /* <-- bouton prend toute la largeur de son conteneur */
-  max-width: 90%; /* garde une marge si nécessaire */
+  height: 40px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 button:hover {
@@ -41,16 +42,16 @@ button:active {
 
 /* ================== Tailles ================== */
 .small {
-  font-size: 20px;
-  width: 250px;
+  font-size: 14px;
+  width: 175px;
 }
 
 .medium {
-  font-size: 22px;
-  width: 375px;
+  font-size: 14px;
+  width: 225px;
 }
 
 .large {
-  font-size: 26px;
-  width: 500px;
+  font-size: 14px;
+  width: 275px;
 }

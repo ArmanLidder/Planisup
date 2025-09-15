@@ -8,13 +8,13 @@ import { Program } from './pages/program/program';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'accueil', component: Home, canActivate: [AuthGuard] },
-  { path: ':type', component: Program }, // ex: /maitrise
+  /*{ path: ':type', component: Program }, // ex: /maitrise
   { path: ':type/:discipline', component: Program }, // ex: /maitrise/genie-info
   { path: ':type/:discipline/:module', component: Program }, // ex: /maitrise/genie-info/professionnelle
-  /*{ path: 'plan', component: StudyPlan, canActivate: [AuthGuard] },
-  { path: 'dess', component: StudyPlan, canActivate: [AuthGuard] },
-  { path: 'maitrise', component: StudyPlan, canActivate: [AuthGuard] },
-  { path: 'doctorat', component: StudyPlan, canActivate: [AuthGuard] },*/
+  { path: 'plan', component: Program, canActivate: [AuthGuard] },*/
+  { path: 'dess', component: Program, canActivate: [AuthGuard] },
+  { path: 'maitrise', component: Program, canActivate: [AuthGuard] },
+  { path: 'doctorat', component: Program, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

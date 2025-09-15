@@ -1,12 +1,20 @@
 <div class="program-container">
+  @if (this.router.url === '/dess' || this.router.url === '/maitrise') {
   <div class="container-box">
     <img src="./../../../assets/programs/development.png" />
     <h1>Développement durable</h1>
   </div>
+  }
   <div class="container-box">
     <img src="./../../../assets/programs/biomedical.png" />
     <h1>Génie biomédical</h1>
   </div>
+  @if (this.router.url === '/maitrise') {
+  <div class="container-box">
+    <img src="./../../../assets/programs/aerospace.png" />
+    <h1>Génie aérospatial</h1>
+  </div>
+  }
   <div class="container-box">
     <img src="./../../../assets/programs/chemical.png" />
     <h1>Génie chimique</h1>
@@ -47,16 +55,20 @@
     <img src="./../../../assets/programs/mathematics.png" />
     <h1>Mathématiques</h1>
   </div>
+  @if (this.router.url === '/dess') {
   <div class="container-box">
     <img src="./../../../assets/programs/technology.png" />
     <h1>Technologie</h1>
   </div>
+  }
   <div class="container-box">
     <img src="./../../../assets/programs/software-computer.png" />
     <h1>Génie informatique et génie logiciel</h1>
   </div>
+  @if (this.router.url === '/dess') {
   <div class="container-box">
     <img src="./../../../assets/programs/ergonomic.png" />
     <h1>Ergonomie et ergonomie du logiciel</h1>
   </div>
+  }
 </div>

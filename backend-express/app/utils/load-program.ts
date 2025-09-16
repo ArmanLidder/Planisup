@@ -7,27 +7,61 @@ function extractDataFromJson() {
   return JSON.parse(rawData);
 }
 
+// Define interfaces to help TypeScript understand the types
+interface TransformedCourse {
+  sigle: string;
+  titre: string;
+  nom_departement: string;
+  prerequis: string[];
+  corequis: string[];
+  credits: string;
+  listPlanTriennal: { annee: string; trimestre: string; jourSoir: string }[];
+  description: string;
+}
+
+interface TransformedSection {
+  title_section: string;
+  courses: TransformedCourse[];
+}
+
+interface TransformedModule {
+  title: string;
+  texte_module: string[];
+  cours: TransformedSection[];
+  sous_modules: any[];
+}
+
+interface TransformedProgram {
+  degree: string;
+  departement: string | null;
+  type: string[];
+  name: string;
+  link: string;
+  description: string;
+  modules: TransformedModule[];
+}
+
 // --- Transform raw data into your interface shape ---
-export async function transformPrograms(): Promise<any[]> {
+export async function loadPrograms(): Promise<TransformedProgram[]> {
   // Fetch and prepare course data
   const { courseMap, triennalMap } = await enrichCourseData();
   const programKeywords = createMap();
 
   const rawPrograms = extractDataFromJson();
 
-  rawPrograms.map((p : any) => ({
+  const transformedPrograms: TransformedProgram[] = rawPrograms.map((p: any): TransformedProgram => ({
     degree: p.degree,
     departement: findKeyByValue(p.degree, programKeywords),
     type: extractProgramTypes(p.degree),
     name: p.name,
     link: p.link,
     description: p.description,
-    modules: (p.modules || []).map((m: any) => ({
+    modules: (p.modules || []).map((m: any): TransformedModule => ({
       title: m.title,
       texte_module: m.texte_module || [],
-      cours: (m.tableau || []).map((t: any) => ({
+      cours: (m.tableau || []).map((t: any): TransformedSection => ({
         title_section: t.title_section,
-        courses: (t.courses || []).map((c: any) => {
+        courses: (t.courses || []).map((c: any): TransformedCourse => {
           const courseData = courseMap.get(c.sigle);
           const triennalData = triennalMap.get(c.sigle);
           
@@ -47,9 +81,9 @@ export async function transformPrograms(): Promise<any[]> {
     })),
   }));
 
-  console.log("Transformation complete.", JSON.stringify(rawPrograms));
+  console.log("Transformation complete.", transformedPrograms);
 
-  return rawPrograms;
+  return transformedPrograms;
 }
 
 function createMap(){

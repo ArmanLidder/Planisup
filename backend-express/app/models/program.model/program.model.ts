@@ -1,7 +1,47 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+
+// Define interfaces for better type safety
+interface ICourse extends Document {
+  sigle: string;
+  titre: string;
+  nom_departement: string;
+  prerequis: string[];
+  corequis: string[];
+  credits: string;
+  listPlanTriennal: { annee: string; trimestre: string; jourSoir: string }[];
+  description: string;
+}
+
+interface ISection extends Document {
+  title_section: string;
+  courses: ICourse[];
+}
+
+interface ISousModule extends Document {
+  title: string;
+  texte_sous_module: string[];
+  section: ISection[];
+}
+
+interface IModule extends Document {
+  title: string;
+  texte_module: string[];
+  cours: ISection[];
+  sous_modules: ISousModule[];
+}
+
+interface IProgram extends Document {
+  degree: string;
+  departement: string;
+  type: string[];
+  name: string;
+  link: string;
+  description: string;
+  modules: IModule[];
+}
 
 // --- Define Mongoose Schemas ---
-const CourseSchema = new mongoose.Schema({
+const CourseSchema: Schema = new mongoose.Schema({
   sigle: String,
   titre: String,
   nom_departement: String,
@@ -12,25 +52,25 @@ const CourseSchema = new mongoose.Schema({
   description: String,
 });
 
-const SectionSchema = new mongoose.Schema({
+const SectionSchema: Schema = new mongoose.Schema({
   title_section: String,
   courses: [CourseSchema],
 });
 
-const SousModuleSchema = new mongoose.Schema({
+const SousModuleSchema: Schema = new mongoose.Schema({
   title: String,
   texte_sous_module: [String],
   section: [SectionSchema],
 });
 
-const ModuleSchema = new mongoose.Schema({
+const ModuleSchema: Schema = new mongoose.Schema({
   title: String,
   texte_module: [String],
   cours: [SectionSchema],
   sous_modules: [SousModuleSchema],
 });
 
-const ProgramSchema = new mongoose.Schema({
+const ProgramSchema: Schema = new mongoose.Schema({
   degree: String,
   departement: String,
   type: [String],
@@ -40,4 +80,4 @@ const ProgramSchema = new mongoose.Schema({
   modules: [ModuleSchema],
 }, {collection: 'Program'});
 
-export const ProgramModel = mongoose.model("Program", ProgramSchema);
+export const ProgramModel = mongoose.model<IProgram>("Program", ProgramSchema);

@@ -1,96 +1,85 @@
-import fs from "fs";
+import * as fs from "fs";
+import * as path from "path";
 import axios from "axios";
+import { IProgram } from "@app/models/program.model/program.model";
 
+interface RawCourse {
+    sigle: string;
+    titre: string;
+    secteurEnseignement: string;
+    nombreCredit: number;
+    triplet: string;
+    indHorsFact: string;
+    urlCours: string;
+    indPlanTriAut: string;
+    indPlanTriHiv: string;
+    indPlanTriEte: string;
+    descriptionCours: string;
+    noteParticuliere: string;
+    prealable: string;
+    corequis: string;
+    departement: string;
+    responsable: string;
+}
+
+interface planTriennal {
+    sigle: string;
+    titre: string;
+    codeDepartement: string;
+    nomDepartement: string;
+    nbCredits: number;
+    codeSecteur: string;
+    listPlanTriennal?: { annee: string; trimestre: string; jourSoir: string }[];
+}
 
 function extractDataFromJson() {
-  const rawData = fs.readFileSync("programs.json", "utf-8");
+  const rawData = fs.readFileSync(path.join(__dirname, "../../../../programs.json"), "utf-8");
   return JSON.parse(rawData);
 }
 
-// Define interfaces to help TypeScript understand the types
-interface TransformedCourse {
-  sigle: string;
-  titre: string;
-  nom_departement: string;
-  prerequis: string[];
-  corequis: string[];
-  credits: string;
-  listPlanTriennal: { annee: string; trimestre: string; jourSoir: string }[];
-  description: string;
-}
-
-interface TransformedSection {
-  title_section: string;
-  courses: TransformedCourse[];
-}
-
-interface TransformedModule {
-  title: string;
-  texte_module: string[];
-  cours: TransformedSection[];
-  sous_modules: any[];
-}
-
-interface TransformedProgram {
-  degree: string;
-  departement: string | null;
-  type: string[];
-  name: string;
-  link: string;
-  description: string;
-  modules: TransformedModule[];
-}
-
-// --- Transform raw data into your interface shape ---
-export async function loadPrograms(): Promise<TransformedProgram[]> {
+export async function loadPrograms(): Promise<IProgram[]> {
   // Fetch and prepare course data
   const { courseMap, triennalMap } = await enrichCourseData();
   const programKeywords = createMap();
 
   const rawPrograms = extractDataFromJson();
-
-  const transformedPrograms: TransformedProgram[] = rawPrograms.map((p: any): TransformedProgram => ({
+  const programs = rawPrograms.map((p : any) => ({
     degree: p.degree,
     departement: findKeyByValue(p.degree, programKeywords),
     type: extractProgramTypes(p.degree),
     name: p.name,
     link: p.link,
     description: p.description,
-    modules: (p.modules || []).map((m: any): TransformedModule => ({
+    modules: (p.modules || []).map((m: any) => ({
       title: m.title,
       texte_module: m.texte_module || [],
-      cours: (m.tableau || []).map((t: any): TransformedSection => ({
+      cours: (m.tableau || []).map((t: any) => ({
         title_section: t.title_section,
-        courses: (t.courses || []).map((c: any): TransformedCourse => {
+        courses: (t.courses || []).map((c: any) => {
           const courseData = courseMap.get(c.sigle);
           const triennalData = triennalMap.get(c.sigle);
-          
-          return {
+          const ob = {
             sigle: c.sigle || "",
             titre: c.titre || (courseData?.titre || ""),
             nom_departement: courseData?.departement || "",
-            prerequis: courseData ? parsePrerequisites(courseData.prealable) : [],
+            prerequis: courseData?.prealable ? parsePrerequisites(courseData.prealable) : [],
             corequis: courseData ? parseCorequisites(courseData.corequis) : [],
             credits: c.credits || (courseData?.nombreCredit?.toString() || ""),
             listPlanTriennal: triennalData ? createPlanTriennalList(triennalData) : [],
             description: courseData?.descriptionCours || "",
           };
+          return ob
         }),
       })),
       sous_modules: m.sous_modules || [],
     })),
   }));
-
-  console.log("Transformation complete.", transformedPrograms);
-
-  return transformedPrograms;
+  return programs;
 }
 
 function createMap(){
-    // Create the Map
     const programKeywords = new Map();
     
-    // Add keys with array values
     programKeywords.set("Développement durable", [
       "Diplôme d'études supérieures spécialisées (DESS) en Développement durable",
       "Option Conception et fabrication durables",
@@ -266,15 +255,15 @@ function extractProgramTypes(degree: string): string[] {
   const lowerDegree = degree.toLowerCase();
 
   if (lowerDegree.includes('dess') || lowerDegree.includes('diplôme d\'études supérieures spécialisées')) {
-    types.push('DESS');
+    types.push('dess');
   }
 
   if (lowerDegree.includes('maîtrise')) {
-    types.push('Maîtrise');
+    types.push('maitrise');
   }
   
   if (lowerDegree.includes('doctorat')) {
-    types.push('Doctorat');
+    types.push('doctorat');
   }
 
   if (types.length === 0 && lowerDegree.startsWith('option')) {
@@ -315,11 +304,11 @@ async function enrichCourseData() {
     const triennalMap = new Map<string, planTriennal>();
 
     rawCourses.forEach(course => {
-        courseMap.set(course.sigle, course);
+        courseMap.set(course.sigle.trim(), course);
     });
 
     triennalData.forEach(triennal => {
-        triennalMap.set(triennal.sigle, triennal);
+        triennalMap.set(triennal.sigle.trim(), triennal);
     });
 
     return { courseMap, triennalMap };
@@ -346,33 +335,4 @@ function parseCorequisites(corequis: string): string[] {
 function createPlanTriennalList(triennal: planTriennal): { annee: string; trimestre: string; jourSoir: string }[] {
     if (!triennal.listPlanTriennal) return [];
     return triennal.listPlanTriennal;
-}
-
-interface RawCourse {
-    sigle: string;
-    titre: string;
-    secteurEnseignement: string;
-    nombreCredit: number;
-    triplet: string;
-    indHorsFact: string;
-    urlCours: string;
-    indPlanTriAut: string;
-    indPlanTriHiv: string;
-    indPlanTriEte: string;
-    descriptionCours: string;
-    noteParticuliere: string;
-    prealable: string;
-    corequis: string;
-    departement: string;
-    responsable: string;
-}
-
-interface planTriennal {
-    sigle: string;
-    titre: string;
-    codeDepartement: string;
-    nomDepartement: string;
-    nbCredits: number;
-    codeSecteur: string;
-    listPlanTriennal?: { annee: string; trimestre: string; jourSoir: string }[];
 }

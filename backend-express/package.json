@@ -50,12 +50,14 @@
         "@common": "out/common"
     },
     "dependencies": {
+        "axios": "^1.12.2",
         "compression": "^1.8.1",
         "cookie-parser": "^1.4.7",
         "cors": "2.8.5",
         "debug": "4.3.4",
         "dotenv": "^17.2.2",
         "express": "^4.21.2",
+        "fs": "^0.0.1-security",
         "helmet": "^8.1.0",
         "http-status-codes": "2.1.4",
         "module-alias": "2.2.2",

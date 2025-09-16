@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../services/auth.service';
+import { AuthentificationService } from '../../services/authentification/authentification-service';
 import { UserRole, LoginRequest, User } from '../../../../../common/user';
 
 @Component({
@@ -35,7 +35,11 @@ export class Login {
   errorMessage = '';
   userRoles = Object.values(UserRole);
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authentificationService: AuthentificationService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(3)]],
@@ -68,7 +72,7 @@ export class Login {
         role: formValue.role,
       };
 
-      this.authService.login(loginRequest).subscribe({
+      this.authentificationService.login(loginRequest).subscribe({
         next: (response: User) => {
           this.isLoading = false;
           if (response._id) {
@@ -116,7 +120,7 @@ export class Login {
   }
 
   bypassLogin(): void {
-    this.authService.bypassLogin();
+    this.authentificationService.bypassLogin();
     this.router.navigate(['/accueil']);
   }
 }

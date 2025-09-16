@@ -8,6 +8,8 @@ import { StatusCodes } from 'http-status-codes';
 import { Service } from 'typedi';
 import { HttpException } from "@app/classes/http.exception";
 import { AuthController } from '@app/controllers/auth.controller/auth.controller';
+import { ProgramModel } from '@app/models/program.model/program.model';
+import  { loadPrograms } from '@app/utils/load-program';
 
 @Service()
 export class Application {
@@ -31,9 +33,16 @@ export class Application {
         this.errorHandling();
     }
 
-    private initialiseDatabaseConnection(): void {
+    private async initialiseDatabaseConnection(): Promise<void> {
         const api_key = process.env.MONGODB_URI;
         mongoose.connect(api_key);
+        try{
+            await ProgramModel.findOne();
+        } catch (error) {
+            console.error('ProgramModel empty filling...:', error);
+            const programs = await loadPrograms();
+            await ProgramModel.insertMany(programs);
+        }
     }
 
     private config(): void {

@@ -1,0 +1,18 @@
+export const DepartementImages: Record<string, string> = {
+  'Développement durable': './../../../assets/programs/development.png',
+  'Génie biomédical': './../../../assets/programs/biomedical.png',
+  'Génie aérospatial': './../../../assets/programs/aerospace.png',
+  'Génie chimique': './../../../assets/programs/chemical.png',
+  'Génie civil': './../../../assets/programs/civil.png',
+  'Génie des matériaux': './../../../assets/programs/material.png',
+  'Génie électrique': './../../../assets/programs/electrical.png',
+  'Génie énergétique et nucléaire': './../../../assets/programs/nuclear.png',
+  'Génie industriel': './../../../assets/programs/industrial.png',
+  'Génie mécanique': './../../../assets/programs/mechanical.png',
+  'Génie minéral': './../../../assets/programs/mineral.png',
+  'Génie physique': './../../../assets/programs/physical.png',
+  Mathématiques: './../../../assets/programs/mathematics.png',
+  Technologie: './../../../assets/programs/technology.png',
+  'Génie informatique et génie logiciel': './../../../assets/programs/software-computer.png',
+  'Ergonomie et ergonomie du logiciel': './../../../assets/programs/ergonomic.png',
+};

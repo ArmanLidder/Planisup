@@ -8,13 +8,10 @@ import { Program } from './pages/program/program';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'accueil', component: Home, canActivate: [AuthGuard] },
-  /*{ path: ':type', component: Program }, // ex: /maitrise
-  { path: ':type/:discipline', component: Program }, // ex: /maitrise/genie-info
-  { path: ':type/:discipline/:module', component: Program }, // ex: /maitrise/genie-info/professionnelle
-  { path: 'plan', component: Program, canActivate: [AuthGuard] },*/
-  { path: 'dess', component: Program, canActivate: [AuthGuard] },
-  { path: 'maitrise', component: Program, canActivate: [AuthGuard] },
-  { path: 'doctorat', component: Program, canActivate: [AuthGuard] },
+  { path: ':type', component: Program }, // ex: /maitrise ---> tous les maitirse de genie appraissent
+  { path: ':type/:departement', component: Program }, // ex: /maitrise/genie-info ---> tout les maitrise dans genie info apparissent
+  { path: ':type/:departement/:degree', component: Program }, // ex: /maitrise/genie-info/professionnelle ---> tous les options maitrise dans genie info professionnell aparissent
+  { path: ':type/:departement/:degree/:option', component: Program }, // ex: /maitrise/genie-info/professionnelle/xxx ---> study plan de ali saffiche
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

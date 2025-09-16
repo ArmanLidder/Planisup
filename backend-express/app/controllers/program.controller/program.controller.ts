@@ -1,7 +1,10 @@
-import { Request, Response, Router } from 'express';
-import { Service } from 'typedi';
-import { ProgramModel, IProgram } from '@app/models/program.model/program.model';
-import { Logger } from '@app/services/logger.service/logger.service';
+import { Request, Response, Router } from "express";
+import { Service } from "typedi";
+import {
+  ProgramModel,
+  IProgram,
+} from "@app/models/program.model/program.model";
+import { Logger } from "@app/services/logger.service/logger.service";
 
 // Faut ajouter les interfaces que l'on veut dans commun pour les cast plus tard.
 
@@ -9,84 +12,91 @@ import { Logger } from '@app/services/logger.service/logger.service';
 
 @Service()
 export class ProgramController {
-    public router: Router;
+  public router: Router;
 
-    constructor(private logger: Logger) {
-        this.configureRouter();
-    }
-    
-    private configureRouter(): void {
-        this.router = Router();
+  constructor(private logger: Logger) {
+    this.configureRouter();
+  }
 
-        this.router.get('/:type', async (req: Request, res: Response) => {
-            try {
-                const type = req.params.type;
-                this.logger.info(`Fetching ${type}' programs`);
-                const programs: IProgram[] = await ProgramModel.find({ type : { $in: [type]}});
-                const departements = programs.map((p: IProgram) => { return p.departement });
-                return res.status(200).json(departements)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        });
+  private configureRouter(): void {
+    this.router = Router();
 
-        this.router.get('/dess/:departement', async (req: Request, res: Response) => {
-             try {
-                const id = req.params.id;
-                this.logger.info(`Fetching DESS program: ${id}`)
-                const program = await ProgramModel.findById(req.params.id).exec();
-                return res.status(200).json(program)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        });
-        
-        this.router.get('/maitrise', async (req: Request, res: Response) => {
-            try {
-                this.logger.info("Fetching Mastsers programs");
-                const programs = await ProgramModel.find({ type : {$contains: "Maîtrise"}}).exec();
-                return res.status(200).json(programs)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        });
-          
-        this.router.get('/maitrise/:id', async (req: Request, res: Response) => {
-             try {
-                const id = req.params.id;
-                this.logger.info(`Fetching master program: ${id}`)
-                const program = await ProgramModel.findById(req.params.id).exec();
-                return res.status(200).json(program)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        });
-        
-        this.router.get('/doctorat', async (req: Request, res: Response) => {
-            try {
-                this.logger.info("Fetching Doctorat programs");
-                const programs = await ProgramModel.find({ type : {$contains: "Doctorat"}}).exec();
-                return res.status(200).json(programs)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        });
-          
-        this.router.get('/doctorat/:id', async (req: Request, res: Response) => {
-             try {
-                const id = req.params.id;
-                this.logger.info(`Fetching Doctorat program: ${id}`)
-                const program = await ProgramModel.findById(req.params.id).exec();
-                return res.status(200).json(program)
-            } catch (error) {
-                this.logger.warn(error);
-                return res.status(500);
-            }
-        }); 
-    }  
+    this.router.get("/:type", async (req: Request, res: Response) => {
+      try {
+        const type = req.params.type;
+        this.logger.info(`Fetching ${type}' programs`);
+
+        const programs = await ProgramModel.find({
+          type: type,
+        }).exec();
+
+        const departements = [
+          ...new Set(programs.map((program: IProgram) => program.departement)),
+        ];
+
+        return res.status(200).json(departements);
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500);
+      }
+    });
+
+    this.router.get("/:type/:departement", async (req, res) => {
+      try {
+        const { type, departement } = req.params;
+        this.logger.info(
+          `Fetching programs for type=${type}, departement=${departement}`
+        );
+
+        const programs = await ProgramModel.find({
+          type: type,
+          departement: departement,
+        }).exec();
+
+        const degrees = [...new Set(programs.map((program) => program.degree))];
+
+        return res.status(200).json(degrees);
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    this.router.get("/:type/:departement/:degree", async (req, res) => {
+      try {
+        const { type, departement, degree } = req.params;
+
+        this.logger.info(
+          `Fetching programs for type=${type}, departement=${departement}, degree=${degree}`
+        );
+
+        const programs = await ProgramModel.find({
+          type: type,
+          departement: departement,
+          degree: degree,
+        }).exec();
+
+        const options = [...new Set(programs.map((program) => program.name))];
+
+        return res.status(200).json(options);
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    /*this.router.get(":type/:departement/:degree/:option", async (req, res) => {
+      try {
+        const { type, departement } = req.params;
+        this.logger.info(
+          `Fetching programs for type=${type}, departement=${departement}`
+        );
+        // ta logique ici
+        return res.status(200).json();
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });*/
+  }
 }

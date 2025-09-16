@@ -1,74 +1,10 @@
 <div class="program-container">
-  @if (this.router.url === '/dess' || this.router.url === '/maitrise') {
-  <div class="container-box">
-    <img src="./../../../assets/programs/development.png" />
-    <h1>Développement durable</h1>
+  <div
+    class="container-box"
+    *ngFor="let data of dataList; let i = index"
+    (click)="programChoiceClicked(data)"
+  >
+    <img [src]="departementImages[data] || './../../../assets/program&option.png'" />
+    <h1>{{ data }}</h1>
   </div>
-  }
-  <div class="container-box">
-    <img src="./../../../assets/programs/biomedical.png" />
-    <h1>Génie biomédical</h1>
-  </div>
-  @if (this.router.url === '/maitrise') {
-  <div class="container-box">
-    <img src="./../../../assets/programs/aerospace.png" />
-    <h1>Génie aérospatial</h1>
-  </div>
-  }
-  <div class="container-box">
-    <img src="./../../../assets/programs/chemical.png" />
-    <h1>Génie chimique</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/civil.png" />
-    <h1>Génie civil</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/material.png" />
-    <h1>Génie des matériaux</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/electrical.png" />
-    <h1>Génie électrique</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/nuclear.png" />
-    <h1>Génie énergétique et nucléaire</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/industrial.png" />
-    <h1>Génie industriel</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/mechanical.png" />
-    <h1>Génie mécanique</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/mineral.png" />
-    <h1>Génie minéral</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/physical.png" />
-    <h1>Génie physique</h1>
-  </div>
-  <div class="container-box">
-    <img src="./../../../assets/programs/mathematics.png" />
-    <h1>Mathématiques</h1>
-  </div>
-  @if (this.router.url === '/dess') {
-  <div class="container-box">
-    <img src="./../../../assets/programs/technology.png" />
-    <h1>Technologie</h1>
-  </div>
-  }
-  <div class="container-box">
-    <img src="./../../../assets/programs/software-computer.png" />
-    <h1>Génie informatique et génie logiciel</h1>
-  </div>
-  @if (this.router.url === '/dess') {
-  <div class="container-box">
-    <img src="./../../../assets/programs/ergonomic.png" />
-    <h1>Ergonomie et ergonomie du logiciel</h1>
-  </div>
-  }
 </div>

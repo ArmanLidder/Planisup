@@ -8,7 +8,8 @@ import { StatusCodes } from 'http-status-codes';
 import { Service } from 'typedi';
 import { HttpException } from "@app/classes/http.exception";
 import { AuthController } from '@app/controllers/auth.controller/auth.controller';
-import { ProgramModel } from '@app/models/program.model/program.model';
+import { ProgramController } from '@app/controllers/program.controller/program.controller';
+import { ProgramModel, IProgram } from '@app/models/program.model/program.model';
 import  { loadPrograms } from '@app/utils/load-program';
 
 @Service()
@@ -17,7 +18,8 @@ export class Application {
     private readonly internalError: number = StatusCodes.INTERNAL_SERVER_ERROR;
 
     constructor(  
-        private readonly authController: AuthController
+        private readonly authController: AuthController,
+        private readonly programController: ProgramController,
     ) {
         this.app = express();
         this.initialiseDatabaseConnection();
@@ -27,6 +29,7 @@ export class Application {
 
     bindRoutes(): void {
         this.app.use('/api/auth', this.authController.router);
+        this.app.use('/api/program', this.programController.router);
         this.app.use('/', (req, res) => {
             res.redirect('/');
         });
@@ -36,12 +39,14 @@ export class Application {
     private async initialiseDatabaseConnection(): Promise<void> {
         const api_key = process.env.MONGODB_URI;
         mongoose.connect(api_key);
-        try{
-            await ProgramModel.findOne();
+        try {
+            const program = await ProgramModel.findOne();
+            if (!program) {
+                const programs: IProgram[] = await loadPrograms();
+                await ProgramModel.insertMany(programs);
+            }
         } catch (error) {
             console.error('ProgramModel empty filling...:', error);
-            const programs = await loadPrograms();
-            await ProgramModel.insertMany(programs);
         }
     }
 

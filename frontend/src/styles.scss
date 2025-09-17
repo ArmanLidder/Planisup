@@ -40,3 +40,26 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Force la transparence sur tous les éléments mat-table */
+mat-table,
+.mat-table,
+.mat-cell,
+.mat-header-cell,
+.mat-row,
+.mat-header-row {
+  background: transparent !important;
+}
+
+/* Supprime les fonds blancs internes */
+.mat-table .mat-cell,
+.mat-table .mat-header-cell {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Force les cellules à être transparentes par défaut */
+.cdk-cell,
+.cdk-header-cell {
+  background: transparent !important;
+}

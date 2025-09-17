@@ -1,0 +1,67 @@
+.full-width-table-container {
+  width: 80vw;
+  height: 65vh;
+  max-width: none;
+  margin: 40px auto;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.cdk-table {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: rgba(0, 0, 0, 0.229) !important;
+}
+
+.clickable-row.selected {
+  background-color: rgba(79, 136, 224, 0.2) !important;
+  border-left: 4px solid #4f88e0;
+}
+
+.clickable-row.selected:hover {
+  background-color: rgba(79, 136, 224, 0.3) !important;
+}
+
+// Personnalisation de la scrollbar
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}

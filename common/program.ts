@@ -41,6 +41,15 @@ export interface Trimester {
     dayNight?: string;
 }
 
+// This interface populate the list before fetching real program
+export interface ReducedProgram {
+    _id?: string;
+    degree: string;
+    option?: string;
+    type: string;
+    department: string;
+}
+
 export enum Grade {
     AStar = "A*",
     A = "A",

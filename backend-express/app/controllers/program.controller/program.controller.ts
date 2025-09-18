@@ -6,9 +6,6 @@ import {
 } from "@app/models/program.model/program.model";
 import { Logger } from "@app/services/logger.service/logger.service";
 
-// Faut ajouter les interfaces que l'on veut dans commun pour les cast plus tard.
-
-// Exemple de route https:localhost:3000/api/program/dess/19y7w812873wIsmkhdjs
 
 @Service()
 export class ProgramController {
@@ -54,7 +51,7 @@ export class ProgramController {
         }).exec();
 
 
-        const degrees = [... (programs.map((program) => program.degree ))];
+        const degrees = [... new Set(programs.map((program) => program.degree ))];
         console.log(degrees)
 
         return res.status(200).json(degrees);

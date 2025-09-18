@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import axios from "axios";
 import { IProgram } from "@app/models/program.model/program.model";
+import { Grade } from "@common/program";
 
 interface RawCourse {
     sigle: string;
@@ -45,33 +46,47 @@ export async function loadPrograms(): Promise<IProgram[]> {
   const rawPrograms = extractDataFromJson();
   const programs = rawPrograms.map((p : any) => ({
     degree: p.degree,
-    departement: findKeyByValue(p.degree, programKeywords),
-    type: extractProgramTypes(p.degree),
-    name: p.name,
-    link: p.link,
+    option: p.option || undefined,
+    type: extractProgramTypes(p.degree)[0] || 'unknown', // Take first type or default
+    department: findKeyByValue(p.degree, programKeywords) || 'Unknown',
     description: p.description,
     modules: (p.modules || []).map((m: any) => ({
       title: m.title,
-      texte_module: m.texte_module || [],
-      cours: (m.tableau || []).map((t: any) => ({
-        title_section: t.title_section,
+      description: m.texte_module || [],
+      courses: (m.tableau || []).map((t: any) => ({
+        description: t.title_section,
         courses: (t.courses || []).map((c: any) => {
           const courseData = courseMap.get(c.sigle);
           const triennalData = triennalMap.get(c.sigle);
-          const ob = {
+          return {
             sigle: c.sigle || "",
-            titre: c.titre || (courseData?.titre || ""),
-            nom_departement: courseData?.departement || "",
-            prerequis: courseData?.prealable ? parsePrerequisites(courseData.prealable) : [],
-            corequis: courseData ? parseCorequisites(courseData.corequis) : [],
-            credits: c.credits || (courseData?.nombreCredit?.toString() || ""),
-            listPlanTriennal: triennalData ? createPlanTriennalList(triennalData) : [],
-            description: courseData?.descriptionCours || "",
+            name: c.titre || (courseData?.titre || ""),
+            credits: parseInt(c.credits) || (courseData?.nombreCredit || 0),
+            trimester: triennalData ? createTrimesterList(triennalData) : [],
+            alreadyDone: false,
+            grade: undefined as Grade | undefined
           };
-          return ob
         }),
       })),
-      sous_modules: m.sous_modules || [],
+      subModules: (m.sous_modules || []).map((sm: any) => ({
+        title: sm.title,
+        description: sm.description || [],
+        courses: (sm.courses || []).map((sc: any) => ({
+          description: sc.description || '',
+          courses: (sc.courses || []).map((c: any) => {
+            const courseData = courseMap.get(c.sigle);
+            const triennalData = triennalMap.get(c.sigle);
+            return {
+              sigle: c.sigle || "",
+              name: c.titre || (courseData?.titre || ""),
+              credits: parseInt(c.credits) || (courseData?.nombreCredit || 0),
+              trimester: triennalData ? createTrimesterList(triennalData) : [],
+              alreadyDone: false,
+              grade: undefined as Grade | undefined
+            };
+          })
+        }))
+      }))
     })),
   }));
   return programs;
@@ -314,25 +329,12 @@ async function enrichCourseData() {
     return { courseMap, triennalMap };
 }
 
-function parsePrerequisites(prealable: string): string[] {
-    if (!prealable || prealable.trim() === '') return [];
-    
-    return prealable
-        .split(/[,;]/)
-        .map(prereq => prereq.trim())
-        .filter(prereq => prereq !== '' && prereq.length > 0);
-}
-
-function parseCorequisites(corequis: string): string[] {
-    if (!corequis || corequis.trim() === '') return [];
-    
-    return corequis
-        .split(/[,;]/)
-        .map(coreq => coreq.trim())
-        .filter(coreq => coreq !== '' && coreq.length > 0);
-}
-
-function createPlanTriennalList(triennal: planTriennal): { annee: string; trimestre: string; jourSoir: string }[] {
+function createTrimesterList(triennal: planTriennal): { year: number; term: string; dayNight?: string }[] {
     if (!triennal.listPlanTriennal) return [];
-    return triennal.listPlanTriennal;
+    
+    return triennal.listPlanTriennal.map(item => ({
+        year: parseInt(item.annee) || 0,
+        term: item.trimestre,
+        dayNight: item.jourSoir || undefined
+    }));
 }

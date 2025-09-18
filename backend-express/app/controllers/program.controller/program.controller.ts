@@ -31,7 +31,7 @@ export class ProgramController {
         }).exec();
 
         const departements = [
-          ...new Set(programs.map((program: IProgram) => program.departement)),
+          ...new Set(programs.map((program: IProgram) => program.department)),
         ];
 
         return res.status(200).json(departements);
@@ -76,7 +76,7 @@ export class ProgramController {
           degree: degree,
         }).exec();
 
-        const options = [...new Set(programs.map((program) => program.name))];
+        const options = [...new Set(programs.map((program) => program.option))];
 
         return res.status(200).json(options);
       } catch (error) {
@@ -85,18 +85,26 @@ export class ProgramController {
       }
     });
 
-    /*this.router.get(":type/:departement/:degree/:option", async (req, res) => {
+    this.router.get("/:type/:departement/:degree/:option", async (req, res) => {
       try {
-        const { type, departement } = req.params;
+        const { type, departement, degree, option } = req.params;
+
         this.logger.info(
-          `Fetching programs for type=${type}, departement=${departement}`
+          `Fetching programs for type=${type}, departement=${departement}, degree=${degree}, option=${option}`
         );
-        // ta logique ici
-        return res.status(200).json();
+
+        const program = await ProgramModel.find({
+          degree: degree,
+          option: option
+        }).exec();
+
+        
+        console.log(JSON.stringify(program, null, 2));
+        return res.status(200).json(program);
       } catch (error) {
         this.logger.warn(error);
         return res.status(500).json({ error: "Internal Server Error" });
       }
-    });*/
+    });
   }
 }

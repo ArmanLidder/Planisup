@@ -48,7 +48,7 @@ export async function loadPrograms(): Promise<IProgram[]> {
 
     degree: p.degree,
     option: p.name || undefined,
-    type: extractProgramTypes(p.degree)[0] || 'unknown', // Take first type or default
+    type: extractProgramTypes(p.degree) || 'unknown', // Take first type or default
     department: findKeyByValue(p.degree, programKeywords) || 'Unknown',
     description: p.description,
     modules: (p.modules || []).map((m: any) => ({

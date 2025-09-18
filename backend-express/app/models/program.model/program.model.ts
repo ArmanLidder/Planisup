@@ -1,8 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Grade } from "@common/program";
 
-// Define interfaces for better type safety
-
 export interface IProgram extends Document {
     degree: string;
     option?: string;
@@ -47,18 +45,18 @@ export interface ITrimester extends Document {
 
 
 const TrimesterSchema: Schema = new mongoose.Schema({
-    year: { type: Number},
-    term: { type: String},
-    dayNight: { type: String}
+    year: { type: Number },
+    term: { type: String },
+    dayNight: { type: String }
 });
 
 const CourseSchema: Schema = new mongoose.Schema({
-    sigle: { type: String},
-    name: { type: String},
-    credits: { type: Number},
+    sigle: { type: String },
+    name: { type: String },
+    credits: { type: Number },
     trimester: [TrimesterSchema],
     alreadyDone: { type: Boolean, default: false },
-    grade: { type: String, enum: Object.values(Grade)}
+    grade: { type: String, enum: Object.values(Grade) }
 });
 
 const SectionSchema: Schema = new mongoose.Schema({
@@ -73,7 +71,7 @@ const SubModuleSchema: Schema = new mongoose.Schema({
 });
 
 const ModuleSchema: Schema = new mongoose.Schema({
-    title: { type: String},
+    title: { type: String },
     description: [String],
     courses: [SectionSchema],
     subModules: [SubModuleSchema]

@@ -16,6 +16,7 @@ export class Program implements OnInit {
   private type: string | null = '';
   private departement: string | null = '';
   private degree: string | null = '';
+  private option: string | null = '';
 
   protected dataList: string[] = [];
   protected departementImages = DepartementImages;
@@ -31,6 +32,7 @@ export class Program implements OnInit {
       this.type = params.get('type');
       this.departement = params.get('departement');
       this.degree = params.get('degree');
+      this.option = params.get('option');
     });
 
     if (this.type && !this.departement) {
@@ -52,12 +54,12 @@ export class Program implements OnInit {
       this.apiService.getOptions(this.type, this.departement, this.degree).subscribe((response) => {
         this.dataList = response;
       });
-    } /*else if (this.type && this.departement && this.degree) {
+    } else if (this.type && this.departement && this.degree && !this.option) {
       // fonction qui redirige vers page ali et charge les cours pour le denier choix //
       this.apiService.getOptions(this.type, this.departement, this.degree).subscribe((response) => {
         this.dataList = response;
         console.log(this.dataList);
       });
-    }*/
+    }
   }
 }

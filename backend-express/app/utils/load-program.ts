@@ -45,8 +45,9 @@ export async function loadPrograms(): Promise<IProgram[]> {
 
   const rawPrograms = extractDataFromJson();
   const programs = rawPrograms.map((p : any) => ({
+
     degree: p.degree,
-    option: p.option || undefined,
+    option: p.name || undefined,
     type: extractProgramTypes(p.degree)[0] || 'unknown', // Take first type or default
     department: findKeyByValue(p.degree, programKeywords) || 'Unknown',
     description: p.description,
@@ -274,6 +275,7 @@ function extractProgramTypes(degree: string): string[] {
   }
 
   if (lowerDegree.includes('maîtrise')) {
+    console.log("OK!")
     types.push('maitrise');
   }
   
@@ -284,7 +286,7 @@ function extractProgramTypes(degree: string): string[] {
   if (types.length === 0 && lowerDegree.startsWith('option')) {
     return [];
   }
-  
+  console.log(types)
   return types;
 }
 

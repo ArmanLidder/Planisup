@@ -41,19 +41,21 @@ export class ProgramController {
       }
     });
 
-    this.router.get("/:type/:departement", async (req, res) => {
+    this.router.get("/:type/:department", async (req, res) => {
       try {
-        const { type, departement } = req.params;
+        const { type, department } = req.params;
         this.logger.info(
-          `Fetching programs for type=${type}, departement=${departement}`
+          `Fetching programs for type=${type}, departement=${department}`
         );
 
         const programs = await ProgramModel.find({
-          type: type,
-          departement: departement,
+          type: { $in: [type]},
+          department: department,
         }).exec();
 
-        const degrees = [...new Set(programs.map((program) => program.degree))];
+
+        const degrees = [... (programs.map((program) => program.degree ))];
+        console.log(degrees)
 
         return res.status(200).json(degrees);
       } catch (error) {
@@ -62,21 +64,21 @@ export class ProgramController {
       }
     });
 
-    this.router.get("/:type/:departement/:degree", async (req, res) => {
+    this.router.get("/:type/:department/:degree", async (req, res) => {
       try {
-        const { type, departement, degree } = req.params;
+        const { type, department, degree } = req.params;
 
         this.logger.info(
-          `Fetching programs for type=${type}, departement=${departement}, degree=${degree}`
+          `Fetching programs for type=${type}, departement=${department}, degree=${degree}`
         );
 
         const programs = await ProgramModel.find({
           type: type,
-          departement: departement,
+          department: department,
           degree: degree,
         }).exec();
 
-        const options = [...new Set(programs.map((program) => program.option))];
+        const options = [...new Set(programs.map((program) => program.option ))];
 
         return res.status(200).json(options);
       } catch (error) {
@@ -85,21 +87,21 @@ export class ProgramController {
       }
     });
 
-    this.router.get("/:type/:departement/:degree/:option", async (req, res) => {
+    this.router.get("/:type/:department/:degree/:option", async (req, res) => {
       try {
-        const { type, departement, degree, option } = req.params;
+        const { type, department, degree, option } = req.params;
 
         this.logger.info(
-          `Fetching programs for type=${type}, departement=${departement}, degree=${degree}, option=${option}`
+          `Fetching programs for type=${type}, departement=${department}, degree=${degree}, option=${option}`
         );
 
         const program = await ProgramModel.find({
+          type: type,
           degree: degree,
-          option: option
+          department: department,
+          option: option,
         }).exec();
 
-        
-        console.log(JSON.stringify(program, null, 2));
         return res.status(200).json(program);
       } catch (error) {
         this.logger.warn(error);

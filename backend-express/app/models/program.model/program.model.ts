@@ -6,7 +6,7 @@ import { Grade } from "@common/program";
 export interface IProgram extends Document {
     degree: string;
     option?: string;
-    type: string;
+    type: string[];
     department: string;
     description: string;
     modules: IModule[];
@@ -82,7 +82,7 @@ const ModuleSchema: Schema = new mongoose.Schema({
 const ProgramSchema: Schema = new mongoose.Schema({
     degree: { type: String},
     option: { type: String},
-    type: { type: String},
+    type: { type: [String]},
     department: { type: String},
     description: { type: String},
     modules: [ModuleSchema]

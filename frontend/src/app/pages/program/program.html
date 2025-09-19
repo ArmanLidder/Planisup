@@ -2,7 +2,7 @@
   <div
     class="container-box"
     *ngFor="let data of dataList; let i = index"
-    (click)="programChoiceClicked(data)"
+    (click)="programChoiceClicked(data, i)"
   >
     <img [src]="departementImages[data] || './../../../assets/program&option.png'" />
     <h1>{{ data }}</h1>

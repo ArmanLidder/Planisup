@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, User } from '../../../../../common/user';
+import { LoginRequest, User } from '@common/user';
+import { ReducedProgram, Program } from '@common/program';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,14 @@ export class ApiService {
 
   getDegrees(type: string, departement: string): Observable<string[]> {
     return this.http.get<string[]>(`${environment.serverUrl}/program/${type}/${departement}`);
+  }
+
+  getPrograms(type: string, departement: string): Observable<ReducedProgram[]> {
+    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program/${type}/${departement}`);
+  }
+
+  getProgram(id: string): Observable<Program[]> {
+    return this.http.get<Program[]>(`${environment.serverUrl}/program/${id}`);
   }
 
   getOptions(type: string, departement: string, degree: string): Observable<string[]> {

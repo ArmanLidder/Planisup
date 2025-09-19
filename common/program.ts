@@ -46,7 +46,7 @@ export interface ReducedProgram {
     _id?: string;
     degree: string;
     option?: string;
-    type: string;
+    type: string[];
     department: string;
 }
 

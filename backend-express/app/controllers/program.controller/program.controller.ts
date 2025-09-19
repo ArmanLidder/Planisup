@@ -20,7 +20,7 @@ export class ProgramController {
   private configureRouter(): void {
     this.router = Router();
 
-    this.router.get("/:type", async (req: Request, res: Response) => {
+    this.router.get("/query/:type", async (req: Request, res: Response) => {
       try {
         const type = req.params.type;
         this.logger.info(`Fetching ${type}' programs`);
@@ -40,7 +40,7 @@ export class ProgramController {
       }
     });
 
-    this.router.get("/:type/:department", async (req, res) => {
+    this.router.get("/query/:type/:department", async (req, res) => {
       try {
         const { type, department } = req.params;
         this.logger.info(
@@ -60,18 +60,15 @@ export class ProgramController {
       }
     });
     
-    this.router.get("/program/:id", async (req, res) => {
+    this.router.get("/:id", async (req, res) => {
       try {
         const { id } = req.params;
-        this.logger.info(`Fetching program with id=${id}`);
-
         const program = await ProgramModel.findById(id).exec();
 
         if (!program) {
           return res.status(404).json({ error: "Program not found" });
         }
 
-        console.log(JSON.stringify(program));
         return res.status(200).json(program);
       } catch (error) {
         this.logger.warn(error);

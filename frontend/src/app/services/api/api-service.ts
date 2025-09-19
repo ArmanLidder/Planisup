@@ -17,24 +17,14 @@ export class ApiService {
   }
 
   getDepartements(type: string): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.serverUrl}/program/${type}`);
-  }
-
-  getDegrees(type: string, departement: string): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.serverUrl}/program/${type}/${departement}`);
+    return this.http.get<string[]>(`${environment.serverUrl}/program/query/${type}`);
   }
 
   getPrograms(type: string, departement: string): Observable<ReducedProgram[]> {
-    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program/${type}/${departement}`);
+    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program/query/${type}/${departement}`);
   }
 
-  getProgram(id: string): Observable<Program[]> {
-    return this.http.get<Program[]>(`${environment.serverUrl}/program/${id}`);
-  }
-
-  getOptions(type: string, departement: string, degree: string): Observable<string[]> {
-    return this.http.get<string[]>(
-      `${environment.serverUrl}/program/${type}/${departement}/${degree}`
-    );
+  getProgram(id: string): Observable<Program> {
+    return this.http.get<Program>(`${environment.serverUrl}/program/${id}`);
   }
 }

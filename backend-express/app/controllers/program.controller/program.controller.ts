@@ -3,8 +3,10 @@ import { Service } from "typedi";
 import {
   ProgramModel,
   IProgram,
+  convertToReduceProgram
 } from "@app/models/program.model/program.model";
 import { Logger } from "@app/services/logger.service/logger.service";
+import { ReducedProgram } from "@common/program";
 
 
 @Service()
@@ -49,10 +51,7 @@ export class ProgramController {
           type: { $in: [type]},
           department: department,
         }).exec();
-
-
-        const degrees = [... new Set(programs.map((program) => program.degree ))];
-        console.log(degrees)
+        const degrees = [...(programs.map((program: IProgram) => convertToReduceProgram(program) as ReducedProgram))];
 
         return res.status(200).json(degrees);
       } catch (error) {
@@ -60,45 +59,19 @@ export class ProgramController {
         return res.status(500).json({ error: "Internal Server Error" });
       }
     });
-
-    this.router.get("/:type/:department/:degree", async (req, res) => {
+    
+    this.router.get("/program/:id", async (req, res) => {
       try {
-        const { type, department, degree } = req.params;
+        const { id } = req.params;
+        this.logger.info(`Fetching program with id=${id}`);
 
-        this.logger.info(
-          `Fetching programs for type=${type}, departement=${department}, degree=${degree}`
-        );
+        const program = await ProgramModel.findById(id).exec();
 
-        const programs = await ProgramModel.find({
-          type: type,
-          department: department,
-          degree: degree,
-        }).exec();
+        if (!program) {
+          return res.status(404).json({ error: "Program not found" });
+        }
 
-        const options = [...new Set(programs.map((program) => program.option ))];
-
-        return res.status(200).json(options);
-      } catch (error) {
-        this.logger.warn(error);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-    });
-
-    this.router.get("/:type/:department/:degree/:option", async (req, res) => {
-      try {
-        const { type, department, degree, option } = req.params;
-
-        this.logger.info(
-          `Fetching programs for type=${type}, departement=${department}, degree=${degree}, option=${option}`
-        );
-
-        const program = await ProgramModel.find({
-          type: type,
-          degree: degree,
-          department: department,
-          option: option,
-        }).exec();
-
+        console.log(JSON.stringify(program));
         return res.status(200).json(program);
       } catch (error) {
         this.logger.warn(error);

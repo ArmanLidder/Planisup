@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api/api-service';
@@ -30,6 +30,7 @@ export class Program implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private apiService: ApiService,
     private programService: ProgramService,
   ) {}
@@ -62,6 +63,26 @@ export class Program implements OnInit {
     if (this.step === 1) this.getDepartments(this.type!, choice);
     else if (this.step === 2) this.getDegrees(choice);
     else if (this.step === 3) this.getOptions(choice, index);
+  }
+
+  public goBack() {
+    if (this.step - 1 < 0) return;
+    this.step -= 1;
+    if (this.step === 0) {
+      this.router.navigate(['/accueil']);
+    } else if (this.step === 1) {
+      this.departement = null;
+      this.dataList = [];
+      this.degree = null;
+      this.initialization();
+    } else if (this.step === 2) {
+      this.degree = null;
+      this.dataList = [];
+      this.option = null;
+      this.programs = new Map<string, ReducedProgram[]>();
+      this.getDepartments(this.type!, this.departement!);
+      this.step -= 1;
+    }
   }
 
   private getDepartments(type: string, departement:string) {

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
+import { ProgramService } from "@app/services/program/program-service";
+
 
 export interface Course {
   id: string;
@@ -30,7 +32,7 @@ export interface Module {
   styleUrls: ['./study-plan.scss']
 })
 
-export class StudyPlan {
+export class StudyPlan implements OnInit {
   totalCredits: number = 0;
   
   modules: Module[] = [
@@ -107,8 +109,14 @@ export class StudyPlan {
     }
   ];
 
-  constructor() {
+  constructor(private programService: ProgramService) {
     this.calculateCredits();
+  }
+
+  // Can be erased just to console log to see if program has been selected
+  ngOnInit() {
+    console.log("ON INIT")
+    console.log(JSON.stringify(this.programService.program, null, 2))
   }
 
   onCourseSelectionChange(event: {courseId: string, moduleId: string, selected: boolean}) {

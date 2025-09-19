@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api/api-service';
 import { DepartementImages } from '../../shared/records/image';
-import { ReducedProgram } from '@common/program';
+import { ReducedProgram, Program as ProgramModel } from '@common/program';
+import { ProgramService } from '@app/services/program/program-service';
 
 @Component({
   selector: 'app-program',
@@ -17,15 +18,21 @@ export class Program implements OnInit {
   private type: string | null = '';
   private departement: string | null = '';
   private degree: string | null = '';
-  private program: string | null = '';
+  private programId: string | null = '';
+  private program: ProgramModel | null = null;
   private option: string | null = '';
   private step: number = 0;
 
   protected dataList: string[] = [];
-  protected programList: Map<string,ReducedProgram[]> = new Map<string, ReducedProgram[]>();
+  // Map avec key = degree et value les variantes du degree
+  protected programs: Map<string,ReducedProgram[]> = new Map<string, ReducedProgram[]>();
   protected departementImages = DepartementImages;
 
-  constructor(private route: ActivatedRoute, private apiService: ApiService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private apiService: ApiService,
+    private programService: ProgramService,
+  ) {}
 
   ngOnInit(): void {
     this.initialization();
@@ -47,45 +54,22 @@ export class Program implements OnInit {
     }
   }
 
-  // Step 0 => get Type
+  // Step 0 => get Type
   // Step 1 => get Departements
-  // Step 2 => get Degrees and if no option passes directly to step 4
-  // Step 3 => get Options
-  // Step 4 => get Full Program with specific ID
+  // Step 2 => get Degrees and if no option passes directly to study plan
+  // Step 3 => get Options and passes directly to study plan
   programChoiceClicked(choice: string, index: number): void {
     if (this.step === 1) this.getDepartments(this.type!, choice);
     else if (this.step === 2) this.getDegrees(choice);
-    else if (this.step === 3) this.getOptions(choice);
-    else if (this.step === 4) {
-      // this.apiService.getProgram(this.program!).subscribe((response) => {
-        // this.program = response;
-      // });
-    }
+    else if (this.step === 3) this.getOptions(choice, index);
   }
 
   private getDepartments(type: string, departement:string) {
     this.departement = departement;
     this.apiService.getPrograms(type, departement).subscribe((response) => {
-      this.programList = this.populateProgramMap(response);
-      this.dataList = Array.from(this.programList.keys());
+      this.programs = this.populateProgramMap(response);
+      this.dataList = Array.from(this.programs.keys());
     });
-    this.step += 1;
-  }
-
-  private getDegrees(degree: string) {
-    this.degree = degree;
-    const tempList: string[] = this.programList.get(this.degree!)?.map((program) => program.option ? program.option : 'Option de base') || [];
-    if (tempList.length == 1 && tempList.includes('Option de base') || tempList.length === 0) {
-      this.option = "no-option";
-      this.step += 2;
-    } else {
-      this.dataList = tempList;
-      this.step += 1;
-    }
-  }
-
-  private getOptions(option: string) {
-    this.option = option;
     this.step += 1;
   }
 
@@ -96,5 +80,30 @@ export class Program implements OnInit {
       else map.get(program.degree)?.push(program)
     })
     return map;
+  }
+
+  private getDegrees(degree: string) {
+    this.degree = degree;
+    const tempList: string[] = this.programs.get(this.degree!)?.map((program) => program.option ? program.option : 'Option de base') || [];
+    if (tempList.length == 1 && tempList.includes('Option de base') || tempList.length === 0) {
+      this.option = "no-option";
+      const id = this.programs.get(this.degree!)?.[0]._id!;
+      this.openStudyPlan(id);
+      this.step += 2;
+    } else {
+      this.dataList = tempList;
+      this.step += 1;
+    }
+  }
+
+  private getOptions(option: string, index: number) {
+    this.option = option;
+    const id = this.programs.get(this.degree!)?.[index]._id!;
+    this.openStudyPlan(id);
+    this.step += 1;
+  }
+
+  private openStudyPlan(id: string) {
+    this.programService.load(id);
   }
 }

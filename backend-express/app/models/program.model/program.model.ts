@@ -87,3 +87,13 @@ const ProgramSchema: Schema = new mongoose.Schema({
 }, { collection: 'Program' });
 
 export const ProgramModel = mongoose.model<IProgram>("Program", ProgramSchema);
+
+export const convertToReduceProgram = (program: IProgram) => {
+    return {
+      _id: program._id,
+      degree: program.degree,
+      option: program.option,
+      type: program.type,
+      department: program.department,
+    };
+}

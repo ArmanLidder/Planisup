@@ -3,7 +3,12 @@
     <div class="container-content">
       <img src="./../../../assets/image_diplomees.png" />
       <h1>Gestionnaire de plan d’études des cycles supérieurs</h1>
-      <p>Bienvenue Michlove!</p>
+      <p *ngIf="auth.currentUser$ | async as user; else notLoggedIn">
+        Bienvenue {{ user.firstName }} {{ user.lastName }}!
+      </p>
+      <ng-template #notLoggedIn>
+        <p>Bienvenue Invité !</p>
+      </ng-template>
     </div>
   </div>
   <div class="container-etude">

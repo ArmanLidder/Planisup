@@ -44,16 +44,14 @@ export class ProgramService {
         this.departementsSubject.next(departements);
         this.stepSubject.next(1);
       },
-      complete: () => {
-        setTimeout(() => this.loadingSubject.next(false), 2000)
-      },
+      complete: () => setTimeout(() => this.loadingSubject.next(false), 2000),
     });
   }
 
   /** Step 1 → 2: Load programs for a departement and find degrees */
   chooseDepartement(departement: string) {
     this.departement = departement;
-    this.loadingSubject.next(true);
+    // this.loadingSubject.next(true); // I have commented loading because too fast
     this.api.getPrograms(this.type!, departement).subscribe({
       next: (programs) => {
         const map = this.populateProgramMap(programs);
@@ -61,7 +59,7 @@ export class ProgramService {
         this.degreesSubject.next(Array.from(map.keys()));
         this.stepSubject.next(2);
       },
-      complete: () => this.loadingSubject.next(false),
+      // complete: () => this.loadingSubject.next(false),
     });
   }
 
@@ -74,7 +72,6 @@ export class ProgramService {
     if (options.length === 1 && options[0] === 'Option de base') {
       this.loadProgram(programs[0]._id!);
       this.stepSubject.next(4); // skip directly to study plan
-      console.log(this.stepSubject.getValue())
     } else {
       this.optionsSubject.next(options);
       this.stepSubject.next(3);
@@ -118,7 +115,7 @@ export class ProgramService {
         this.program = program;
         this.router.navigate(['/study-plan']);
       },
-      complete: () => this.loadingSubject.next(false),
+      complete: () => setTimeout(() => this.loadingSubject.next(false), 2000),
     });
   }
 }

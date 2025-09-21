@@ -1,11 +1,46 @@
-<div class="program-container">
-  <div
-    class="container-box"
-    *ngFor="let data of dataList; let i = index"
-    (click)="programChoiceClicked(data, i)"
-  >
-    <img [src]="departementImages[data] || './../../../assets/program&option.png'" />
-    <h1>{{ data }}</h1>
+@if (isLoading$ | async) {
+  <div>Loading...</div>
+}
+<!-- Step 1: Departements -->
+@if ((step$ | async) === 1) {
+  <div class="program-container">
+    <div
+      class="container-box"
+      *ngFor="let dept of (departements$ | async); let i = index"
+      (click)="pS.chooseDepartement(dept)"
+    >
+      <img [src]="departementImages[dept]" />
+      <h1>{{ dept }}</h1>
+    </div>
   </div>
-</div>
-<button (click)="goBack()">Revenir</button>
+}
+
+<!-- Step 2: Degrees -->
+@if ((step$ | async) === 2) {
+  <div class="program-container">
+    <div
+      class="container-box"
+      *ngFor="let degree of (degrees$ | async); let i = index"
+      (click)="pS.chooseDegree(degree)"
+    >
+      <img [src]="'./../../../assets/program&option.png'" />
+      <h1>{{ degree }}</h1>
+    </div>
+  </div>
+}
+
+<!-- Step 3: Options -->
+@if ((step$ | async) === 3) {
+  <div class="program-container">
+    <div
+      class="container-box"
+      *ngFor="let opt of (options$ | async); let i = index"
+      (click)="pS.chooseOption(i)"
+    >
+      <img [src]="'./../../../assets/program&option.png'" />
+      <h1>{{ opt }}</h1>
+    </div>
+  </div>
+}
+
+<button (click)="pS.goBack()">Revenir</button>

@@ -30,7 +30,7 @@ export interface Course {
     sigle: string;
     name: string;
     credits: number;
-    trimester: Trimester[];
+    trimester: Trimester[] | Trimester;
     alreadyDone?: boolean;
     grade?: Grade;
 }
@@ -62,4 +62,10 @@ export enum Grade {
     F = "F",
     P = "P",
     R = "R",
+}
+
+export enum ProgramType {
+    DESS = 'dess',
+    MASTER = 'maitrise',
+    PHD = 'doctorat',
 }

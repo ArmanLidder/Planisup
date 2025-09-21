@@ -8,12 +8,10 @@ import { StudyPlan } from './pages/study-plan/study-plan';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
-  { path: 'study-plan', component: StudyPlan },
   { path: 'accueil', component: Home, canActivate: [AuthGuard] },
-  { path: ':type', component: Program }, // ex: /maitrise ---> tous les maitirse de genie appraissent
-  // { path: ':type/:departement', component: Program }, // ex: /maitrise/genie-info ---> tout les maitrise dans genie info apparissent
-  // { path: ':type/:departement/:degree', component: Program }, // ex: /maitrise/genie-info/professionnelle ---> tous les options maitrise dans genie info professionnell aparissent
-  // { path: ':type/:departement/:degree/:option', component: Program }, // ex: /maitrise/genie-info/professionnelle/xxx ---> study plan de ali saffiche
+  { path: 'study-plan', component: StudyPlan },
+  { path: 'verify-plans', component: VerifyPlans, canActivate: [AuthGuard] },
+  { path: ':type', component: Program },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

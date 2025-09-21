@@ -1,10 +1,14 @@
 <div class="header">
   <div class="left-container">
-    <img src="assets/logo.png" class="logo" *ngIf="this.router.url === '/accueil'" />
+    <img
+      src="assets/logo.png"
+      class="logo"
+      *ngIf="this.router.url === '/accueil' || this.router.url === '/login'"
+    />
     <img
       src="assets/back_arrow.png"
       class="arrow"
-      *ngIf="this.router.url !== '/accueil'"
+      *ngIf="this.router.url !== '/accueil' && this.router.url !== '/login'"
       (click)="goBack()"
     />
     <p class="title">PlaniSup</p>

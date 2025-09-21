@@ -55,17 +55,17 @@ const CourseSchema: Schema = new mongoose.Schema({
 const StudyPlanSchema: Schema = new mongoose.Schema(
   {
     status: { type: String, enum: Object.values(StudyPlanStatus), required: true },
-    studentId: { type: String, required: true },
-    directorId: { type: String },
-    coordonatorId: { type: String },
-    programId: { type: String, required: true },
+    studentId: { type: String, required: true, ref: "User" },
+    directorId: { type: String, ref: "User" },
+    coordonatorId: { type: String, ref: "User" },
+    programId: { type: String, required: true, ref: "Program"},
     programType: { type: String, enum: Object.values(ProgramType), required: true },
     studyPlanStep: { type: String, enum: Object.values(StudyPlanStep), required: true },
     stepValidation: { type: String, enum: Object.values(StepValidationStatus), required: true },
     coursesSelection: {
       modules: [CourseSchema],
     },
-    chatId: { type: String },
+    chatId: { type: String, ref: "Chat" },
     createdDate: { type: Date, default: Date.now },
     modifiedDate: { type: Date, default: Date.now },
   },

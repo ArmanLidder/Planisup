@@ -36,6 +36,7 @@ export class ProgramService {
 
   /** Step 0 → 1: Load departements for a certain type */
   loadDepartements(type: string): void {
+    if (this.departementsSubject.getValue().length > 0) return;
     this.departementsSubject.next([]);
     this.type = type;
     this.loadingSubject.next(true);
@@ -71,6 +72,7 @@ export class ProgramService {
 
     if (options.length === 1 && options[0] === 'Option de base') {
       this.loadProgram(programs[0]._id!);
+      this.optionsSubject.next([]);
       this.stepSubject.next(4); // skip directly to study plan
     } else {
       this.optionsSubject.next(options);
@@ -94,8 +96,8 @@ export class ProgramService {
       this.router.navigate(['/accueil']);
       return;
     }
-    this.stepSubject.next(step - 1);
-    console.log(this.stepSubject.getValue());
+    if (step >= 4) this.returnFromStudyPlan(step);
+    else this.stepSubject.next(step - 1);
   }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
@@ -117,5 +119,12 @@ export class ProgramService {
       },
       complete: () => setTimeout(() => this.loadingSubject.next(false), 2000),
     });
+  }
+
+  private returnFromStudyPlan(step: number): void {
+    this.router.navigate([`/${this.type}`]);
+    const noOption = this.optionsSubject.getValue().length === 0
+    const decrement = noOption ? 2 : 1
+    this.stepSubject.next(step - decrement);
   }
 }

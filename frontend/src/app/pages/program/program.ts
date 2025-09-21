@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DepartementImages } from '@app/shared/records/image';
 import { ProgramService } from '@app/services/program/program-service';
+import { Loading } from "@app/components/loading/loading";
 
 @Component({
   selector: 'app-program',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Loading],
   templateUrl: './program.html',
   styleUrl: './program.scss',
 })

@@ -1,5 +1,5 @@
 @if (isLoading$ | async) {
-  <div>Loading...</div>
+  <app-loading></app-loading>
 }
 <!-- Step 1: Departements -->
 @if ((step$ | async) === 1) {

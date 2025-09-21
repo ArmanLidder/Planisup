@@ -41,7 +41,7 @@ const TrimesterSchema: Schema = new mongoose.Schema({
     year: { type: Number },
     term: { type: String },
     dayNight: { type: String }
-});
+}, { _id: false});
 
 const CourseSchema: Schema = new mongoose.Schema({
     sigle: { type: String },
@@ -50,7 +50,7 @@ const CourseSchema: Schema = new mongoose.Schema({
     trimester: TrimesterSchema, // Student will only choose one date
     alreadyDone: { type: Boolean, default: false },
     grade: { type: String, enum: Object.values(Grade) }
-});
+}, { _id: false});
 
 const StudyPlanSchema: Schema = new mongoose.Schema(
   {

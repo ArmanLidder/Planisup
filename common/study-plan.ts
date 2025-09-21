@@ -20,7 +20,7 @@ export enum StepValidationStatus {
 }
 
 export interface StudyPlan {
-    _id: string,
+    _id?: string,
     status: StudyPlanStatus
     studentId: string,
     directorId: string,
@@ -32,7 +32,7 @@ export interface StudyPlan {
     coursesSelection: {
         modules: Course[]
     }
-    chatId: string,
+    chatId?: string,
     createdDate?: Date,
     modifiedDate?: Date,
 }

@@ -5,7 +5,7 @@ import { ApiService } from '@app/services/api/api-service';
 import { Program, ReducedProgram } from '@common/program';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProgramService {
   private stepSubject = new BehaviorSubject<number>(0);
@@ -35,7 +35,7 @@ export class ProgramService {
   constructor(private api: ApiService, private router: Router) {}
 
   /** Step 0 → 1: Load departements for a certain type */
-  loadDepartements(type: string) {
+  loadDepartements(type: string): void {
     this.departementsSubject.next([]);
     this.type = type;
     this.loadingSubject.next(true);
@@ -49,7 +49,7 @@ export class ProgramService {
   }
 
   /** Step 1 → 2: Load programs for a departement and find degrees */
-  chooseDepartement(departement: string) {
+  chooseDepartement(departement: string): void {
     this.departement = departement;
     // this.loadingSubject.next(true); // I have commented loading because too fast
     this.api.getPrograms(this.type!, departement).subscribe({
@@ -64,7 +64,7 @@ export class ProgramService {
   }
 
   /** Step 2 → 3 if there are options else directly to study plan */
-  chooseDegree(degree: string) {
+  chooseDegree(degree: string): void {
     this.degree = degree;
     const programs = this.programsSubject.getValue().get(degree) || [];
     const options = programs.map((p) => p.option || 'Option de base');
@@ -79,7 +79,7 @@ export class ProgramService {
   }
 
   /** Step 3 → study plan */
-  chooseOption(index: number) {
+  chooseOption(index: number): void {
     const program = this.programsSubject.getValue().get(this.degree!)?.[index];
     if (program) {
       this.loadProgram(program._id!);
@@ -88,14 +88,14 @@ export class ProgramService {
   }
 
   /** Go back one step */
-  goBack() {
+  goBack(): void {
     const step = this.stepSubject.getValue();
     if (step <= 1) {
       this.router.navigate(['/accueil']);
       return;
     }
     this.stepSubject.next(step - 1);
-    console.log(this.stepSubject.getValue())
+    console.log(this.stepSubject.getValue());
   }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
@@ -108,7 +108,7 @@ export class ProgramService {
   }
 
   /** Navigate to study plan */
-  private loadProgram(id: string) {
+  private loadProgram(id: string): void {
     this.loadingSubject.next(true);
     this.api.getProgram(id).subscribe({
       next: (program: Program) => {

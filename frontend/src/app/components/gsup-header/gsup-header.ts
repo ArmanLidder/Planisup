@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthentificationService } from '../../services/authentification/authentification-service';
 import { User } from '../../../../../common/user';
+import { ProgramService } from '@app/services/program/program-service';
 
 @Component({
   selector: 'app-gsup-header',
@@ -14,12 +15,20 @@ import { User } from '../../../../../common/user';
 export class GsupHeader implements OnInit {
   currentUser: User | null = null;
 
-  constructor(private authentificationService: AuthentificationService, private router: Router) {}
+  constructor(
+    private authentificationService: AuthentificationService,
+    private programService: ProgramService,
+    public router: Router
+  ) {}
 
   ngOnInit(): void {
     this.authentificationService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
+  }
+
+  goBack(): void {
+    this.programService.goBack();
   }
 
   logout(): void {

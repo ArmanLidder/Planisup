@@ -5,6 +5,7 @@ export enum StudyPlanStep {
     DIRECTOR = 'director',
     ADMIN_AGENT = 'admin_agent',
     COORDONATOR = 'coordonator',
+    REGISTRAR = 'registrar'
 }
 
 export enum StudyPlanStatus {

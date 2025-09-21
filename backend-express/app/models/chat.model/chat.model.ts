@@ -1,8 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { UserRole } from "@common/user";
 
 export interface IMessage {
   senderId: string; // correspond _id from User  
-  content: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  message: string;
   sentDate?: Date;
 }
 
@@ -16,6 +20,9 @@ export interface IChat extends Document {
 const MessageSchema: Schema = new mongoose.Schema(
   {
     senderId: { type: String, required: true, ref: "User" },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    role: { type: String, enum: Object.values(UserRole), required: true },
     content: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
   },

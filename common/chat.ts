@@ -1,3 +1,5 @@
+import { UserRole } from "./user";
+
 export interface Chat {
     _id?: string,
     studyPlanId: string,
@@ -9,6 +11,9 @@ export interface Chat {
 export interface Message {
     _id?: string,
     senderId: string,
+    firstName: string;
+    lastName: string;
+    role: UserRole;
     message: string,
     sentDate?: Date
 }

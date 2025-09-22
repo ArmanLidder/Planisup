@@ -4,11 +4,12 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthentificationService } from '../../services/authentification/authentification-service';
 import { User, UserRole } from '../../../../../common/user';
 import { ProgramService } from '@app/services/program/program-service';
+import { GsupMenu } from '../gsup-menu/gsup-menu';
 
 @Component({
   selector: 'app-gsup-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, GsupMenu],
   templateUrl: './gsup-header.html',
   styleUrl: './gsup-header.scss',
 })
@@ -29,18 +30,5 @@ export class GsupHeader implements OnInit {
 
   goBack(): void {
     this.programService.goBack();
-  }
-
-  logout(): void {
-    this.authentificationService.logout();
-    this.router.navigate(['/login']);
-  }
-
-  isAdmin(): boolean {
-    return this.currentUser?.role === UserRole.Administrateur;
-  }
-
-  navigateToAdmin(): void {
-    this.router.navigate(['/admin']);
   }
 }

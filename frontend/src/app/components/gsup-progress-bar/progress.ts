@@ -6,9 +6,10 @@ import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-progress',
+  standalone: true,
   imports: [NgFor, NgIf],
   templateUrl: './progress.html',
-  styleUrls: ['./progress.scss']
+  styleUrls: ['./progress.scss'],
 })
 export class Progress extends UiHelper implements OnInit {
   @Output() progressStatusChange = new EventEmitter<ProgressStepModel[]>();
@@ -31,7 +32,7 @@ export class Progress extends UiHelper implements OnInit {
       next: ({ prev, next }) => {
         if (next) this.next();
         if (prev) this.prev();
-      }
+      },
     });
   }
 
@@ -42,7 +43,7 @@ export class Progress extends UiHelper implements OnInit {
   public prev() {
     this.decreaseStep();
   }
-  
+
   private decreaseStep() {
     if (
       this.activeIndex === this.itemProgressList.length - 1 &&
@@ -68,9 +69,9 @@ export class Progress extends UiHelper implements OnInit {
   }
 
   generateProgressArray(length: number): ProgressStepModel[] {
-    return [...Array(length).keys()].map(key => ({
+    return [...Array(length).keys()].map((key) => ({
       stepIndex: key,
-      status: key === this.activeIndex ? Status.IN_PROGRESS : Status.PENDING
+      status: key === this.activeIndex ? Status.IN_PROGRESS : Status.PENDING,
     }));
   }
 

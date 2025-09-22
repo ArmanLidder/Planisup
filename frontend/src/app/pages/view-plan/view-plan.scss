@@ -1,6 +1,8 @@
 .view-plan-container {
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   flex-direction: row;
   box-sizing: border-box;
@@ -13,7 +15,18 @@
   align-items: center;
   gap: 4rem;
   flex-direction: row;
-  width: 25vw;
+  width: 5vw;
+  height: 70vh;
+  overflow: hidden; /* tout ce qui dépasse est masqué */
+}
+
+.container-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  flex-direction: row;
+  width: 70vw;
   height: 70vh;
   overflow: hidden; /* tout ce qui dépasse est masqué */
 }
@@ -23,7 +36,19 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 20vw;
-  height: 40vh;
+  width: 10vw;
+  height: 70vh;
   overflow: hidden; /* tout ce qui dépasse est masqué */
+}
+
+app-gsup-side-bar {
+  justify-content: center;
+  align-self: center;
+  text-align: center;
+  width: 100%; /* s'étend sur la largeur du conteneur */
+  max-width: 100%; /* ne dépasse jamais */
+  box-sizing: border-box;
+  height: 100%; /* hauteur fluide */
+  max-height: 100%; /* jamais plus haut que le conteneur */
+  overflow: hidden;
 }

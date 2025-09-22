@@ -1,0 +1,21 @@
+<div class="menu-container">
+  <img class="image" src="./../../../assets/more.png" (click)="openMenu()" />
+  <div class="container-dropdown" *ngIf="isMenuOpen">
+    <div class="dropdown-option" (click)="navigateTo('accueil')">
+      <img src="./../../../assets/home.png" />
+      <p class="text">Accueil</p>
+    </div>
+    <div class="dropdown-option">
+      <img src="./../../../assets/search.png" />
+      <p class="text">Rechercher des cours</p>
+    </div>
+    <div class="dropdown-option" *ngIf="isAdmin()" (click)="navigateTo('admin')">
+      <img src="./../../../assets/administration.png" />
+      <p class="text admin-link">Administration</p>
+    </div>
+    <div class="dropdown-option" (click)="logout()">
+      <img src="./../../../assets/logout.png" />
+      <p class="text">Déconnexion</p>
+    </div>
+  </div>
+</div>

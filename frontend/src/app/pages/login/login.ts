@@ -76,7 +76,12 @@ export class Login {
         next: (response: User) => {
           this.isLoading = false;
           if (response._id) {
-            this.router.navigate(['/accueil']);
+            // Redirect admin to admin page, others to accueil
+            if (response.role === UserRole.Administrateur) {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/accueil']);
+            }
           } else {
             this.errorMessage = 'Erreur de connexion';
           }

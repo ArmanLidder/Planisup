@@ -1,0 +1,124 @@
+<div class="admin-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-content>
+      <div class="header-content">
+        <h1>Gestion des Utilisateurs</h1>
+        <p>Administration des rôles et permissions</p>
+        <button mat-raised-button color="primary" (click)="loadUsers()">
+          <mat-icon>refresh</mat-icon>
+          Actualiser
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Search -->
+  <mat-card class="search-card">
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Rechercher</mat-label>
+        <input matInput
+               placeholder="Nom, prénom, code utilisateur..."
+               [value]="searchTerm"
+               (input)="onSearchChange($event)">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+<!--  &lt;!&ndash; Message &ndash;&gt;-->
+<!--  @if (message) {-->
+<!--    <mat-card class="message-card" [class.success]="message.includes('✓')" [class.error]="message.includes('✗')">-->
+<!--      <mat-card-content>-->
+<!--        <div class="message-content">-->
+<!--          <span>{{ message }}</span>-->
+<!--          <button mat-icon-button (click)="clearMessage()">-->
+<!--            <mat-icon>close</mat-icon>-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </mat-card-content>-->
+<!--    </mat-card>-->
+<!--  }-->
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Chargement des utilisateurs...</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading && filteredUsers.length === 0) {
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">group</mat-icon>
+          <h3>Aucun utilisateur trouvé</h3>
+          <p>{{ searchTerm ? 'Aucun utilisateur ne correspond à votre recherche.' : 'Il n\'y a actuellement aucun utilisateur à gérer.' }}</p>
+          @if (searchTerm) {
+            <button mat-button color="primary" (click)="onSearchChange({target: {value: ''}})">
+              Effacer la recherche
+            </button>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Users List -->
+  @if (!isLoading && filteredUsers.length > 0) {
+    <div class="users-section">
+      <mat-card class="users-header">
+        <mat-card-content>
+          <h2>{{ filteredUsers.length }} utilisateur(s)</h2>
+        </mat-card-content>
+      </mat-card>
+
+      @for (user of filteredUsers; track user._id) {
+        <mat-card class="user-card">
+          <mat-card-content>
+            <div class="user-content">
+              <!-- User Info -->
+              <div class="user-info">
+                <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+                <div class="user-code">{{ user.usercode }}</div>
+              </div>
+
+              <!-- Role Display -->
+              <div class="role-section">
+                <mat-chip [color]="getRoleColor(user.role)" selected>
+                  {{ getRoleDisplayName(user.role) }}
+                </mat-chip>
+              </div>
+
+              <!-- Actions -->
+              <div class="actions-section">
+                <mat-form-field appearance="outline" class="role-select">
+                  <mat-label>Rôle</mat-label>
+                  <mat-select [value]="user.role" (selectionChange)="confirmRoleChange(user, $event.value)">
+                    @for (role of availableRoles; track role) {
+                      <mat-option [value]="role">
+                        {{ getRoleDisplayName(role) }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-button color="warn" (click)="confirmDeleteUser(user)">
+                  <mat-icon>delete</mat-icon>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

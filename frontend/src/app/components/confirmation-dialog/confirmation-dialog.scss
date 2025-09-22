@@ -1,0 +1,66 @@
+.dialog-content {
+  min-width: 400px;
+  max-width: 500px;
+
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .warning-icon {
+      color: #ff9800;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+  }
+
+  .dialog-message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    white-space: pre-line;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+// Mobile responsive
+@media (max-width: 600px) {
+  .dialog-content {
+    min-width: 280px;
+
+    .dialog-header {
+      .warning-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

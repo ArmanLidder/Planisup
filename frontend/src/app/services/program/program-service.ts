@@ -100,6 +100,17 @@ export class ProgramService {
     else this.stepSubject.next(step - 1);
   }
 
+  reset(): void {
+    this.stepSubject.next(0);
+    this.departementsSubject.next([]);
+    this.degreesSubject.next([]);
+    this.programsSubject.next(new Map<string, ReducedProgram[]>());
+    this.optionsSubject.next([]);
+    this.type = null;
+    this.departement = null;
+    this.degree = null;
+  }
+
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
     const map = new Map<string, ReducedProgram[]>();
     programs.forEach((program) => {

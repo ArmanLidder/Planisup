@@ -9,6 +9,8 @@ import { Service } from "typedi";
 import { HttpException } from "@app/classes/http.exception";
 import { AuthController } from "@app/controllers/auth.controller/auth.controller";
 import { ProgramController } from "@app/controllers/program.controller/program.controller";
+import {UserController} from "@app/controllers/user.controller/user.controller";
+
 import {
   ProgramModel,
   IProgram,
@@ -22,7 +24,9 @@ export class Application {
 
   constructor(
     private readonly authController: AuthController,
-    private readonly programController: ProgramController
+    private readonly programController: ProgramController,
+    private readonly userController: UserController
+
   ) {
     this.app = express();
     this.initialiseDatabaseConnection();
@@ -33,9 +37,14 @@ export class Application {
   bindRoutes(): void {
     this.app.use("/api/auth", this.authController.router);
     this.app.use("/api/program", this.programController.router);
+    this.app.use("/api/users", this.userController.router);
+
     /*this.app.use('/', (req, res) => {
             res.redirect('/');
         });*/
+    this.app.get("/", (req, res) => res.status(200).send("API running"));
+    this.app.get("/favicon.ico", (req, res) => res.status(204).end());
+
     this.errorHandling();
   }
 
@@ -80,7 +89,7 @@ export class Application {
     // will print stacktrace
     if (this.app.get("env") === "development") {
       this.app.use(
-        (err: HttpException, req: express.Request, res: express.Response) => {
+        (err: HttpException, req: express.Request, res: express.Response, next: express.NextFunction) => {
           res.status(err.status || this.internalError);
           res.send({
             message: err.message,
@@ -93,7 +102,7 @@ export class Application {
     // production error handler
     // no stacktraces  leaked to user (in production env only)
     this.app.use(
-      (err: HttpException, req: express.Request, res: express.Response) => {
+      (err: HttpException, req: express.Request, res: express.Response, next: express.NextFunction) => {
         res.status(err.status || this.internalError);
         res.send({
           message: err.message,

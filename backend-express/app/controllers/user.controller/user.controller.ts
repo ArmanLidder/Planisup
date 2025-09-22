@@ -1,0 +1,145 @@
+import { Request, Response, Router } from 'express';
+import { Service } from 'typedi';
+import { UserService } from '@app/services/user.service/user.service';
+import { Logger } from '@app/services/logger.service/logger.service';
+import { UserRole } from '@common/user';
+
+@Service()
+export class UserController {
+  public router: Router;
+
+  constructor(
+    private userService: UserService,
+    private logger: Logger
+  ) {
+    this.configureRouter();
+  }
+
+  private configureRouter(): void {
+    this.router = Router();
+
+    // Admin middleware - all routes require admin role
+    //this.router.use(this.requireAdmin.bind(this));
+
+    this.router.get('/', this.getAllUsers.bind(this));
+    this.router.get('/:id', this.getUserById.bind(this));
+    this.router.patch('/:id/role', this.updateUserRole.bind(this));
+    this.router.delete('/:id', this.deleteUser.bind(this));
+  }
+
+  // private requireAdmin(req: Request, res: Response, next: Function): void {
+  //   const userRole = req.headers['user-role'] as UserRole;
+  //
+  //   if (userRole !== UserRole.Administrateur) {
+  //     this.logger.warn(`Access denied - insufficient privileges. Role: ${userRole}`);
+  //     res.status(403).json({
+  //       success: false,
+  //       message: 'Access denied. Admin privileges required.'
+  //     });
+  //     return;
+  //   }
+  //
+  //   next();
+  // }
+
+  private async getUserById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      this.logger.info(`Requested user details for ID: ${id}`);
+
+      const user = await this.userService.getUserById(id);
+
+      if (!user) {
+        this.logger.warn(`User not found with ID: ${id}`);
+        res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+        return;
+      }
+
+      this.logger.info(`Successfully retrieved user: ${user.usercode}`);
+      res.status(200).json({
+        success: true,
+        user
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Get user by ID failed: ${errorMessage}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch user'
+      });
+    }
+  }
+
+
+  private async getAllUsers(req: Request, res: Response): Promise<void> {
+    try {
+      this.logger.info('Admin requested all users list');
+      const users = await this.userService.getAllUsers();
+      res.status(200).json({
+        success: true,
+        users,
+        count: users.length
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Get all users failed: ${errorMessage}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch users'
+      });
+    }
+  }
+
+  private async updateUserRole(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { newRole } = req.body;
+
+      if (!Object.values(UserRole).includes(newRole)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid role specified'
+        });
+        return;
+      }
+
+      const updatedUser = await this.userService.updateUserRole(id, newRole);
+      this.logger.info(`User ${id} role updated to ${newRole}`);
+
+      res.status(200).json({
+        success: true,
+        user: updatedUser,
+        message: `User role updated to ${newRole}`
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Update user role failed: ${errorMessage}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update user role'
+      });
+    }
+  }
+
+  private async deleteUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      await this.userService.deleteUser(id);
+
+      res.status(200).json({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Delete user failed: ${errorMessage}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to delete user'
+      });
+    }
+  }
+}

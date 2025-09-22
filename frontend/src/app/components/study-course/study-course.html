@@ -1,15 +1,16 @@
-<div class="study-course" [class.selected]="course.selected" [class.disabled]="course.disabled">
+<div class="study-course" [class.selected]="isSelected" [class.disabled]="isDisabled">
   <label class="course-checkbox">
     <input type="checkbox" 
-           [checked]="course.selected" 
-           [disabled]="course.disabled"
-           (change)="onSelectionChange($event.target.checked)">
+           [checked]="isSelected"
+           [disabled]="isDisabled"
+           (change)="onSelectionChange($any($event.target).checked)">
     <span class="checkmark"></span>
-    <span class="course-code">{{ course.code }}</span>
+    <span class="course-code">{{ course.sigle }}</span>
     <span class="course-name">{{ course.name }}</span>
     <span class="course-credits">{{ course.credits }} crédits</span>
   </label>
-  <div *ngIf="course.specialNote" class="special-note">
-    {{ course.specialNote }}
+  
+  <div class="special-note" *ngIf="course.sigle === 'INF44504'">
+    Note: Ce cours sera accepté en République avec un niveau de protection spécial.
   </div>
 </div>

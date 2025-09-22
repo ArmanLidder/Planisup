@@ -1,38 +1,42 @@
 <div class="study-module">
   <div class="module-header">
-    <h2>Module {{ module.id }} - {{ module.title }}</h2>
+    <h2>{{ title }}</h2>
     <div class="module-credits">
-      <span class="credits-count">{{ module.selectedCredits }} / {{ module.maxCredits }}</span>
+      <span class="credits-count">{{ selectedCredits }} / {{ credits }}</span>
       <span class="credits-label">Crédits</span>
     </div>
   </div>
   
   <div class="progress-bar">
-    <div class="progress-fill" [ngStyle]="progressStyle"></div>
+    <div class="progress-fill" [ngStyle]="getModuleProgressStyle()"></div>
   </div>
   
-  <div class="courses-list">
-    <app-study-course 
-      *ngFor="let course of module.courses" 
-      [course]="course"
-      (selectionChange)="onCourseSelectionChange($event)">
-    </app-study-course>
+  <div class="module-description" *ngIf="module.description && module.description.length">
+    <p *ngFor="let desc of module.description">{{ desc }}</p>
+  </div>
+  
+  <div class="sections" *ngIf="module.courses && module.courses.length">
+    <app-study-section 
+      *ngFor="let section of module.courses" 
+      [section]="section"
+      (courseSelectionChange)="onCourseSelectionChange($event)">
+    </app-study-section>
   </div>
 
   <div class="sub-modules" *ngIf="module.subModules && module.subModules.length">
     <div class="sub-module" *ngFor="let subModule of module.subModules">
-      <h3>{{ subModule.title }}</h3>
+      <h3>{{ getModuleTitleWithoutCredits(subModule.title) }}</h3>
       
-      <div class="sub-module-header">
-        <span class="sub-module-credits">{{ subModule.selectedCredits }} crédits sélectionnés</span>
+      <div class="sub-module-description" *ngIf="subModule.description && subModule.description.length">
+        <p *ngFor="let desc of subModule.description">{{ desc }}</p>
       </div>
       
-      <div class="courses-list">
-        <app-study-course 
-          *ngFor="let course of subModule.courses" 
-          [course]="course"
-          (selectionChange)="onSubModuleCourseSelectionChange({courseId: $event.courseId, subModuleId: subModule.id, selected: $event.selected})">
-        </app-study-course>
+      <div class="sections" *ngIf="subModule.courses && subModule.courses.length">
+        <app-study-section 
+          *ngFor="let section of subModule.courses" 
+          [section]="section"
+          (courseSelectionChange)="onCourseSelectionChange($event)">
+        </app-study-section>
       </div>
     </div>
   </div>

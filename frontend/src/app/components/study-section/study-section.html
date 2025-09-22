@@ -1,0 +1,13 @@
+<div class="study-section">
+  <div class="section-header" *ngIf="section.description">
+    <h3>{{ section.description }}</h3>
+  </div>
+  
+  <div class="courses-list">
+    <app-study-course 
+      *ngFor="let course of section.courses" 
+      [course]="course"
+      (selectionChange)="onCourseSelectionChange($event)">
+    </app-study-course>
+  </div>
+</div>

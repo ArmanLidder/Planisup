@@ -9,13 +9,14 @@ import { Service } from "typedi";
 import { HttpException } from "@app/classes/http.exception";
 import { AuthController } from "@app/controllers/auth.controller/auth.controller";
 import { ProgramController } from "@app/controllers/program.controller/program.controller";
-import {UserController} from "@app/controllers/user.controller/user.controller";
+import { UserController } from "@app/controllers/user.controller/user.controller";
 
 import {
   ProgramModel,
   IProgram,
 } from "@app/models/program.model/program.model";
 import { loadPrograms } from "@app/utils/load-program";
+import { CourseController } from "./controllers/course.controller/course.controller";
 
 @Service()
 export class Application {
@@ -25,8 +26,8 @@ export class Application {
   constructor(
     private readonly authController: AuthController,
     private readonly programController: ProgramController,
-    private readonly userController: UserController
-
+    private readonly userController: UserController,
+    private readonly courseController: CourseController
   ) {
     this.app = express();
     this.initialiseDatabaseConnection();
@@ -38,6 +39,7 @@ export class Application {
     this.app.use("/api/auth", this.authController.router);
     this.app.use("/api/program", this.programController.router);
     this.app.use("/api/users", this.userController.router);
+    this.app.use("/api/course", this.courseController.router);
 
     /*this.app.use('/', (req, res) => {
             res.redirect('/');
@@ -89,7 +91,12 @@ export class Application {
     // will print stacktrace
     if (this.app.get("env") === "development") {
       this.app.use(
-        (err: HttpException, req: express.Request, res: express.Response, next: express.NextFunction) => {
+        (
+          err: HttpException,
+          req: express.Request,
+          res: express.Response,
+          next: express.NextFunction
+        ) => {
           res.status(err.status || this.internalError);
           res.send({
             message: err.message,
@@ -102,7 +109,12 @@ export class Application {
     // production error handler
     // no stacktraces  leaked to user (in production env only)
     this.app.use(
-      (err: HttpException, req: express.Request, res: express.Response, next: express.NextFunction) => {
+      (
+        err: HttpException,
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
         res.status(err.status || this.internalError);
         res.send({
           message: err.message,

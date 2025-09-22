@@ -11,7 +11,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class GsupInput {
   @Input() valueInput: string = '';
   @Input() placeholder: string = '';
-  @Input() image: string = '';
+  @Input() image?: string = '';
   @Input() size: string = 'medium';
 
   @Output() value = new EventEmitter<string>();
@@ -20,7 +20,7 @@ export class GsupInput {
 
   valueEmitted(event: Event): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    this.valueInput = inputValue;
+    this.valueInput = inputValue.replace(/\s+/g, '');
     this.value.emit(this.valueInput);
   }
 }

@@ -5,13 +5,13 @@
       <img src="./../../../assets/home.png" />
       <p class="text">Accueil</p>
     </div>
-    <div class="dropdown-option">
+    <div class="dropdown-option" (click)="navigateTo('rechercher-cours')">
       <img src="./../../../assets/search.png" />
       <p class="text">Rechercher des cours</p>
     </div>
     <div class="dropdown-option" *ngIf="isAdmin()" (click)="navigateTo('admin')">
       <img src="./../../../assets/administration.png" />
-      <p class="text admin-link">Administration</p>
+      <p class="text">Administration</p>
     </div>
     <div class="dropdown-option" (click)="logout()">
       <img src="./../../../assets/logout.png" />

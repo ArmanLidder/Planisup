@@ -1,6 +1,9 @@
-<input
-  [placeholder]="placeholder"
-  [value]="valueInput"
-  [ngClass]="[size]"
-  (input)="valueEmitted($event)"
-/>
+<div class="search-input">
+  <img [src]="image" />
+  <input
+    [placeholder]="placeholder"
+    [value]="valueInput"
+    [ngClass]="[size]"
+    (input)="valueEmitted($event)"
+  />
+</div>

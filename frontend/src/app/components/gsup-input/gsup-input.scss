@@ -1,24 +1,41 @@
-input {
-  border: black 2px solid;
-  border-radius: 10px;
-  font-weight: bold;
-  height: 70px; /* tu peux aussi mettre min-height */
-  width: 90%; /* <-- bouton prend toute la largeur de son conteneur */
-  max-width: 90%; /* garde une marge si nécessaire */
+.search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 50rem;
 }
 
-/* ================== Tailles ================== */
+.search-input img {
+  position: absolute;
+  left: 0.7rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.search-input input {
+  border: 0.125rem solid black;
+  border-radius: 10px;
+  font-weight: bold;
+  height: 45px;
+  width: 100%;
+  padding-left: 2.5rem;
+  box-sizing: border-box;
+}
+
 .small {
   font-size: 20px;
-  width: 250px;
+  width: 15rem;
 }
 
 .medium {
-  font-size: 22px;
-  width: 375px;
+  font-size: 20px;
+  width: 23rem;
 }
 
 .large {
-  font-size: 26px;
-  width: 500px;
+  font-size: 20px;
+  width: 50rem;
 }

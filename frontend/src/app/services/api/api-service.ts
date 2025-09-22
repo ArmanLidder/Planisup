@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {LoginRequest, User, UserRole} from '@common/user';
@@ -10,7 +9,7 @@ import { ReducedProgram, Program } from '@common/program';
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
   postLogin(login: LoginRequest, headers: HttpHeaders): Observable<User> {
     return this.http.post<User>(`${environment.serverUrl}/auth/login`, login, { headers });
@@ -21,7 +20,9 @@ export class ApiService {
   }
 
   getPrograms(type: string, departement: string): Observable<ReducedProgram[]> {
-    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program/query/${type}/${departement}`);
+    return this.http.get<ReducedProgram[]>(
+      `${environment.serverUrl}/program/query/${type}/${departement}`
+    );
   }
 
   getProgram(id: string): Observable<Program> {

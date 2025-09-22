@@ -1,0 +1,29 @@
+.view-plan-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: row;
+  box-sizing: border-box;
+  gap: 5rem;
+}
+
+.container-left {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  flex-direction: row;
+  width: 25vw;
+  height: 70vh;
+  overflow: hidden; /* tout ce qui dépasse est masqué */
+}
+
+.container-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 20vw;
+  height: 40vh;
+  overflow: hidden; /* tout ce qui dépasse est masqué */
+}

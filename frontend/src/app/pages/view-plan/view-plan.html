@@ -1,9 +1,13 @@
 <div class="view-plan-container">
   <div class="container-left">
-    <!--<div class="container-content"></div>
-    <div class="container-content"></div>-->
+  <app-progress
+  [totalSteps]="5"
+  (progressStatusChange)="onProgressChange($event)">
+</app-progress>
   </div>
   <div class="container-right">
+    <button (click)="prevStep()">◀ Précédent</button>
+    <button (click)="nextStep()">Suivant ▶</button>
     <!--<div class="container-content"></div>-->
   </div>
 </div>

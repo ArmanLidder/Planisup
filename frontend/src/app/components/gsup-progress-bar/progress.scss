@@ -1,0 +1,210 @@
+:host {
+    // margin-top: 15px;
+    // user-select: none;
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    grid-column-gap: 25px;
+    justify-content: start;
+
+    .steps-progress {
+        position: absolute;
+        top: 135px;
+        left: 34px;
+        padding: 5px 5px 10px 0;
+        box-shadow: 0 8px 16px rgba(0,0,0, 6.08);
+        grid-column: 1 / 2;
+        align-self: start;
+        background-color: #fff;
+        border-radius: 10px;
+        height: fit-content;
+        width: 80px;
+    }
+
+    .step-content {
+        margin-top: 0;
+        position: relative;
+        grid-column: 2 / 3;
+    }
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    position: relative;
+}
+
+svg#checkbox {
+    width: 36px;
+    height: 36px;
+    stroke: #23c274;
+    stroke-width: 5;
+
+    .circle {
+        stroke-dasharray: 280;
+        stroke-dashoffset: 280;
+        fill: #d2d2d2;
+        transition: stroke-dashoffset 0.4s, fill 0.4s 0.2s cubic-bezier(0.45, 0, 0.55, 1);
+    }
+
+    .check {
+        stroke-dasharray: 70;
+        stroke-dashoffset: 70;
+        stroke: #fff;
+        fill: none;
+        transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+    }
+}
+
+.check-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    gap: 6px;
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 6px;
+
+        span.progress-info {
+            text-transform: capitalize;
+            font-size: 10px;
+            padding: 2px 6px;
+            font-weight: 500;
+            color: currentColor;
+            background-color: #eee;
+            border-radius: 12px;
+            transition: background-color 0.1s ease-in-out;
+        }
+
+        span.progress-info.in-progress {
+            background-color: #234dc2;
+            color:#fff;
+        }
+
+        span.progress-info.complete {
+            background-color: #23c274;
+            color: #fff;
+        }
+
+        span.step {
+            text-transform: uppercase;
+            font-weight: normal;
+            letter-spacing: 0.4px;
+            font-size: 10px;
+            color: #777;
+            margin-top: 3px;
+        }
+    }
+}
+
+// Ligne de progression VERTICALE compacte
+.progress-line {
+    width: 3px;
+    height: 50px;
+    margin: 6px 0;
+    overflow: hidden;
+    display: block;
+    background-color: #d2d2d2;
+    border-radius: 6px;
+    position: relative;
+
+    .progress-percent {
+        width: inherit;
+        height: 0%;
+        transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+        position: absolute;
+        top: 0;
+    }
+}
+
+.progress-line.active {
+    .progress-percent{
+        background-color: #234dc2;
+    }
+}
+
+.progress-line.complete {
+    .progress-percent{
+        background-color: #23c274;
+        height: 100%;
+    }
+}
+
+.check-box.active {
+    svg#checkbox {
+        .circle {
+            fill: #234dc2;
+        }
+    }
+}
+
+.check-box.complete {
+    svg#checkbox {
+        .circle {
+            stroke-dashoffset: 0;
+            fill: #23c274;
+        }
+
+        .check {
+            stroke-dashoffset: 0;
+        }
+    }
+}
+
+// Version responsive pour petits écrans
+@media (max-width: 768px) {
+    :host {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        grid-row-gap: 20px;
+        
+        .steps-progress {
+            grid-column: 1 / -1;
+            grid-row: 1 / 2;
+            width: 100%;
+        }
+        
+        .step-content {
+            grid-column: 1 / -1;
+            grid-row: 2 / -1;
+        }
+    }
+    
+    .container {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 15px 10px;
+    }
+    
+    .progress-line {
+        width: 100%;
+        height: 3px;
+        margin: 0 5px;
+    }
+    
+    .progress-percent {
+        width: 0%;
+        height: inherit;
+    }
+    
+    .progress-line.complete {
+        .progress-percent{
+            width: 100%;
+            height: inherit;
+        }
+    }
+    
+    .check-box {
+        flex: 1;
+        
+        .info {
+            margin-top: 8px;
+        }
+    }
+}

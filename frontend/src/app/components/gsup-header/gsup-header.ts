@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthentificationService } from '../../services/authentification/authentification-service';
-import { User } from '../../../../../common/user';
+import { User, UserRole } from '../../../../../common/user';
 import { ProgramService } from '@app/services/program/program-service';
 
 @Component({
@@ -34,5 +34,13 @@ export class GsupHeader implements OnInit {
   logout(): void {
     this.authentificationService.logout();
     this.router.navigate(['/login']);
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === UserRole.Administrateur;
+  }
+
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

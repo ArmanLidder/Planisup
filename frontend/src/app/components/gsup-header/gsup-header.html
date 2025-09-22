@@ -15,6 +15,7 @@
   </div>
   <div class="right-container">
     <p class="text" *ngIf="currentUser" routerLink="/accueil">Accueil</p>
+    <p class="text admin-link" *ngIf="currentUser && isAdmin()" (click)="navigateToAdmin()">Administration</p>
     <p class="text" *ngIf="currentUser" (click)="logout()">Déconnexion</p>
   </div>
 </div>

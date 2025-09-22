@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, User } from '@common/user';
+import {LoginRequest, User, UserRole} from '@common/user';
 import { ReducedProgram, Program } from '@common/program';
 
 @Injectable({
@@ -26,5 +26,29 @@ export class ApiService {
 
   getProgram(id: string): Observable<Program> {
     return this.http.get<Program>(`${environment.serverUrl}/program/${id}`);
+  }
+
+  getAllUsers(headers: HttpHeaders): Observable<{success: boolean; users: User[]; count: number}> {
+    return this.http.get<{success: boolean; users: User[]; count: number}>(`${environment.serverUrl}/users`, { headers });
+  }
+
+  getUserById(userId: string, headers: HttpHeaders): Observable<{success: boolean; user: User}> {
+    return this.http.get<{success: boolean; user: User}>(`${environment.serverUrl}/users/${userId}`, { headers });
+  }
+
+  updateUserRole(userId: string, newRole: UserRole, headers: HttpHeaders): Observable<{success: boolean; user: User; message: string}> {
+    return this.http.patch<{success: boolean; user: User; message: string}>(
+      `${environment.serverUrl}/users/${userId}/role`,
+      { newRole },
+      { headers }
+    );
+  }
+
+  //Not a feature, but useful
+  deleteUser(userId: string, headers: HttpHeaders): Observable<{success: boolean; message: string}> {
+    return this.http.delete<{success: boolean; message: string}>(
+      `${environment.serverUrl}/users/${userId}`,
+      { headers }
+    );
   }
 }

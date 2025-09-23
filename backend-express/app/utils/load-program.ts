@@ -71,9 +71,9 @@ export async function loadPrograms(): Promise<IProgram[]> {
       })),
       subModules: (m.sous_modules || []).map((sm: any) => ({
         title: sm.title,
-        description: sm.description || [],
-        courses: (sm.courses || []).map((sc: any) => ({
-          description: sc.description || '',
+        description: sm.texte_sous_module || [],
+        courses: (sm.section || []).map((sc: any) => ({
+          description: sc.title_section || '',
           courses: (sc.courses || []).map((c: any) => {
             const courseData = courseMap.get(c.sigle);
             const triennalData = triennalMap.get(c.sigle);

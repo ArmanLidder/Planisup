@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Progress } from '@app/components/gsup-progress-bar/progress';
 import { ProgressHelperService } from '@app/components/gsup-progress-bar/progress-helper.service';
 import { ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
+import { ChatComponent } from "@app/components/chat/chat.component";
 
 @Component({
   selector: 'app-view-plan',
   standalone: true,
-  imports: [Progress],
+  imports: [Progress, ChatComponent],
   templateUrl: './view-plan.html',
   styleUrl: './view-plan.scss',
 })

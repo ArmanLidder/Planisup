@@ -1,0 +1,44 @@
+<div class="chat-container"
+  [ngClass]="{'closed': state === 0, 'opened': state === 1}">
+  <div class="chat-header" [ngClass]="{'closed': state === 0, 'opened': state === 1}"
+       (click)="toggleChatState()">
+      <span class="!text-secondary"><i class="bi bi-chat-dots-fill"></i> !!!! Rétroaction WTF !!!!</span>
+  </div>
+  <ng-container class="!bg-bgPrimary">
+      <div class="chat-content" *ngIf="state !== 0 && isChatFocused">
+            <div *ngIf="isChatFocused" class="chat-area">
+                <div #chatscrollable class="messages" *ngIf="canal">
+                    <ng-container *ngFor="let msg of canal!.messages">
+                        <div [ngClass]="['message', getMessageClass(msg, null)]">
+                            <ng-container *ngIf="getMessageClass(msg, null) == 'received'">
+                                <div class="bubble">
+                                    <!-- Put Message Sender  Name and Role detail here -->
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="getMessageClass(msg, null) == 'sent'">
+                                <div class="bubble">
+                                    <!-- Put message here and date -->
+                                </div>
+                            </ng-container>
+                        </div>
+                    </ng-container>
+                </div>
+                <small *ngIf="!canal.name" class="error-message"> Une error est survenue ... </small>
+                <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form">
+                    <input id="input_message" type="text" formControlName="message"
+                           placeholder="Saisi votre message ..."
+                           required>
+                    <button type="submit" [disabled]="!messageForm.valid"><i class="bi bi-send-fill"></i>
+                    </button>
+                    <!-- <div *ngIf="messageForm.get('message')?.invalid">
+                        <small *ngIf="messageForm.get('message')?.errors?.max"
+                               class="error-message">{{ messageForm.get('message')?.errors }}</small>
+                    </div>  Gestion Error -->
+                </form>
+                <!-- <small *ngIf="messageForm.get('message')?.errors?.['maxlength']" class="error-message">
+                    {{ 'CHAT_COMPONENT.MESSAGE_MAX_LENGTH' | translate }}
+                </small> Error qui s'affiche -->
+            </div>
+      </div>
+  </ng-container>
+</div>

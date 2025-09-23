@@ -7,6 +7,9 @@
     <app-study-course 
       *ngFor="let course of section.courses" 
       [course]="course"
+      [currentModuleTitle]="currentModuleTitle"
+      [currentSubmoduleTitle]="currentSubmoduleTitle"
+      [currentSectionDescription]="section.description"
       (selectionChange)="onCourseSelectionChange($event)">
     </app-study-course>
   </div>

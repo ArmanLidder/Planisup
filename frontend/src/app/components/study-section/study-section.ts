@@ -11,9 +11,21 @@ import { Section } from '@common/program';
 })
 export class StudySection {
   @Input() section!: Section;
-  @Output() courseSelectionChange = new EventEmitter<{courseSigle: string, selected: boolean}>();
+  @Input() currentModuleTitle!: string;
+  @Input() currentSubmoduleTitle: string | null = null;
+  @Output() courseSelectionChange = new EventEmitter<{
+    courseSigle: string, 
+    selected: boolean, 
+    section: string, 
+    submoduleTitle: string | null
+  }>();
 
   onCourseSelectionChange(event: {courseSigle: string, selected: boolean}) {
-    this.courseSelectionChange.emit(event);
+    this.courseSelectionChange.emit({
+      courseSigle: event.courseSigle,
+      selected: event.selected,
+      section: this.section.description,
+      submoduleTitle: this.currentSubmoduleTitle
+    });
   }
 }

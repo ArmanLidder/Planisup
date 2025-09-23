@@ -5,6 +5,7 @@
   border-radius: 6px;
   border: 1px solid #dee2e6;
   transition: all 0.2s ease;
+  position: relative;
   
   &:hover {
     border-color: #3498db;
@@ -18,7 +19,21 @@
   
   &.disabled {
     opacity: 0.6;
-    pointer-events: none;
+    
+    .course-checkbox {
+      cursor: not-allowed;
+    }
+  }
+  
+  &.already-selected {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    
+    &:not(.selected) {
+      .course-checkbox {
+        opacity: 0.7;
+      }
+    }
   }
   
   .course-checkbox {
@@ -41,6 +56,16 @@
           display: block;
         }
       }
+      
+      &:disabled {
+        cursor: not-allowed;
+        
+        ~ .checkmark {
+          background-color: #e9ecef;
+          border-color: #adb5bd;
+          cursor: not-allowed;
+        }
+      }
     }
     
     .checkmark {
@@ -52,6 +77,7 @@
       border-radius: 4px;
       margin-right: 12px;
       flex-shrink: 0;
+      cursor: pointer;
       
       &:after {
         content: "";
@@ -84,6 +110,22 @@
       font-size: 14px;
       flex-shrink: 0;
     }
+    
+    .already-selected-icon {
+      margin-left: 10px;
+      color: #28a745;
+      font-weight: bold;
+      font-size: 16px;
+    }
+  }
+  
+  .selection-info {
+    font-size: 12px;
+    color: #856404;
+    margin-top: 5px;
+    margin-left: 32px;
+    font-style: italic;
+    font-weight: 500;
   }
   
   .special-note {

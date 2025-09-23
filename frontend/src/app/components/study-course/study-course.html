@@ -1,16 +1,23 @@
-<div class="study-course" [class.selected]="isSelected" [class.disabled]="isDisabled">
+<div class="study-course" 
+     [class.selected]="isSelected" 
+     [class.disabled]="isDisabled">
   <label class="course-checkbox">
     <input type="checkbox" 
            [checked]="isSelected"
            [disabled]="isDisabled"
-           (change)="onSelectionChange($any($event.target).checked)">
+           (change)="onSelectionChange($any($event.target).checked)"
+           [title]="isDisabled && !isSelected ? 'Ce cours est déjà sélectionné dans un autre module' : ''">
     <span class="checkmark"></span>
     <span class="course-code">{{ course.sigle }}</span>
     <span class="course-name">{{ course.name }}</span>
     <span class="course-credits">{{ course.credits }} crédits</span>
+    
+    <span class="already-selected-icon" *ngIf="isSelected">
+      ✓
+    </span>
   </label>
   
-  <div class="special-note" *ngIf="course.sigle === 'INF44504'">
-    Note: Ce cours sera accepté en République avec un niveau de protection spécial.
+  <div class="selection-info" *ngIf="selectionInfo">
+    {{ selectionInfo }}
   </div>
 </div>

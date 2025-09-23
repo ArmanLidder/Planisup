@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from "@app/services/program/program-service";
 import { Program, Module, Course } from '@common/program';
-
+import { CourseStateService } from '@app/services/course-state/course-state';
 
 @Component({
   selector: 'app-study-plan',
@@ -16,10 +16,13 @@ import { Program, Module, Course } from '@common/program';
 export class StudyPlan implements OnInit {
   totalCredits: number = 0;
   selectedCredits: number = 0;
-  program!: Program;
+  program!: Program; 
   modules: Module[] = [];
 
-  constructor(private programService: ProgramService) {}
+  constructor(
+    private programService: ProgramService,
+    private courseStateService: CourseStateService
+  ) {}
 
   ngOnInit() {
     this.program = this.programService.program!;
@@ -27,77 +30,41 @@ export class StudyPlan implements OnInit {
     for (const module of this.program.modules) {
       this.totalCredits += this.extractCreditsFromTitle(module.title)
     }
+
+    this.courseStateService.initializeCourseStates(this.modules);
     this.calculateTotalCredits();
   }
 
-  onCourseSelectionChange(event: {courseSigle: string, moduleTitle: string, selected: boolean}) {
+ 
+  onCourseSelectionChange(event: {
+    courseSigle: string, 
+    moduleTitle: string,
+    submoduleTitle: string | null,
+    selected: boolean, 
+    selectedSection: string
+  }) {
     const module = this.modules.find(m => m.title === event.moduleTitle);
-    if (!module || !module.courses) return;
+    if (!module) return;
 
-    // Find the course in all sections
-    let targetCourse: Course | undefined;
-
-    module.courses.forEach(section => {
-      const course = section.courses.find(c => c.sigle === event.courseSigle);
-      if (course) {
-        targetCourse = course;
-      }
-    });
-
-    if (!targetCourse) return;
-
-    // Handle special rule for INF44504
-    if (targetCourse.sigle === 'INF44504' && event.selected) {
-      // Disable other courses in the same module
-      module.courses.forEach(section => {
-        section.courses.filter(c => c.sigle !== 'INF44504').forEach(c => {
-          (c as any).disabled = true;
-          if ((c as any).selected) {
-            (c as any).selected = false;
-          }
-        });
-      });
-    } else if (targetCourse.sigle === 'INF44504' && !event.selected) {
-      // Re-enable other courses
-      module.courses.forEach(section => {
-        section.courses.filter(c => c.sigle !== 'INF44504').forEach(c => {
-          (c as any).disabled = false;
-        });
-      });
+    const success = this.courseStateService.setCourseSelected(
+      event.courseSigle, 
+      event.moduleTitle, 
+      event.submoduleTitle,
+      event.selectedSection,
+      event.selected
+    );
+    
+    if (!success && event.selected) {
+      alert(`Le cours ${event.courseSigle} est déjà sélectionné.`);
+      return;
     }
 
-    (targetCourse as any).selected = event.selected;
+    console.log(this.courseStateService.courseStates);
     this.calculateTotalCredits();
   }
 
   calculateTotalCredits() {
-    this.selectedCredits = 0;
-
-    this.modules.forEach(module => {
-      if (module.courses) {
-        module.courses.forEach(section => {
-          section.courses.forEach(course => {
-            if ((course as any).selected) {
-              this.selectedCredits += course.credits;
-            }
-          });
-        });
-      }
-
-      if (module.subModules) {
-        module.subModules.forEach(subModule => {
-          if (subModule.courses) {
-            subModule.courses.forEach(section => {
-              section.courses.forEach(course => {
-                if ((course as any).selected) {
-                  this.selectedCredits += course.credits;
-                }
-              });
-            });
-          }
-        });
-      }
-    });
+    this.selectedCredits = this.courseStateService.getSelectedCredits(this.modules);
   }
 
   getProgressStyle(): any {
@@ -117,24 +84,50 @@ export class StudyPlan implements OnInit {
     return title.replace(/\(\d+\s*crédits\)/i, '').trim();
   }
 
+
+  // a verifier 
   validatePlan() {
     const errors: string[] = [];
     
     this.modules.forEach(module => {
       let moduleCredits = 0;
       
-      // Calculate module credits
+      // Calculate module credits (sections principales)
       if (module.courses) {
         module.courses.forEach(section => {
           section.courses.forEach(course => {
-            if ((course as any).selected) {
+            const state = this.courseStateService.getCourseState(course.sigle);
+            if (state.selected && 
+                state.selectedInModule === module.title && 
+                state.selectedInSubmodule === null &&
+                state.selectedInSection === section.description
+              ) {
               moduleCredits += course.credits;
             }
           });
         });
       }
 
-      // Extract required credits from module title
+      // Calculate module credits (sous-modules)
+      if (module.subModules) {
+        module.subModules.forEach(subModule => {
+          if (subModule.courses) {
+            subModule.courses.forEach(section => {
+              section.courses.forEach(course => {
+                const state = this.courseStateService.getCourseState(course.sigle);
+                if (state.selected && 
+                    state.selectedInModule === module.title && 
+                    state.selectedInSubmodule === subModule.title &&
+                    state.selectedInSection === section.description
+                  ) {
+                  moduleCredits += course.credits;
+                }
+              });
+            });
+          }
+        });
+      }
+
       const requiredCredits = this.extractCreditsFromTitle(module.title);
       
       if (requiredCredits > 0 && moduleCredits < requiredCredits) {
@@ -142,7 +135,7 @@ export class StudyPlan implements OnInit {
       }
     });
     
-    if (this.selectedCredits > 15) {
+    if (this.selectedCredits > this.totalCredits) {
       errors.push('Le total des crédits ne peut pas dépasser 15.');
     }
     

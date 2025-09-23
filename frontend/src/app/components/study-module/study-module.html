@@ -19,6 +19,7 @@
     <app-study-section 
       *ngFor="let section of module.courses" 
       [section]="section"
+      [currentModuleTitle]="module.title"
       (courseSelectionChange)="onCourseSelectionChange($event)">
     </app-study-section>
   </div>
@@ -35,6 +36,8 @@
         <app-study-section 
           *ngFor="let section of subModule.courses" 
           [section]="section"
+          [currentModuleTitle]="module.title"
+          [currentSubmoduleTitle]="subModule.title"
           (courseSelectionChange)="onCourseSelectionChange($event)">
         </app-study-section>
       </div>

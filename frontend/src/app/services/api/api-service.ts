@@ -61,6 +61,16 @@ export class ApiService {
     return this.http.get<Course[]>(`${environment.serverUrl}/course/search`, { params: { value } });
   }
 
+  getAllCourses(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.serverUrl}/course/all-courses`);
+  }
+
+  searchCourses(term: string): Observable<any[]> {
+
+    return this.http.get<any[]>(`${environment.serverUrl}/course/search`, { 
+      params: { q: term } 
+    });
+  }
   //Not a feature, but useful
   deleteUser(
     userId: string,

@@ -4,7 +4,7 @@ import axios from "axios";
 import { IProgram } from "@app/models/program.model/program.model";
 import { Grade } from "@common/program";
 
-interface RawCourse {
+export interface RawCourse {
     sigle: string;
     titre: string;
     secteurEnseignement: string;
@@ -23,7 +23,7 @@ interface RawCourse {
     responsable: string;
 }
 
-interface planTriennal {
+export interface planTriennal {
     sigle: string;
     titre: string;
     codeDepartement: string;
@@ -290,7 +290,7 @@ function extractProgramTypes(degree: string): string[] {
   return types;
 }
 
-async function fetchCoursesFromUrl(): Promise<RawCourse[]> {
+export async function fetchCoursesFromUrl(): Promise<RawCourse[]> {
     try {
         const response = await axios.get('https://dossieretudiant.polymtl.ca/WebEtudiant7/jsonwebservice/annuairecours');
         return response.data as RawCourse[];

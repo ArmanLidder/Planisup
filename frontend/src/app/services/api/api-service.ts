@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, User, UserRole } from '@common/user';
-import { ReducedProgram, Program, Course } from '@common/program';
+import { ReducedProgram, Program, Course, ExtendedInfoCourse } from '@common/program';
 
 @Injectable({
   providedIn: 'root',
@@ -57,21 +57,16 @@ export class ApiService {
     );
   }
 
-  getCourses(value: string): Observable<Course[]> {
-    return this.http.get<Course[]>(`${environment.serverUrl}/course/search`, { params: { value } });
+  getAllCourses(): Observable<ExtendedInfoCourse[]> {
+    return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/allCourses`);
   }
 
-  getAllCourses(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.serverUrl}/course/all-courses`);
-  }
-
-  searchCourses(term: string): Observable<any[]> {
-
-    return this.http.get<any[]>(`${environment.serverUrl}/course/search`, { 
-      params: { q: term } 
+  getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
+    return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/course`, {
+      params: { value },
     });
   }
-  //Not a feature, but useful
+
   deleteUser(
     userId: string,
     headers: HttpHeaders

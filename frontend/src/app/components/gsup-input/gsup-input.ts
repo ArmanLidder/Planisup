@@ -20,7 +20,7 @@ export class GsupInput {
 
   valueEmitted(event: Event): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    this.valueInput = inputValue.replace(/\s+/g, '');
+    this.valueInput = inputValue;
     this.value.emit(this.valueInput);
   }
 }

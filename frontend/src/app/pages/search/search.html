@@ -8,18 +8,15 @@
         (value)="sendValue($event)"
       ></app-gsup-input>
     </div>
-    
-    <div *ngIf="loading" class="loading">
-      Chargement des cours...
-    </div>
+
+    <div *ngIf="loading" class="loading">Chargement des cours...</div>
     <div *ngIf="!loading" class="content-search-list-courses">
       <div class="content-course" *ngFor="let course of courses">
-        {{ course.sigle }} - {{ course.title }}
+        {{ course.sigle }} - {{ course.name }} - {{ course.department }} - {{ course.credits }} -
+        {{ course.language }}
       </div>
-      
-      <div *ngIf="courses.length === 0" class="no-courses">
-        Aucun cours trouvé
-      </div>
+
+      <div *ngIf="courses.length === 0" class="no-courses">Aucun cours trouvé</div>
     </div>
   </div>
 </div>

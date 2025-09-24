@@ -61,6 +61,10 @@ export class ApiService {
     return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/allCourses`);
   }
 
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${environment.serverUrl}/course/courses`);
+  }
+
   getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
     return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/course`, {
       params: { value },

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Module } from '@common/program';
+import { Module, Course } from '@common/program';
 import { StudySection } from '../study-section/study-section';
 import { CourseStateService } from '@app/services/course-state/course-state';
 
@@ -13,6 +13,7 @@ import { CourseStateService } from '@app/services/course-state/course-state';
 export class StudyModule implements OnInit {
   @Input() module!: Module;
   @Input() progressStyle!: any;
+  @Input() allCourses: Course[] = []; // Tous les cours pour la recherche
   @Output() courseSelectionChange = new EventEmitter<{
     courseSigle: string, 
     moduleTitle: string, 

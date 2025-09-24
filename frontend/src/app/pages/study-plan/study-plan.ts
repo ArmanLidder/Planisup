@@ -1,10 +1,10 @@
-// study-plan.ts (modifications principales)
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from "@app/services/program/program-service";
 import { Program, Module, Course } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
+import { CourseService } from '@app/services/course/course-service';
 
 @Component({
   selector: 'app-study-plan',
@@ -19,10 +19,12 @@ export class StudyPlan implements OnInit {
   selectedCredits: number = 0;
   program!: Program; 
   modules: Module[] = [];
+  allCourses: Course[] = []; // Tous les cours disponibles pour la recherche
 
   constructor(
     private programService: ProgramService,
-    private courseStateService: CourseStateService
+    private courseStateService: CourseStateService,
+    private courseService: CourseService,
   ) {}
 
   ngOnInit() {
@@ -32,9 +34,52 @@ export class StudyPlan implements OnInit {
       this.totalCredits += this.extractCreditsFromTitle(module.title)
     }
 
-    // Passer les modules au service pour l'initialisation
+    // Initialiser le service avec les modules
     this.courseStateService.initializeCourseStates(this.modules);
+    
+    // Charger tous les cours depuis le backend
+    this.loadAllCourses();
+    
     this.calculateTotalCredits();
+  }
+
+  loadAllCourses() {
+    if (this.courseService.courses.length > 0) {
+      this.allCourses = this.courseService.courses;
+    } else {
+      console.error('Erreur lors du chargement des cours:');
+      this.allCourses = this.extractCoursesFromProgram();
+    }
+  }
+
+  // Méthode fallback pour extraire les cours du programme actuel
+  extractCoursesFromProgram(): Course[] {
+    const courses: Course[] = [];
+    
+    this.modules.forEach(module => {
+      if (module.courses) {
+        module.courses.forEach(section => {
+          courses.push(...section.courses);
+        });
+      }
+      
+      if (module.subModules) {
+        module.subModules.forEach(subModule => {
+          if (subModule.courses) {
+            subModule.courses.forEach(section => {
+              courses.push(...section.courses);
+            });
+          }
+        });
+      }
+    });
+
+    // Supprimer les doublons basés sur le sigle
+    const uniqueCourses = courses.filter((course, index, self) => 
+      index === self.findIndex(c => c.sigle === course.sigle)
+    );
+
+    return uniqueCourses;
   }
 
   onCourseSelectionChange(event: {
@@ -84,7 +129,7 @@ export class StudyPlan implements OnInit {
   validatePlan() {
     const errors: string[] = [];
     
-    // Validation des groupes de règles
+    // Validation des groupes de règles (incluant les nouvelles règles d'approbation directeur)
     const groupValidation = this.courseStateService.validateRuleGroups();
     if (!groupValidation.isValid) {
       errors.push(...groupValidation.errors);

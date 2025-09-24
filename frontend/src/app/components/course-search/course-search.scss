@@ -1,0 +1,349 @@
+.course-search-container {
+  background-color: #f8f9fa;
+  border: 2px dashed #6c757d;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px 0;
+  box-sizing: border-box;
+  
+  .search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    h4 {
+      margin: 0;
+      color: #495057;
+      font-size: 16px;
+    }
+    
+    .credits-info {
+      text-align: center;
+      
+      .credits-count {
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      
+      .credits-label {
+        font-size: 12px;
+        color: #6c757d;
+      }
+    }
+  }
+  
+  .search-input-container {
+    position: relative;
+    margin-bottom: 15px;
+    
+    .search-input {
+      width: 100%;
+      max-width: 100%; // Empêcher le dépassement
+      padding: 10px 40px 10px 15px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box; // Inclure le padding dans la largeur
+      transition: border-color 0.2s;
+      
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      pointer-events: none;
+    }
+  }
+  
+  .filters {
+    margin-bottom: 15px;
+    
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: white;
+      cursor: pointer;
+      box-sizing: border-box;
+      
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+      }
+    }
+  }
+  
+  .courses-results {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: white;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    
+    .results-header {
+      padding: 12px 15px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #e9ecef;
+      }
+      
+      .expand-icon {
+        transition: transform 0.2s;
+        
+        &.rotated {
+          transform: rotate(180deg);
+        }
+      }
+    }
+    
+    .results-list {
+      max-height: 400px;
+      overflow-y: auto;
+      
+      .course-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f3f4;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        box-sizing: border-box;
+        
+        &:hover:not(.disabled) {
+          background-color: #f8f9fa;
+        }
+        
+        &.selected {
+          background-color: #e8f4fd;
+          border-left: 3px solid #3498db;
+        }
+        
+        &.disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .course-checkbox {
+          margin-right: 12px;
+          margin-top: 2px;
+          flex-shrink: 0; // Empêcher la compression de la checkbox
+          
+          input[type="checkbox"] {
+            opacity: 0;
+            position: absolute;
+            
+            &:checked ~ .checkmark {
+              background-color: #3498db;
+              border-color: #3498db;
+              
+              &:after {
+                display: block;
+              }
+            }
+            
+            &:disabled ~ .checkmark {
+              background-color: #e9ecef;
+              border-color: #adb5bd;
+              cursor: not-allowed;
+            }
+          }
+          
+          .checkmark {
+            position: relative;
+            height: 18px;
+            width: 18px;
+            background-color: white;
+            border: 2px solid #adb5bd;
+            border-radius: 3px;
+            cursor: pointer;
+            
+            &:after {
+              content: "";
+              position: absolute;
+              display: none;
+              left: 5px;
+              top: 1px;
+              width: 4px;
+              height: 8px;
+              border: solid white;
+              border-width: 0 2px 2px 0;
+              transform: rotate(45deg);
+            }
+            
+            &.disabled {
+              cursor: not-allowed;
+            }
+          }
+        }
+        
+        .course-info {
+          flex: 1;
+          min-width: 0; // Permettre la compression du texte si nécessaire
+          
+          .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            
+            .course-code {
+              font-weight: bold;
+              color: #2c3e50;
+              font-size: 14px;
+              flex-shrink: 0;
+            }
+            
+            .course-credits {
+              color: #6c757d;
+              font-size: 12px;
+              font-weight: 500;
+              flex-shrink: 0;
+              margin-left: 10px;
+            }
+          }
+          
+          .course-name {
+            color: #495057;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+            word-wrap: break-word; // Permettre la coupure des mots longs
+            overflow-wrap: break-word;
+          }
+          
+          .course-status {
+            color: #e74c3c;
+            font-size: 11px;
+            font-style: italic;
+            word-wrap: break-word;
+          }
+        }
+      }
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      border-top: 1px solid #dee2e6;
+      background-color: #f8f9fa;
+      
+      .page-btn {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        padding: 6px 12px;
+        margin: 0 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+        
+        &:hover:not(:disabled) {
+          background-color: #e9ecef;
+          border-color: #adb5bd;
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+      
+      .page-info {
+        font-size: 13px;
+        color: #6c757d;
+        margin: 0 8px;
+      }
+    }
+  }
+  
+  .selected-courses {
+    h5 {
+      margin: 0 0 10px 0;
+      color: #495057;
+      font-size: 14px;
+    }
+    
+    .selected-list {
+      max-height: 150px;
+      overflow-y: auto;
+      
+      .selected-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background-color: white;
+        border: 1px solid #e8f4fd;
+        border-radius: 4px;
+        margin-bottom: 6px;
+        box-sizing: border-box;
+        
+        .selected-code {
+          font-weight: bold;
+          color: #2c3e50;
+          width: 80px;
+          flex-shrink: 0;
+          font-size: 13px;
+        }
+        
+        .selected-name {
+          flex: 1;
+          margin: 0 10px;
+          font-size: 13px;
+          color: #495057;
+          min-width: 0; // Permettre la compression
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        
+        .selected-credits {
+          color: #6c757d;
+          font-size: 12px;
+          margin-right: 10px;
+          flex-shrink: 0;
+        }
+        
+        .remove-btn {
+          background-color: #e74c3c;
+          color: white;
+          border: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.2s;
+          flex-shrink: 0;
+          
+          &:hover {
+            background-color: #c0392b;
+          }
+        }
+      }
+    }
+  }
+}

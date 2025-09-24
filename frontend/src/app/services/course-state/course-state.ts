@@ -9,7 +9,7 @@ export interface CourseState {
 }
 
 export interface SectionRule {
-  type: 'credits_choice' | 'mandatory' | 'none';
+  type: 'credits_choice' | 'director_approval' | 'none';
   requiredCredits?: number;
   description: string;
   groupSections?: string[]; // Toutes les sections concernées par cette règle
@@ -120,11 +120,14 @@ export class CourseStateService {
       };
     }
 
-    // Autres règles possibles
-    if (description.toLowerCase().includes('obligatoire') || 
-        description.toLowerCase().includes('requis')) {
+    // Regex pour "Et jusqu'à X crédits au choix avec l'approbation du directeur"
+    const directorApprovalRegex = /Et\s+jusqu['']?à\s+(\d+)\s*crédits?\s+au\s+choix\s+avec\s+l['']?approbation\s+du\s+directeur/i;
+    const directorApprovalMatch = description.match(directorApprovalRegex);
+    
+    if (directorApprovalMatch) {
       return {
-        type: 'mandatory',
+        type: 'director_approval',
+        requiredCredits: parseInt(directorApprovalMatch[1], 10),
         description
       };
     }
@@ -171,7 +174,7 @@ export class CourseStateService {
       
       // Vérifier les règles de la section
       const rule = this.getSectionRule(moduleTitle, submoduleTitle, sectionDescription);
-      if (rule && rule.type === 'credits_choice') {
+      if (rule && rule.type !== 'none') {
         const currentCredits = this.getSectionSelectedCredits(moduleTitle, submoduleTitle, sectionDescription);
         const courseCredits = this.getCourseCredits(courseSigle, moduleTitle, submoduleTitle, sectionDescription);
         

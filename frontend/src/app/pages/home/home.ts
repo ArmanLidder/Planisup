@@ -7,6 +7,7 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { VerifyPlans } from '@app/components/verify-plans/verify-plans';
 import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
+import { CourseService } from '@app/services/course/course-service';
 
 @Component({
   selector: 'app-home',
@@ -22,12 +23,14 @@ export class Home implements OnInit {
   constructor(
     private router: Router,
     private pS: ProgramService,
+    private courseService: CourseService,
     public auth: AuthentificationService
   ) {}
 
   ngOnInit(): void {
-      console.log("Ng Onit")
-      this.pS.reset();
+    this.courseService.getCourses();
+    console.log("Ng Onit")
+    this.pS.reset();
   }
 
   navigateTo(degree: string): void {

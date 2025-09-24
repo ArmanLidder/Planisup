@@ -23,6 +23,7 @@
     <app-study-module 
       *ngFor="let module of modules" 
       [module]="module"
+      [allCourses]="allCourses"
       [progressStyle]="getProgressStyle()"
       (courseSelectionChange)="onCourseSelectionChange($event)">
     </app-study-module>

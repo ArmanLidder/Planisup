@@ -1,4 +1,3 @@
-// study-course.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CourseState, CourseStateService } from '@app/services/course-state/course-state';

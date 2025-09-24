@@ -1,18 +1,26 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api/api-service';
-import { ExtendedInfoCourse } from '@common/program';
+import { Course, ExtendedInfoCourse } from '@common/program';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CourseService {
+  public courses: Course[] = [];
+
   constructor(private apiService: ApiService) {}
 
   public getAllCourses(): Observable<ExtendedInfoCourse[]> {
     return this.apiService.getAllCourses();
   }
 
+  public getCourses(): void {
+    this.apiService.getCourses().subscribe((listCourses) => {
+      this.courses = listCourses;
+    });
+  }
+  
   public getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
     return this.apiService.getSpecificCourse(value);
   }

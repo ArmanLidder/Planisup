@@ -1,9 +1,11 @@
 <div class="study-section" 
      [class.rule-section]="isFirstInRuleGroup"
-     [class.rule-group-section]="isInRuleGroup && !isFirstInRuleGroup">
+     [class.rule-group-section]="isInRuleGroup && !isFirstInRuleGroup"
+     [class.director-approval-section]="isDirectorApprovalSection">
   <div class="section-header" *ngIf="section.description">
     <h3 [class.rule-title]="isFirstInRuleGroup" 
-        [class.group-section-title]="isInRuleGroup && !isFirstInRuleGroup">
+        [class.group-section-title]="isInRuleGroup && !isFirstInRuleGroup"
+        [class.director-approval-title]="isDirectorApprovalSection">
       {{ section.description }}
     </h3>
     
@@ -25,7 +27,8 @@
     </div>
   </div>
   
-  <div class="courses-list">
+  <!-- Cours normaux de la section -->
+  <div class="courses-list" *ngIf="section.courses && section.courses.length > 0">
     <app-study-course 
       *ngFor="let course of section.courses" 
       [course]="course"
@@ -34,5 +37,17 @@
       [currentSectionDescription]="section.description"
       (selectionChange)="onCourseSelectionChange($event)">
     </app-study-course>
+  </div>
+  
+  <!-- Composant de recherche pour les sections avec approbation du directeur -->
+  <div class="director-approval-search" *ngIf="isDirectorApprovalSection">
+    <app-course-search
+      [allCourses]="allCourses"
+      [maxCredits]="sectionRule?.requiredCredits || 0"
+      [currentModuleTitle]="currentModuleTitle"
+      [currentSubmoduleTitle]="currentSubmoduleTitle"
+      [currentSectionDescription]="section.description"
+      (courseSelectionChange)="onSearchCourseSelectionChange($event)">
+    </app-course-search>
   </div>
 </div>

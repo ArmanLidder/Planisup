@@ -1,7 +1,9 @@
+// study-section.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { StudyCourse } from '../study-course/study-course';
 import { CommonModule } from '@angular/common';
 import { Section } from '@common/program';
+import { CourseStateService } from '@app/services/course-state/course-state';
 
 @Component({
   selector: 'app-study-section',
@@ -20,6 +22,8 @@ export class StudySection {
     submoduleTitle: string | null
   }>();
 
+  constructor(private courseStateService: CourseStateService) {}
+
   onCourseSelectionChange(event: {courseSigle: string, selected: boolean}) {
     this.courseSelectionChange.emit({
       courseSigle: event.courseSigle,
@@ -27,5 +31,49 @@ export class StudySection {
       section: this.section.description,
       submoduleTitle: this.currentSubmoduleTitle
     });
+  }
+
+  get sectionStatus() {
+    return this.courseStateService.getSectionStatus(
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle,
+      this.section.description
+    );
+  }
+
+  get sectionRule() {
+    return this.courseStateService.getSectionRule(
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle,
+      this.section.description
+    );
+  }
+
+  get isRuleSection(): boolean {
+    return this.sectionRule?.type === 'credits_choice';
+  }
+
+  get isInRuleGroup(): boolean {
+    return this.sectionRule?.groupSections !== undefined;
+  }
+
+  get isFirstInRuleGroup(): boolean {
+    // Vérifier si c'est la section leader du groupe (celle qui a défini la règle originale)
+    return this.sectionRule?.description === this.section.description && 
+           this.sectionRule?.type === 'credits_choice';
+  }
+
+  get progressPercentage(): number {
+    if (!this.isInRuleGroup || !this.sectionStatus.requiredCredits) return 0;
+    return Math.min((this.sectionStatus.selectedCredits / this.sectionStatus.requiredCredits) * 100, 100);
+  }
+
+  get hasRequiredCredits(): boolean {
+    return this.sectionStatus.requiredCredits !== undefined && this.sectionStatus.requiredCredits > 0;
+  }
+
+  get isCreditsComplete(): boolean {
+    return this.hasRequiredCredits && 
+           this.sectionStatus.selectedCredits >= this.sectionStatus.requiredCredits!;
   }
 }

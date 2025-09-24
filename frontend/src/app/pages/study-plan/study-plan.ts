@@ -1,3 +1,4 @@
+// study-plan.ts (modifications principales)
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
@@ -31,11 +32,11 @@ export class StudyPlan implements OnInit {
       this.totalCredits += this.extractCreditsFromTitle(module.title)
     }
 
+    // Passer les modules au service pour l'initialisation
     this.courseStateService.initializeCourseStates(this.modules);
     this.calculateTotalCredits();
   }
 
- 
   onCourseSelectionChange(event: {
     courseSigle: string, 
     moduleTitle: string,
@@ -46,7 +47,7 @@ export class StudyPlan implements OnInit {
     const module = this.modules.find(m => m.title === event.moduleTitle);
     if (!module) return;
 
-    const success = this.courseStateService.setCourseSelected(
+    const result = this.courseStateService.setCourseSelected(
       event.courseSigle, 
       event.moduleTitle, 
       event.submoduleTitle,
@@ -54,12 +55,8 @@ export class StudyPlan implements OnInit {
       event.selected
     );
     
-    if (!success && event.selected) {
-      alert(`Le cours ${event.courseSigle} est déjà sélectionné.`);
-      return;
-    }
+    if (!result) return;
 
-    console.log(this.courseStateService.courseStates);
     this.calculateTotalCredits();
   }
 
@@ -84,11 +81,16 @@ export class StudyPlan implements OnInit {
     return title.replace(/\(\d+\s*crédits\)/i, '').trim();
   }
 
-
-  // a verifier 
   validatePlan() {
     const errors: string[] = [];
     
+    // Validation des groupes de règles
+    const groupValidation = this.courseStateService.validateRuleGroups();
+    if (!groupValidation.isValid) {
+      errors.push(...groupValidation.errors);
+    }
+    
+    // Validation des modules
     this.modules.forEach(module => {
       let moduleCredits = 0;
       
@@ -131,12 +133,12 @@ export class StudyPlan implements OnInit {
       const requiredCredits = this.extractCreditsFromTitle(module.title);
       
       if (requiredCredits > 0 && moduleCredits < requiredCredits) {
-        errors.push(`Le module ${this.getModuleTitleWithoutCredits(module.title)} nécessite au moins ${requiredCredits} crédits.`);
+        errors.push(`Le module ${this.getModuleTitleWithoutCredits(module.title)} nécessite au moins ${requiredCredits} crédits (actuellement: ${moduleCredits}).`);
       }
     });
     
     if (this.selectedCredits > this.totalCredits) {
-      errors.push('Le total des crédits ne peut pas dépasser 15.');
+      errors.push('Le total des crédits ne peut pas dépasser le maximum autorisé.');
     }
     
     if (errors.length > 0) {

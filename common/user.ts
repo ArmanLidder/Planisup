@@ -4,6 +4,7 @@ export enum UserRole {
     Agent = 'AGENT',
     Coordonnateur = 'COORDONNATEUR',
     Administrateur = 'ADMINISTRATEUR',
+    Registrar = 'REGISTRAR',
 }
 
 export interface User {

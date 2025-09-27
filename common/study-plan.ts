@@ -42,3 +42,10 @@ export interface StudyPlan {
     createdDate?: Date,
     modifiedDate?: Date,
 }
+
+export interface StudyPlanEntry {
+    studyPlanId: string,
+    firstName: string,
+    lastName: string,
+    degree: string;
+}

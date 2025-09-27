@@ -201,7 +201,8 @@ export class UserManagement implements OnInit {
       [UserRole.Directeur]: 'Directeur',
       [UserRole.Agent]: 'Agent administratif',
       [UserRole.Coordonnateur]: 'Coordonnateur (CPES)',
-      [UserRole.Administrateur]: 'Administrateur'
+      [UserRole.Administrateur]: 'Administrateur',
+      [UserRole.Registrar]: 'Registraire'
     };
     return roleNames[role];
   }
@@ -213,7 +214,8 @@ export class UserManagement implements OnInit {
       [UserRole.Directeur]: '',
       [UserRole.Agent]: 'accent',
       [UserRole.Coordonnateur]: '',
-      [UserRole.Administrateur]: ''
+      [UserRole.Administrateur]: '',
+      [UserRole.Registrar]: ''
     };
     return roleColors[role];
   }

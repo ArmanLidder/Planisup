@@ -69,11 +69,12 @@ export class Login {
               console.log('Connecté en tant qu\'employé. Un administrateur peut vous assigner un rôle spécifique.');
             }
 
+            console.log('Connecté en tant que', response);
             // Redirect based on role
             if (user.role === UserRole.Administrateur) {
               this.router.navigate(['/admin']);
             } else {
-              if(response.plans.length > 0) {
+              if(response.user.currentPlan) {
                 this.router.navigate(['/view-plan']);
               } else {
                 this.router.navigate(['/accueil']);

@@ -40,6 +40,7 @@ export class Application {
     this.app.use("/api/program", this.programController.router);
     this.app.use("/api/users", this.userController.router);
     this.app.use("/api/course", this.courseController.router);
+    this.app.use('/api/study-plan', this.courseController.router);
 
     /*this.app.use('/', (req, res) => {
             res.redirect('/');

@@ -20,6 +20,11 @@ export enum StepValidationStatus {
     NEEDS_CORRECTION = 'needs-correction',
 }
 
+export interface SelectedModule {
+    title: string,
+    courses: Course[]
+}
+
 export interface StudyPlan {
     _id?: string,
     status: StudyPlanStatus
@@ -31,7 +36,7 @@ export interface StudyPlan {
     studyPlanStep: StudyPlanStep,
     stepValidation: StepValidationStatus,
     coursesSelection: {
-        modules: Course[]
+        modules: SelectedModule[]
     }
     chatId?: string,
     createdDate?: Date,

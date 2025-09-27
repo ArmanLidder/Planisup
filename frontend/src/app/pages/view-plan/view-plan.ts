@@ -2,6 +2,8 @@ import { Component, signal } from '@angular/core';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
 import { ProgressHelperService } from '@app/components/gsup-progress-bar/progress-helper.service';
 import { ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
+import { EditorComponent } from "@app/components/editor-component/editor-component";
+// import { Collapsible } from "@app/components/collapsible/collapsible";
 import { ChatComponent } from '@app/components/chat/chat.component';
 
 @Component({

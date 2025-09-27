@@ -96,13 +96,13 @@ export class AuthentificationService {
 
   bypassLogin(): void {
     const fakeUser: User = {
-      _id: 'fake-admin-id',
-      firstName: 'Admin',
-      usercode: 'admin-test',
-      role: UserRole.Administrateur,
-      lastName: 'Test',
-      currentPlan: {},
-      plans: [''],
+      _id: 'fake-user-id',
+      firstName: 'Test',
+      usercode: 'test-user',
+      role: UserRole.Etudiant,
+      lastName: 'string',
+      currentPlan: "",
+      plans: [""],
     };
     localStorage.setItem('currentUser', JSON.stringify(fakeUser));
     this.currentUserSubject.next(fakeUser);

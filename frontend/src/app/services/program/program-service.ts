@@ -28,7 +28,7 @@ export class ProgramService {
 
   public program: Program | null = null;
 
-  private type: string | null = null;
+  public type: string | null = null;
   private departement: string | null = null;
   private degree: string | null = null;
 

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Grade, ProgramType, Course } from "@common/program";
-import { StudyPlanStep, StudyPlanStatus, StepValidationStatus } from "@common/study-plan";
+import { Grade, ProgramType } from "@common/program";
+import { StudyPlanStep, StudyPlanStatus, StepValidationStatus, SelectedModule } from "@common/study-plan";
 
 /**
  * Ce commentaire peut être effacer quand tout le monde aura compris
@@ -30,7 +30,7 @@ export interface IStudyPlan extends Document {
     studyPlanStep: StudyPlanStep,
     stepValidation: StepValidationStatus,
     coursesSelection: {
-        modules: Course[]
+        modules: SelectedModule[]
     }
     chatId: string,
     createdDate?: Date,

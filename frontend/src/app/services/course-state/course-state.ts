@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Course, Module, Section, SubModule } from '@common/program';
+import { SelectedModule } from '@common/study-plan';
 
 export interface CourseState {
   selected: boolean;
@@ -264,6 +265,50 @@ export class CourseStateService {
     });
 
     return totalCredits;
+  }
+
+  public getSelectedCoursesByModule(): SelectedModule[] {
+    const moduleMap: { [moduleTitle: string]: Course[] } = {};
+    console.log('Course States:', this.courseStates);
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && state.selectedInModule) {
+        if (!moduleMap[state.selectedInModule]) {
+          moduleMap[state.selectedInModule] = [];
+        }
+        const course = this.findCourseInModules(courseSigle, state.selectedInModule, state.selectedInSubmodule, state.selectedInSection);
+        if (course) {
+          moduleMap[state.selectedInModule].push(course);
+        }
+      }
+    });
+    
+    return Object.entries(moduleMap).map(([title, courses]) => ({
+      title,
+      courses
+    }));
+  }
+
+  private findCourseInModules(courseSigle: string, moduleTitle: string, subModuleTitle: string | null, sectionDescription: string | null): Course | null {
+    const module = this.modules.find(m => m.title === moduleTitle);
+    if (!module) return null;
+
+    if (subModuleTitle) {
+      const subModule = module.subModules?.find(sm => sm.title === subModuleTitle);
+      if (subModule?.courses) {
+        for (const section of subModule.courses) {
+          const course = section.courses.find(c => c.sigle === courseSigle);
+          if (course) return course;
+        }
+      }
+    } else {
+      if (module.courses) {
+        for (const section of module.courses) {
+          const course = section.courses.find(c => c.sigle === courseSigle);
+          if (course) return course;
+        }
+      }
+    }
+    return null;
   }
 
   canCourseBeSelected(

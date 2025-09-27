@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from "@app/services/program/program-service";
-import { Program, Module, Course } from '@common/program';
+import { Program, Module, Course, ProgramType } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
+import { StudyPlan as StudyPlanInterface, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
+import { AuthentificationService } from '@app/services/authentification/authentification-service';
 
 @Component({
   selector: 'app-study-plan',
@@ -20,11 +22,13 @@ export class StudyPlan implements OnInit {
   program!: Program; 
   modules: Module[] = [];
   allCourses: Course[] = []; // Tous les cours disponibles pour la recherche
+  currentPlan: StudyPlanInterface | null = null;
 
   constructor(
     private programService: ProgramService,
     private courseStateService: CourseStateService,
     private courseService: CourseService,
+    private authService: AuthentificationService
   ) {}
 
   ngOnInit() {
@@ -190,7 +194,23 @@ export class StudyPlan implements OnInit {
       alert('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
-    
+
+    this.currentPlan = {
+      status: StudyPlanStatus.LIVE,
+      studentId: this.authService.currentUser?._id || '',
+      directorId: '',
+      coordonatorId: '',
+      programId: this.program._id!,
+      programType: this.programService.type as ProgramType,
+      studyPlanStep: StudyPlanStep.STUDENT,
+      stepValidation: StepValidationStatus.IN_PROGRESS,
+      coursesSelection: {
+        modules: this.courseStateService.getSelectedCoursesByModule()
+      }
+    };
+
+    console.log('Plan d\'études validé:', this.currentPlan);
+
     alert('Plan d\'études validé avec succès!');
   }
 }

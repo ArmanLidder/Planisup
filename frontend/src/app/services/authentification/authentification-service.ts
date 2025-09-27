@@ -99,7 +99,7 @@ export class AuthentificationService {
       _id: 'fake-user-id',
       firstName: 'Test',
       usercode: 'test-user',
-      role: UserRole.Etudiant,
+      role: UserRole.Administrateur,
       lastName: 'string',
       currentPlan: "",
       plans: [""],

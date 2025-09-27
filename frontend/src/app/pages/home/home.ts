@@ -8,11 +8,17 @@ import { VerifyPlans } from '@app/components/verify-plans/verify-plans';
 import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
 import { CourseService } from '@app/services/course/course-service';
+import { MatIconModule } from '@angular/material/icon'; // Add this import
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, GsupButton, VerifyPlans],
+  imports: [
+    CommonModule,
+    GsupButton,
+    VerifyPlans,
+    MatIconModule // Add this to imports
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -36,4 +42,6 @@ export class Home implements OnInit {
   navigateTo(degree: string): void {
     this.router.navigate([`/${degree.toLowerCase()}`]);
   }
+
+  protected readonly UserRole = UserRole;
 }

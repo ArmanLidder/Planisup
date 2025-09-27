@@ -2,7 +2,7 @@
   <div class="container-left">
     <div class="container-content">
       <img src="./../../../assets/image_diplomees.png" />
-      <h1>Gestionnaire de plan d’études des cycles supérieurs</h1>
+      <h1>Gestionnaire de plan d'études des cycles supérieurs</h1>
       <p *ngIf="auth.currentUser$ | async as user; else notLoggedIn">
         Bienvenue {{ user.firstName }} {{ user.lastName }}!
       </p>
@@ -54,4 +54,24 @@
   </div>
 </div>
 
-<app-verify-plans *ngIf="this.auth.currentUser?.role !== role[0]"></app-verify-plans>
+<!-- Employee Role Message -->
+<div *ngIf="this.auth.currentUser?.role === UserRole.Employe" class="employee-message-container">
+  <div class="employee-message-card">
+    <mat-icon class="employee-icon">person</mat-icon>
+    <h2>Attente d'assignation de rôle</h2>
+    <p>
+      Vous êtes actuellement identifié comme <strong>Employé</strong>.
+      Pour accéder aux fonctionnalités du système, vous devez être assigné à un rôle spécifique
+      (Directeur, Agent administratif, ou Coordonnateur).
+    </p>
+    <p>
+      Veuillez contacter un administrateur pour qu'il vous assigne le rôle approprié. Ensuite, reconnectez vous
+    </p>
+    <p>
+      Après l'assignation de votre rôle, vous devrez vous
+      reconnecter pour que les changements prennent effet.
+    </p>
+  </div>
+</div>
+
+<app-verify-plans *ngIf="this.auth.currentUser?.role !== role[0] && this.auth.currentUser?.role !== UserRole.Employe"></app-verify-plans>

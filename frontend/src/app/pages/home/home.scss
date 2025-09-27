@@ -113,3 +113,86 @@
   max-height: 100%; /* jamais plus haut que le conteneur */
   overflow: hidden;
 }
+
+.employee-message-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 2rem;
+}
+
+.employee-message-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  max-width: 600px;
+  text-align: center;
+  border-left: 6px solid #ff9800;
+
+  .employee-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ff9800;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-align: left;
+
+    strong {
+      color: #ff9800;
+    }
+  }
+
+  .contact-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff3e0;
+    border-radius: 8px;
+    color: #e65100;
+
+    mat-icon {
+      color: #e65100;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .employee-message-card {
+    padding: 2rem;
+    margin: 1rem;
+
+    .employee-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    .contact-info {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}

@@ -52,6 +52,11 @@ const CourseSchema: Schema = new mongoose.Schema({
     grade: { type: String, enum: Object.values(Grade) }
 }, { _id: false});
 
+const SelectedModuleSchema: Schema = new mongoose.Schema({
+    title: { type: String, required: true },
+    courses: [CourseSchema]
+}, { _id: false});
+
 const StudyPlanSchema: Schema = new mongoose.Schema(
   {
     status: { type: String, enum: Object.values(StudyPlanStatus), required: true },
@@ -63,7 +68,7 @@ const StudyPlanSchema: Schema = new mongoose.Schema(
     studyPlanStep: { type: String, enum: Object.values(StudyPlanStep), required: true },
     stepValidation: { type: String, enum: Object.values(StepValidationStatus), required: true },
     coursesSelection: {
-      modules: [CourseSchema],
+      modules: [SelectedModuleSchema],
     },
     chatId: { type: String, ref: "Chat" },
     createdDate: { type: Date, default: Date.now },

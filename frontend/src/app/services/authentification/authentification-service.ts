@@ -78,8 +78,8 @@ export class AuthentificationService {
       usercode: 'test-user',
       role: UserRole.Etudiant,
       lastName: 'string',
-      currentPlan: {},
-      plans: [{}],
+      currentPlan: "",
+      plans: [""],
     };
     localStorage.setItem('currentUser', JSON.stringify(fakeUser));
     this.currentUserSubject.next(fakeUser);

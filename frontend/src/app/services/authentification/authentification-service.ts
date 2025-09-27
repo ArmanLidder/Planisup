@@ -5,6 +5,12 @@ import { map, catchError } from 'rxjs/operators';
 import { LoginRequest, User, UserRole } from '../../../../../common/user';
 import { ApiService } from '../api/api-service';
 
+interface LoginResponse {
+  success: boolean;
+  user?: User;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -15,20 +21,22 @@ export class AuthentificationService {
   constructor(private apiService: ApiService) {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
+      try {
+        const user = JSON.parse(storedUser);
+        this.currentUserSubject.next(user);
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('currentUser');
+      }
     }
   }
 
-  login(loginRequest: LoginRequest): Observable<User> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
-
-    return this.apiService.postLogin(loginRequest, headers).pipe(
-      map((response: User) => {
-        if (response._id) {
-          localStorage.setItem('currentUser', JSON.stringify(response));
-          this.currentUserSubject.next(response);
+  login(loginRequest: LoginRequest): Observable<LoginResponse> {
+    return this.apiService.postLogin(loginRequest).pipe(
+      map((response: LoginResponse) => {
+        if (response.success && response.user) {
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
         }
         return response;
       }),
@@ -36,10 +44,14 @@ export class AuthentificationService {
         console.error('Login error:', error);
         let errorMessage = 'Erreur de connexion. Veuillez réessayer.';
 
-        if (error.status === 401) {
+        if (error.status === 400) {
+          errorMessage = 'Données de connexion invalides.';
+        } else if (error.status === 401) {
           errorMessage = 'Identifiants incorrects.';
         } else if (error.status === 403) {
           errorMessage = 'Accès refusé.';
+        } else if (error.status === 500) {
+          errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
         } else if (error.status === 0) {
           errorMessage = 'Impossible de contacter le serveur.';
         }
@@ -47,8 +59,6 @@ export class AuthentificationService {
         return throwError(() => ({
           success: false,
           message: errorMessage,
-          user: {} as User,
-          token: '',
         }));
       })
     );
@@ -69,6 +79,19 @@ export class AuthentificationService {
 
   hasRole(role: UserRole): boolean {
     return this.currentUser?.role === role;
+  }
+
+  isEmployee(): boolean {
+    return this.currentUser?.role === UserRole.Employe;
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === UserRole.Administrateur;
+  }
+
+  canAccessAdmin(): boolean {
+    const role = this.currentUser?.role;
+    return role === UserRole.Administrateur;
   }
 
   bypassLogin(): void {

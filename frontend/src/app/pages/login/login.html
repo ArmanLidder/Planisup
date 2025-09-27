@@ -36,17 +36,6 @@
           <mat-error>{{ getFieldError('lastName') }}</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Rôle</mat-label>
-          <mat-select formControlName="role" placeholder="Sélectionnez votre rôle">
-            <mat-option *ngFor="let role of userRoles" [value]="role">
-              {{ getRoleDisplayName(role) }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matSuffix>assignment_ind</mat-icon>
-          <mat-error>{{ getFieldError('role') }}</mat-error>
-        </mat-form-field>
-
         <!-- Message d'erreur -->
         <div *ngIf="errorMessage" class="error-message">
           <mat-icon>error</mat-icon>
@@ -74,7 +63,7 @@
           class="bypass-button full-width"
           (click)="bypassLogin()"
         >
-          temp: bypass login
+          temp: bypass login as ADMIN
         </button>
       </form>
     </mat-card-content>

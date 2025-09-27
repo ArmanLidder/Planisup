@@ -41,8 +41,8 @@ export class AuthService {
       firstName: firstName || '',
       lastName: lastName || '',
       role,
-      currentPlan: {},
-      plans: null,
+      currentPlan: "",
+      plans: [""],
     };
   }
 

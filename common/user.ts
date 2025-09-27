@@ -1,5 +1,6 @@
 export enum UserRole {
     Etudiant = 'ETUDIANT',
+    Employe = 'EMPLOYE',
     Directeur = 'DIRECTEUR',
     Agent = 'AGENT',
     Coordonnateur = 'COORDONNATEUR',
@@ -19,7 +20,6 @@ export interface LoginRequest {
     usercode: string;
     firstName: string;
     lastName: string;
-    role: UserRole;
 }
 
 export interface LoginResponse {

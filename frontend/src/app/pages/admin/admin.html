@@ -1,124 +1,194 @@
 <div class="admin-container">
   <!-- Header -->
-  <mat-card class="header-card">
-    <mat-card-content>
-      <div class="header-content">
-        <h1>Gestion des Utilisateurs</h1>
-        <p>Administration des rôles et permissions</p>
-        <button mat-raised-button color="primary" (click)="loadUsers()">
-          <mat-icon>refresh</mat-icon>
-          Actualiser
-        </button>
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="page-title">Gestion des Utilisateurs</h1>
+        <p class="page-subtitle">Administration des rôles et permissions</p>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <button mat-raised-button color="primary" (click)="loadUsers()" class="refresh-btn">
+        <mat-icon>refresh</mat-icon>
+        Actualiser
+      </button>
+    </div>
+  </div>
 
-  <!-- Search -->
-  <mat-card class="search-card">
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Rechercher</mat-label>
-        <input matInput
-               placeholder="Nom, prénom, code utilisateur..."
-               [value]="searchTerm"
-               (input)="onSearchChange($event)">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
-
-<!--  &lt;!&ndash; Message &ndash;&gt;-->
-<!--  @if (message) {-->
-<!--    <mat-card class="message-card" [class.success]="message.includes('✓')" [class.error]="message.includes('✗')">-->
-<!--      <mat-card-content>-->
-<!--        <div class="message-content">-->
-<!--          <span>{{ message }}</span>-->
-<!--          <button mat-icon-button (click)="clearMessage()">-->
-<!--            <mat-icon>close</mat-icon>-->
-<!--          </button>-->
-<!--        </div>-->
-<!--      </mat-card-content>-->
-<!--    </mat-card>-->
-<!--  }-->
-
-  <!-- Loading -->
+  <!-- Loading State -->
   @if (isLoading) {
-    <mat-card class="loading-card">
-      <mat-card-content>
-        <div class="loading-content">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p>Chargement des utilisateurs...</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <div class="loading-section">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Chargement des utilisateurs...</p>
+    </div>
   }
 
-  <!-- Empty State -->
-  @if (!isLoading && filteredUsers.length === 0) {
-    <mat-card class="empty-card">
-      <mat-card-content>
-        <div class="empty-content">
-          <mat-icon class="empty-icon">group</mat-icon>
-          <h3>Aucun utilisateur trouvé</h3>
-          <p>{{ searchTerm ? 'Aucun utilisateur ne correspond à votre recherche.' : 'Il n\'y a actuellement aucun utilisateur à gérer.' }}</p>
-          @if (searchTerm) {
-            <button mat-button color="primary" (click)="onSearchChange({target: {value: ''}})">
-              Effacer la recherche
-            </button>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
+  <!-- Main Content -->
+  @if (!isLoading) {
+    <div class="tabs-section">
+      <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange($event.index)">
 
-  <!-- Users List -->
-  @if (!isLoading && filteredUsers.length > 0) {
-    <div class="users-section">
-      <mat-card class="users-header">
-        <mat-card-content>
-          <h2>{{ filteredUsers.length }} utilisateur(s)</h2>
-        </mat-card-content>
-      </mat-card>
+        <!-- Unassigned Employees Tab -->
+        <mat-tab label="Employés à assigner">
+          <ng-template mat-tab-label>
+            <span class="tab-label" matBadge="{{unassignedEmployees.length}}"
+                  matBadgeColor="warn" [matBadgeHidden]="unassignedEmployees.length === 0">
+              <mat-icon>person_add</mat-icon>
+              Employés à assigner
+            </span>
+          </ng-template>
 
-      @for (user of filteredUsers; track user._id) {
-        <mat-card class="user-card">
-          <mat-card-content>
-            <div class="user-content">
-              <!-- User Info -->
-              <div class="user-info">
-                <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
-                <div class="user-code">{{ user.usercode }}</div>
+          <div class="tab-content">
+            @if (unassignedEmployees.length === 0) {
+              <div class="empty-state">
+                <mat-icon class="empty-icon">check_circle</mat-icon>
+                <h3>Aucun employé en attente</h3>
+                <p>Tous les employés ont été assignés à un rôle spécifique.</p>
               </div>
+            } @else {
+              <div class="content-section">
+                <div class="section-header warning">
+                  <h2>{{ unassignedEmployees.length }} employé(s) nécessitent une assignation</h2>
+                  <p>Utilisateurs en attente d'un rôle</p>
+                </div>
 
-              <!-- Role Display -->
-              <div class="role-section">
-                <mat-chip [color]="getRoleColor(user.role)" selected>
-                  {{ getRoleDisplayName(user.role) }}
-                </mat-chip>
+                <div class="cards-grid">
+                  @for (employee of unassignedEmployees; track employee._id) {
+                    <mat-card class="user-card pending">
+                      <mat-card-content>
+                        <div class="card-content">
+                          <div class="user-info">
+                            <div class="avatar-section">
+                              <div class="avatar-icon">
+                                <mat-icon>person</mat-icon>
+                              </div>
+                            </div>
+                            <div class="user-details">
+                              <h3 class="user-name">{{ employee.firstName }} {{ employee.lastName }}</h3>
+                              <p class="user-code">{{ employee.usercode }}</p>
+                              <mat-chip color="warn" selected class="status-chip">
+                                <mat-icon>schedule</mat-icon>
+                                En attente d'assignation
+                              </mat-chip>
+                            </div>
+                          </div>
+
+                          <div class="action-section">
+                            <mat-form-field appearance="outline" class="role-field">
+                              <mat-label>Assigner un rôle</mat-label>
+                              <mat-select (selectionChange)="confirmRoleAssignment(employee, $event.value)">
+                                @for (role of availableRoles; track role) {
+                                  @if (role !== UserRole.Employe) {
+                                    <mat-option [value]="role">
+                                      {{ getRoleDisplayName(role) }}
+                                    </mat-option>
+                                  }
+                                }
+                              </mat-select>
+                            </mat-form-field>
+
+                            <button mat-stroked-button color="warn" (click)="confirmDeleteUser(employee)" class="action-btn">
+                              <mat-icon>delete</mat-icon>
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
               </div>
+            }
+          </div>
+        </mat-tab>
 
-              <!-- Actions -->
-              <div class="actions-section">
-                <mat-form-field appearance="outline" class="role-select">
-                  <mat-label>Rôle</mat-label>
-                  <mat-select [value]="user.role" (selectionChange)="confirmRoleChange(user, $event.value)">
-                    @for (role of availableRoles; track role) {
-                      <mat-option [value]="role">
-                        {{ getRoleDisplayName(role) }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+        <!-- Assigned Users Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <span class="tab-label">
+              <mat-icon>group</mat-icon>
+              Utilisateurs assignés ({{ assignedUsers.length }})
+            </span>
+          </ng-template>
 
-                <button mat-button color="warn" (click)="confirmDeleteUser(user)">
-                  <mat-icon>delete</mat-icon>
-                  Supprimer
-                </button>
-              </div>
+          <div class="tab-content">
+            <!-- Search Section -->
+            <div class="search-section">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Rechercher un utilisateur</mat-label>
+                <input matInput
+                       placeholder="Nom, prénom, code utilisateur..."
+                       [value]="searchTerm"
+                       (input)="onSearchChange($event)">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
             </div>
-          </mat-card-content>
-        </mat-card>
-      }
+
+            <!-- Content -->
+            @if (filteredUsers.length === 0) {
+              <div class="empty-state">
+                <mat-icon class="empty-icon">group</mat-icon>
+                <h3>Aucun utilisateur trouvé</h3>
+                <p>{{ searchTerm ? 'Aucun utilisateur ne correspond à votre recherche.' : 'Il n\'y a actuellement aucun utilisateur assigné.' }}</p>
+                @if (searchTerm) {
+                  <button mat-button color="primary" (click)="onSearchChange({target: {value: ''}})">
+                    Effacer la recherche
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="content-section">
+                <div class="results-info">
+                  <p>{{ filteredUsers.length }} utilisateur(s) trouvé(s)</p>
+                </div>
+
+                <div class="cards-grid">
+                  @for (user of filteredUsers; track user._id) {
+                    <mat-card class="user-card assigned">
+                      <mat-card-content>
+                        <div class="card-content">
+                          <div class="user-info">
+                            <div class="avatar-section">
+                              <div class="avatar-icon" [class]="getRoleColor(user.role)">
+                                <mat-icon>person</mat-icon>
+                              </div>
+                            </div>
+                            <div class="user-details">
+                              <h3 class="user-name">{{ user.firstName }} {{ user.lastName }}</h3>
+                              <p class="user-code">{{ user.usercode }}</p>
+                              <mat-chip [color]="getRoleColor(user.role)" selected class="role-chip">
+                                {{ getRoleDisplayName(user.role) }}
+                              </mat-chip>
+                            </div>
+                          </div>
+
+                          <div class="action-section">
+                            <mat-form-field appearance="outline" class="role-field">
+                              <mat-label>Changer le rôle</mat-label>
+                              <mat-select [value]="user.role" (selectionChange)="confirmRoleChange(user, $event.value)">
+                                @for (role of userRoles; track role) {
+                                  @if (role !== UserRole.Administrateur) {
+                                    <mat-option [value]="role">
+                                      {{ getRoleDisplayName(role) }}
+                                    </mat-option>
+                                  }
+                                }
+                              </mat-select>
+                            </mat-form-field>
+
+                            <button mat-stroked-button color="warn" (click)="confirmDeleteUser(user)" class="action-btn">
+                              <mat-icon>delete</mat-icon>
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </div>
   }
 </div>

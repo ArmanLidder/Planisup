@@ -10,9 +10,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ApiService } from '../../services/api/api-service';
 import { User, UserRole } from '../../../../../common/user';
-import { GsupButton } from '../../components/gsup-button/gsup-button';
 import { ConfirmationDialog } from '../../components/confirmation-dialog/confirmation-dialog';
 
 @Component({
@@ -28,7 +29,9 @@ import { ConfirmationDialog } from '../../components/confirmation-dialog/confirm
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatBadgeModule,
+    MatTabsModule
   ],
   templateUrl: './admin.html',
   styleUrl: './admin.scss'
@@ -36,12 +39,15 @@ import { ConfirmationDialog } from '../../components/confirmation-dialog/confirm
 export class Admin implements OnInit {
   users: User[] = [];
   filteredUsers: User[] = [];
+  unassignedEmployees: User[] = [];
+  assignedUsers: User[] = [];
   userRoles = Object.values(UserRole);
   availableRoles: UserRole[] = [];
   isLoading = false;
   message = '';
   currentAdminId = '';
   searchTerm = '';
+  selectedTabIndex = 0;
 
   constructor(
     private apiService: ApiService,
@@ -60,38 +66,36 @@ export class Admin implements OnInit {
   }
 
   private setAvailableRoles(): void {
-    this.availableRoles = this.userRoles.filter(role => role !== UserRole.Administrateur);
-  }
-
-  private getAuthHeaders(): HttpHeaders {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    return new HttpHeaders({
-      'user-role': currentUser.role || '',
-      'Content-Type': 'application/json'
-    });
+    // All roles that can be assigned (excluding Admin)
+    this.availableRoles = [
+      UserRole.Employe,
+      UserRole.Directeur,
+      UserRole.Agent,
+      UserRole.Coordonnateur
+    ];
   }
 
   loadUsers(): void {
     this.isLoading = true;
-    this.message = '';
-    const headers = this.getAuthHeaders();
 
-    this.apiService.getAllUsers(headers).subscribe({
+    this.apiService.getAllUsers().subscribe({
       next: (response) => {
         if (response.success) {
-          this.users = response.users;
+          this.users = response.users.filter(user => user._id !== this.currentAdminId);
+          this.categorizeUsers();
           this.filterUsers();
-          this.message = `${this.filteredUsers.length} utilisateurs trouvés`;
-        } else {
-          this.message = 'Erreur lors du chargement des utilisateurs';
         }
         this.isLoading = false;
       },
       error: (error) => {
-        this.message = 'Erreur: ' + (error.error?.message || error.message);
         this.isLoading = false;
       }
     });
+  }
+
+  private categorizeUsers(): void {
+    this.unassignedEmployees = this.users.filter(user => user.role === UserRole.Employe);
+    this.assignedUsers = this.users.filter(user => user.role !== UserRole.Employe);
   }
 
   onSearchChange(event: any): void {
@@ -100,18 +104,39 @@ export class Admin implements OnInit {
   }
 
   private filterUsers(): void {
-    let filtered = this.users.filter(user => user._id !== this.currentAdminId);
+    const searchLower = this.searchTerm.toLowerCase();
 
     if (this.searchTerm) {
-      filtered = filtered.filter(user =>
-        user.firstName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.usercode.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        this.getRoleDisplayName(user.role).toLowerCase().includes(this.searchTerm.toLowerCase())
+      this.filteredUsers = this.assignedUsers.filter(user =>
+        user.firstName.toLowerCase().includes(searchLower) ||
+        user.lastName.toLowerCase().includes(searchLower) ||
+        user.usercode.toLowerCase().includes(searchLower) ||
+        this.getRoleDisplayName(user.role).toLowerCase().includes(searchLower)
       );
+    } else {
+      this.filteredUsers = this.assignedUsers;
+    }
+  }
+
+  confirmRoleAssignment(employee: User, newRole: UserRole): void {
+    const roleDisplayName = this.getRoleDisplayName(newRole);
+
+    let message = '';
+    if (newRole === UserRole.Employe) {
+      message = `Maintenir ${employee.firstName} ${employee.lastName} (${employee.usercode}) comme employé non assigné ?\n\nCette personne restera dans la liste des employés en attente d'assignation.`;
+    } else {
+      message = `Assigner le rôle "${roleDisplayName}" à ${employee.firstName} ${employee.lastName} (${employee.usercode}) ?\n\nCette action retirera l'employé de la liste des utilisateurs non assignés.`;
     }
 
-    this.filteredUsers = filtered;
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      data: { message }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateUserRole(employee, newRole);
+      }
+    });
   }
 
   confirmRoleChange(user: User, newRole: UserRole): void {
@@ -132,23 +157,18 @@ export class Admin implements OnInit {
   }
 
   private updateUserRole(user: User, newRole: UserRole): void {
-    const headers = this.getAuthHeaders();
-
-    this.apiService.updateUserRole(user._id, newRole, headers).subscribe({
+    this.apiService.updateUserRole(user._id, newRole).subscribe({
       next: (response) => {
         if (response.success) {
           const userIndex = this.users.findIndex(u => u._id === user._id);
           if (userIndex !== -1) {
             this.users[userIndex] = response.user;
           }
+          this.categorizeUsers();
           this.filterUsers();
-          this.message = `✓ Rôle mis à jour pour ${user.firstName} ${user.lastName}`;
-        } else {
-          this.message = '✗ Erreur lors de la mise à jour du rôle';
         }
       },
       error: (error) => {
-        this.message = '✗ Erreur: ' + (error.error?.message || error.message);
         this.loadUsers();
       }
     });
@@ -157,7 +177,7 @@ export class Admin implements OnInit {
   confirmDeleteUser(user: User): void {
     const dialogRef = this.dialog.open(ConfirmationDialog, {
       data: {
-        message: `⚠️ ATTENTION: Vous êtes sur le point de supprimer définitivement l'utilisateur ${user.firstName} ${user.lastName} (${user.usercode}).\n\nCette action est irréversible. Êtes-vous absolument certain ?`
+        message: `ATTENTION: Vous êtes sur le point de supprimer définitivement l'utilisateur ${user.firstName} ${user.lastName} (${user.usercode}).\n\nCette action est irréversible. Êtes-vous absolument certain ?`
       }
     });
 
@@ -169,20 +189,16 @@ export class Admin implements OnInit {
   }
 
   private deleteUser(user: User): void {
-    const headers = this.getAuthHeaders();
-
-    this.apiService.deleteUser(user._id, headers).subscribe({
+    this.apiService.deleteUser(user._id).subscribe({
       next: (response) => {
         if (response.success) {
           this.users = this.users.filter(u => u._id !== user._id);
+          this.categorizeUsers();
           this.filterUsers();
-          this.message = `✓ Utilisateur ${user.firstName} ${user.lastName} supprimé`;
-        } else {
-          this.message = '✗ Erreur lors de la suppression';
         }
       },
       error: (error) => {
-        this.message = '✗ Erreur: ' + (error.error?.message || error.message);
+        //snackbar?
       }
     });
   }
@@ -190,6 +206,7 @@ export class Admin implements OnInit {
   getRoleDisplayName(role: UserRole): string {
     const roleNames = {
       [UserRole.Etudiant]: 'Étudiant',
+      [UserRole.Employe]: 'Employé (non assigné)',
       [UserRole.Directeur]: 'Directeur',
       [UserRole.Agent]: 'Agent administratif',
       [UserRole.Coordonnateur]: 'Coordonnateur (CPES)',
@@ -201,7 +218,8 @@ export class Admin implements OnInit {
   getRoleColor(role: UserRole): string {
     const roleColors = {
       [UserRole.Etudiant]: 'primary',
-      [UserRole.Directeur]: 'warn',
+      [UserRole.Employe]: 'warn',
+      [UserRole.Directeur]: '',
       [UserRole.Agent]: 'accent',
       [UserRole.Coordonnateur]: '',
       [UserRole.Administrateur]: ''
@@ -209,7 +227,10 @@ export class Admin implements OnInit {
     return roleColors[role];
   }
 
-  clearMessage(): void {
-    this.message = '';
+
+  onTabChange(index: number): void {
+    this.selectedTabIndex = index;
   }
+
+  protected readonly UserRole = UserRole;
 }

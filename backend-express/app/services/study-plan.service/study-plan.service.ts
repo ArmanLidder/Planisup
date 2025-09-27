@@ -1,9 +1,11 @@
 import { Service } from 'typedi';
 import { Logger } from '@app/services/logger.service/logger.service';
 import { UserModel, IUser } from '@app/models/user.model/user.model';
-import { StudyPlanModel } from  '@app/models/study-plan.model/study-plan.model';
-import { StudyPlan, StepValidationStatus, StudyPlanStep, StudyPlanStatus } from '@common/study-plan';
+import { ProgramModel } from '@app/models/program.model/program.model';
+import { StudyPlanModel, IStudyPlan } from  '@app/models/study-plan.model/study-plan.model';
+import { StudyPlan, StepValidationStatus, StudyPlanStep, StudyPlanStatus, StudyPlanEntry } from '@common/study-plan';
 import { ProgramType } from '@common/program';
+import { UserRole } from '@common/user';
 
 @Service()
 export class StudyPlanService {
@@ -22,40 +24,27 @@ export class StudyPlanService {
         }
     }
 
-    private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
-        this.logger.info("Saving new study plan");
+    async getStudyPlan(id: string) {
         try {
-            if (studyPlan.programType === ProgramType.DESS) // Will have to add validation for master professional
-            studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
-            else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
-
-            studyPlan.status = StudyPlanStatus.LIVE;
-            studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
-
-            const savedPlan =  await StudyPlanModel.create(studyPlan);
-            const student: IUser = await UserModel.findById(studyPlan.studentId);
-
-            student.currentPlan = savedPlan._id as string;
-            student.plans.push(savedPlan._id as string)
-            await student.save()
-
-            return studyPlan;
-        } catch (e) {
-            this.logger.error(e);
-            return null;
+            return await StudyPlanModel.findById(id);
+        } catch(e) {
+            this.logger.error(e)
+            return null
         }
     }
 
-    private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
-        this.logger.info("Update study plan");
+    async getStudyPlans(id: string) {
         try {
-            studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
-            const savedPlan =  await StudyPlanModel.findOneAndUpdate(studyPlan);
-            return savedPlan
-        } catch (e) {
-            this.logger.error(e);
-            return null;
-        }
+            const user = await UserModel.findById(id)
+            const userId = user._id;
+            const role: UserRole = user.role;
+            const query: any = this.generateQuery(role, userId);
+            const studyPlans: IStudyPlan[] = await StudyPlanModel.find(query).exec()
+            return this.convertToStudyPlanEntries(studyPlans)
+        } catch(e) {
+            this.logger.error(e)
+            return []
+        }                                       
     }
 
     async cancelStudyPlan(id: string) {
@@ -100,6 +89,77 @@ export class StudyPlanService {
             await studyPlan.save();
         } catch (e) {
             this.logger.error(e);
+        }
+    }
+
+    private async convertToStudyPlanEntries(plans: IStudyPlan[]) {
+        const entries: StudyPlanEntry[] = [];
+        for (const plan of plans) {
+            const student = await UserModel.findById(plan.studentId);
+            const program = await ProgramModel.findById(plan.programId);
+            entries.push({
+                studyPlanId: plan._id as string,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                degree: program.degree
+            })
+        }
+        return entries;
+    }
+
+    private generateQuery(role: UserRole, userId: string) {
+        const query: any = {};
+        if (role === UserRole.Directeur) {
+            query['directorId'] = userId;
+            query['studyPlanStep'] = StudyPlanStep.DIRECTOR;
+            query['stepValidation'] = StepValidationStatus.IN_PROGRESS;
+        } else if (role === UserRole.Coordonnateur) {
+            query['coordonatorId'] = userId;
+            query['studyPlanStep'] = StudyPlanStep.COORDONATOR;
+            query['stepValidation'] = StepValidationStatus.IN_PROGRESS;
+        } else if (role === UserRole.Agent) {
+            query['studyPlanStep'] = StudyPlanStep.ADMIN_AGENT;
+            query['stepValidation'] = StepValidationStatus.IN_PROGRESS;
+        } else if (role === UserRole.Registrar) {
+            query['studyPlanStep'] = StudyPlanStep.REGISTRAR;
+            query['stepValidation'] = StepValidationStatus.IN_PROGRESS;
+        }
+        return query
+    }
+
+    private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
+        this.logger.info("Saving new study plan");
+        try {
+            if (studyPlan.programType === ProgramType.DESS) // Will have to add validation for master professional
+            studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
+            else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
+
+            studyPlan.status = StudyPlanStatus.LIVE;
+            studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
+
+            const savedPlan =  await StudyPlanModel.create(studyPlan);
+            const student: IUser = await UserModel.findById(studyPlan.studentId);
+
+            student.currentPlan = savedPlan._id as string;
+            student.plans.push(savedPlan._id as string)
+            await student.save()
+
+            return studyPlan;
+        } catch (e) {
+            this.logger.error(e);
+            return null;
+        }
+    }
+
+    private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
+        this.logger.info("Update study plan");
+        try {
+            studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
+            const savedPlan =  await StudyPlanModel.findOneAndUpdate(studyPlan);
+            return savedPlan
+        } catch (e) {
+            this.logger.error(e);
+            return null;
         }
     }
 }

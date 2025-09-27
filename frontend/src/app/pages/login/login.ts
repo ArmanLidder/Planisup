@@ -80,7 +80,11 @@ export class Login {
             if (response.role === UserRole.Administrateur) {
               this.router.navigate(['/admin']);
             } else {
-              this.router.navigate(['/accueil']);
+              if(response.plans.length > 0) {
+                this.router.navigate(['/view-plan']);
+              } else {
+                this.router.navigate(['/accueil']);
+              }
             }
           } else {
             this.errorMessage = 'Erreur de connexion';

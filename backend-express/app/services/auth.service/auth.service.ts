@@ -47,12 +47,13 @@ export class AuthService {
   }
 
   private determineUserRole(usercode: string): UserRole {
-    // If usercode starts with 'p', it's an employee
-    if (usercode.toLowerCase().startsWith('p')) {
+    const normalizedCode = usercode.toLowerCase().trim();
+    const employeePattern = /^p\d+$/;
+
+    // If it matches the employee pattern (p followed by digits only)
+    if (employeePattern.test(normalizedCode)) {
       return UserRole.Employe;
     }
-
-    // Default to student for other usercodes
     return UserRole.Etudiant;
   }
 }

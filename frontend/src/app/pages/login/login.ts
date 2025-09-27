@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -20,7 +19,6 @@ import { UserRole, LoginRequest, User } from '../../../../../common/user';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatCardModule,
     MatProgressSpinnerModule,
@@ -33,7 +31,6 @@ export class Login {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
-  userRoles = Object.values(UserRole);
 
   constructor(
     private fb: FormBuilder,
@@ -42,21 +39,9 @@ export class Login {
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
-      firstName: ['', [Validators.required, Validators.minLength(3)]],
-      lastName: ['', [Validators.required, Validators.minLength(3)]],
-      role: ['', Validators.required],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]]
     });
-  }
-
-  getRoleDisplayName(role: UserRole): string {
-    const roleNames: { [key in UserRole]: string } = {
-      [UserRole.Etudiant]: 'Étudiant',
-      [UserRole.Directeur]: 'Directeur',
-      [UserRole.Agent]: 'Agent administratif',
-      [UserRole.Coordonnateur]: 'Coordonnateur (CPES)',
-      [UserRole.Administrateur]: 'Administrateur',
-    };
-    return roleNames[role];
   }
 
   onSubmit(): void {
@@ -66,24 +51,32 @@ export class Login {
 
       const formValue = this.loginForm.value;
       const loginRequest: LoginRequest = {
-        usercode: formValue.usercode,
-        firstName: formValue.firstName,
-        lastName: formValue.lastName, // Map lastName to lowercase lastname
-        role: formValue.role,
+        usercode: formValue.usercode.trim(),
+        firstName: formValue.firstName.trim(),
+        lastName: formValue.lastName.trim(),
       };
 
       this.authentificationService.login(loginRequest).subscribe({
-        next: (response: User) => {
+        next: (response: any) => {
           this.isLoading = false;
-          if (response._id) {
-            // Redirect admin to admin page, others to accueil
-            if (response.role === UserRole.Administrateur) {
+
+          // Handle the new response format with success flag
+          if (response.success && response.user) {
+            const user = response.user;
+
+            // Show role assignment message for new users
+            if (user.role === UserRole.Employe) {
+              console.log('Connecté en tant qu\'employé. Un administrateur peut vous assigner un rôle spécifique.');
+            }
+
+            // Redirect based on role
+            if (user.role === UserRole.Administrateur) {
               this.router.navigate(['/admin']);
             } else {
               this.router.navigate(['/accueil']);
             }
           } else {
-            this.errorMessage = 'Erreur de connexion';
+            this.errorMessage = response.message || 'Erreur de connexion';
           }
         },
         error: (error) => {
@@ -112,7 +105,6 @@ export class Login {
           usercode: 'Code utilisateur',
           firstName: 'Prénom',
           lastName: 'Nom de famille',
-          role: 'Rôle',
         };
         return `${fieldLabels[fieldName] || fieldName} requis`;
       }
@@ -122,6 +114,17 @@ export class Login {
       }
     }
     return '';
+  }
+
+  // Helper text for usercode field
+  getUsercodeHint(): string {
+    const usercodeValue = this.loginForm.get('usercode')?.value || '';
+    if (usercodeValue.toLowerCase().startsWith('p')) {
+      return 'Code employé détecté - rôle employé sera assigné';
+    } else if (usercodeValue.length >= 3) {
+      return 'Code étudiant détecté - rôle étudiant sera assigné';
+    }
+    return 'Entrez votre code utilisateur Polytechnique';
   }
 
   bypassLogin(): void {

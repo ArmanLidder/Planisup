@@ -11,8 +11,19 @@ import { ReducedProgram, Program, Course, ExtendedInfoCourse } from '@common/pro
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  postLogin(login: LoginRequest, headers: HttpHeaders): Observable<User> {
-    return this.http.post<User>(`${environment.serverUrl}/auth/login`, login, { headers });
+  private getAuthHeaders(): HttpHeaders {
+    //Pour securite avec tokens (?) dans le futur....
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  }
+
+  postLogin(loginRequest: LoginRequest): Observable<{success: boolean, user?: User, message?: string}> {
+    return this.http.post<{success: boolean, user?: User, message?: string}>(
+      `${environment.serverUrl}/auth/login`,
+      loginRequest,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   getDepartements(type: string): Observable<string[]> {
@@ -29,31 +40,28 @@ export class ApiService {
     return this.http.get<Program>(`${environment.serverUrl}/program/${id}`);
   }
 
-  getAllUsers(
-    headers: HttpHeaders
-  ): Observable<{ success: boolean; users: User[]; count: number }> {
+  getAllUsers(): Observable<{ success: boolean; users: User[]; count: number }> {
     return this.http.get<{ success: boolean; users: User[]; count: number }>(
       `${environment.serverUrl}/users`,
-      { headers }
+      { headers: this.getAuthHeaders() }
     );
   }
 
-  getUserById(userId: string, headers: HttpHeaders): Observable<{ success: boolean; user: User }> {
+  getUserById(userId: string): Observable<{ success: boolean; user: User }> {
     return this.http.get<{ success: boolean; user: User }>(
       `${environment.serverUrl}/users/${userId}`,
-      { headers }
+      { headers: this.getAuthHeaders() }
     );
   }
 
   updateUserRole(
     userId: string,
-    newRole: UserRole,
-    headers: HttpHeaders
+    newRole: UserRole
   ): Observable<{ success: boolean; user: User; message: string }> {
     return this.http.patch<{ success: boolean; user: User; message: string }>(
       `${environment.serverUrl}/users/${userId}/role`,
       { newRole },
-      { headers }
+      { headers: this.getAuthHeaders() }
     );
   }
 
@@ -72,12 +80,11 @@ export class ApiService {
   }
 
   deleteUser(
-    userId: string,
-    headers: HttpHeaders
+    userId: string
   ): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${environment.serverUrl}/users/${userId}`,
-      { headers }
+      { headers: this.getAuthHeaders() }
     );
   }
 }

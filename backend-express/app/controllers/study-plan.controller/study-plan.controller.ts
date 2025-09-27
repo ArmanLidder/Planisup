@@ -18,6 +18,26 @@ export class StudyPlanController {
   private configureRouter(): void {
     this.router = Router();
 
+    this.router.get("/:id", async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            const studyPlan = await this.sPS.getStudyPlan(id);
+            return studyPlan ? res.status(201).json(studyPlan) : res.status(500);
+        } catch(e) {
+            return res.status(500).json(e)
+        }
+    });
+
+    this.router.get("/assigned/:id", async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            const entries = await this.sPS.getStudyPlans(id);
+            return entries ? res.status(201).json(entries) : res.status(500);
+        } catch(e) {
+            return res.status(500).json(e)
+        }
+    });
+
     this.router.post("/student", async (req: Request, res: Response) => {
         this.logger.info("Handle student study plan submission")
         const data = req.body as Partial<StudyPlan>;

@@ -17,6 +17,7 @@ import {
 } from "@app/models/program.model/program.model";
 import { loadPrograms } from "@app/utils/load-program";
 import { CourseController } from "./controllers/course.controller/course.controller";
+import { StudyPlanController } from "./controllers/study-plan.controller/study-plan.controller";
 
 @Service()
 export class Application {
@@ -27,7 +28,8 @@ export class Application {
     private readonly authController: AuthController,
     private readonly programController: ProgramController,
     private readonly userController: UserController,
-    private readonly courseController: CourseController
+    private readonly courseController: CourseController,
+    private readonly studyPlanController: StudyPlanController
   ) {
     this.app = express();
     this.initialiseDatabaseConnection();
@@ -40,7 +42,7 @@ export class Application {
     this.app.use("/api/program", this.programController.router);
     this.app.use("/api/users", this.userController.router);
     this.app.use("/api/course", this.courseController.router);
-    this.app.use('/api/study-plan', this.courseController.router);
+    this.app.use('/api/study-plan', this.studyPlanController.router);
 
     /*this.app.use('/', (req, res) => {
             res.redirect('/');

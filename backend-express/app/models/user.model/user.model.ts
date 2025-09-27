@@ -1,6 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
 import { UserRole } from '@common/user';
-import { ObjectId } from 'mongodb';
 
 export interface IUser extends Document {
     _id: string;
@@ -8,7 +7,7 @@ export interface IUser extends Document {
     firstName: string;
     lastName: string;
     role: UserRole;
-    currentPlan: Object;
+    currentPlan: string;
     plans: [string];
 }
 
@@ -21,8 +20,8 @@ const UserSchema = new Schema({
         enum: Object.values(UserRole),
         required: true,
     },
-    currentPlan:  { type: Object},
-    plans: { type: [ObjectId] }
+    currentPlan:  { type: String},
+    plans: { type: [String] }
 }, {collection: 'User'});
 
 export const UserModel = model<IUser>('User', UserSchema);

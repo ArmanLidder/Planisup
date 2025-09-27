@@ -12,8 +12,8 @@ export interface User {
     firstName: string;
     lastName: string;
     role: UserRole;
-    currentPlan: Object;
-    plans: [Object];
+    currentPlan: string;
+    plans: [string];
 }
 export interface LoginRequest {
     usercode: string;

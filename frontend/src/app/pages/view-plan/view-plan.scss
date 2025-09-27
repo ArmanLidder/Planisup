@@ -1,8 +1,6 @@
 .view-plan-container {
-  width: 100%;
-  height: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   flex-direction: row;
   box-sizing: border-box;
@@ -13,9 +11,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 4rem;
   flex-direction: row;
-  width: 5vw;
+  width: 10vw;
   height: 70vh;
   overflow: hidden; /* tout ce qui dépasse est masqué */
 }
@@ -24,7 +21,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 4rem;
   flex-direction: row;
   width: 70vw;
   height: 70vh;
@@ -33,22 +29,82 @@
 
 .container-right {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   width: 10vw;
-  height: 70vh;
+  height: 40vh;
   overflow: hidden; /* tout ce qui dépasse est masqué */
+  top: 1%;
+
+  .NgxEditor__Wrapper {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-save {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &:hover {
+      background: linear-gradient(135deg, #3a56d4, #2f0a8c);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
 }
 
-app-gsup-side-bar {
-  justify-content: center;
-  align-self: center;
-  text-align: center;
-  width: 100%; /* s'étend sur la largeur du conteneur */
-  max-width: 100%; /* ne dépasse jamais */
-  box-sizing: border-box;
-  height: 100%; /* hauteur fluide */
-  max-height: 100%; /* jamais plus haut que le conteneur */
-  overflow: hidden;
+.toggle-button {
+  width: 330px;
+  padding: 0.75rem 1.25rem;
+  background: #f5f7fa;
+  border: 2px solid #e0e5eb;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &:hover {
+    background: #e8ecf2;
+    border-color: #c5cdd7;
+  }
+
+  &:focus-visible {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+  }
 }

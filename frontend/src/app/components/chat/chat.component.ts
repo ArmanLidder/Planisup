@@ -1,79 +1,155 @@
 import { Component, ElementRef, inject, ViewChild, HostListener, ViewEncapsulation } from '@angular/core';
-import {Message} from "@common/chat";
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { NgClass } from '@angular/common';
+import { Message } from "@common/chat";
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { EditorComponent } from "../editor-component/editor-component";
+import { UserRole } from '@common/user';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export enum State {
-    closed,
-    opened,
+  closed,
+  opened,
 }
 
 @Component({
-    selector: 'app-chat',
-    templateUrl: './chat.component.html',
-    styleUrls: ['./chat.component.scss'],
-    standalone: true,
-    imports: [
-        ReactiveFormsModule,  // nécessaire pour formGroup / formControlName
-        NgClass,
-    ],
-    encapsulation: ViewEncapsulation.None, // 🔑 permet aux styles globaux d’agir
-
+  selector: 'app-chat',
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.scss'],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    NgClass,
+    NgFor,
+    NgIf,
+    EditorComponent
+  ],
+  encapsulation: ViewEncapsulation.None,
 })
+
 export class ChatComponent {
-    private fb: FormBuilder = inject(FormBuilder);
+  private fb: FormBuilder = inject(FormBuilder);
 
-    @ViewChild('chatscrollable') private scrollContainer!: ElementRef;
-    messageForm: FormGroup = this.fb.group({
-      message: ['', [Validators.required, Validators.maxLength(200)]]
-    });
+  @ViewChild('chatscrollable') private scrollContainer!: ElementRef;
 
+  messageForm: FormGroup = this.fb.group({
+    message: ['', [Validators.required, Validators.maxLength(200)]]
+  });
 
-    // properties to control Chat component state => opened, closed or contextual
-    state: State = State.closed;
-    isChatFocused: boolean = true;
+  state: State = State.closed;
+  isChatFocused: boolean = true;
 
-    private isLoadingCanalScroll = false;
+  currentUserUid = 'user-123';
+  currentUserFirstName = 'John';
+  currentUserLastName = 'Doe';
+  currentUserRole: UserRole = UserRole.Etudiant;
 
-    constructor() {
-        this.setUp();
+  canal: {
+    messages: Message[];
+  } = {
+    messages: [
+      {
+        _id: 'msg-1',
+        senderId: 'user-456',
+        firstName: 'Alice',
+        lastName: 'Smith',
+        role: UserRole.Etudiant,
+        message: 'Bonjour ! Comment ça va ?',
+        sentDate: new Date(Date.now() - 60000)
+      },
+      {
+        _id: 'msg-2',
+        senderId: 'user-123',
+        firstName: this.currentUserFirstName,
+        lastName: this.currentUserLastName,
+        role: this.currentUserRole,
+        message: 'Salut ! Tout va bien, merci !',
+        sentDate: new Date()
+      }
+    ]
+  };
+
+  constructor(private sanitizer: DomSanitizer) {
+    this.setUp();
+  }
+
+  @HostListener('click', ['$event'])
+  @HostListener('keydown', ['$event'])
+  @HostListener('keypress', ['$event'])
+  @HostListener('keyup', ['$event'])
+  handleEvents(event: Event) {
+    if (this.state === State.opened) {
+      event.stopImmediatePropagation();
     }
+  }
 
-    @HostListener('click', ['$event'])
-    @HostListener('keydown', ['$event'])
-    @HostListener('keypress', ['$event'])
-    @HostListener('keyup', ['$event'])
-    async handleEvents(event: Event) {
-        if (this.state === State.opened) event.stopImmediatePropagation();
+  toggleChatState() {
+    this.state = this.state === State.closed ? State.opened : State.closed;
+
+    // if (this.state === State.opened) {
+    //   this.scrollToBottom();
+    // }
+  }
+
+  toggleIsChat() {
+    this.isChatFocused = !this.isChatFocused;
+    if (!this.isChatFocused) {
+      this.messageForm.reset('');
     }
+  }
 
-    // integrated or contextual UI
-    toggleChatState() {
-      this.state = this.state === State.closed ? State.opened : State.closed;
-    }
+  getMessageClass(msg: Message): string {
+    return msg.senderId === this.currentUserUid ? 'sent' : 'received';
+  }
 
-    // In chat room or not
-    toggleIsChat() {
-        this.isChatFocused = !this.isChatFocused;
-        if (!this.isChatFocused) this.messageForm.reset('');
-    }
+  getSenderName(msg: Message): string {
+    return `${msg.firstName} ${msg.lastName}`;
+  }
 
-        // Check who is the sender for css style
-    getMessageClass(msg: Message, user: null): string {
-        return 'sent'
-        // return user.uid === msg.userUid ? 'sent' : 'received';
-    }
+  formatSentDate(date: Date | undefined): string {
+    if (!date) return '';
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
-    async sendMessage(message?: string) {
-        // send message logic
-    }
+  async sendMessage() {
+    if (this.messageForm.invalid) return;
 
-    private setUp() {
-        this.messageForm = this.fb.group({
-            message: ['', [Validators.required, Validators.maxLength(200)]]
-        });
-    }
+    const messageContent = this.messageForm.get('message')?.value?.trim();
+    if (!messageContent) return;
 
+    const newMessage: Message = {
+      _id: `msg-${Date.now()}`,
+      senderId: this.currentUserUid,
+      firstName: this.currentUserFirstName,
+      lastName: this.currentUserLastName,
+      role: this.currentUserRole,
+      message: messageContent,
+      sentDate: new Date()
+    };
 
-    protected readonly console = console;
+    this.canal.messages.push(newMessage);
+
+    this.messageForm.reset('');
+    // this.scrollToBottom();
+    console.log('Message sent:', newMessage);
+  }
+
+  // private scrollToBottom(): void {
+  //   try {
+  //     const container = this.scrollContainer.nativeElement;
+  //     container.scrollTo({
+  //       top: container.scrollHeight,
+  //       behavior: 'smooth'
+  //     });
+  //   } catch (err) {
+  //     console.error('Scroll failed:', err);
+  //   }
+  // }
+
+  private setUp() {}
+
+  safeHtml(content: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(content);
+  }
+
+  protected readonly console = console;
 }

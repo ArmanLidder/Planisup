@@ -1,0 +1,13 @@
+<div class="NgxEditor__Wrapper">
+  <ngx-editor-menu [editor]="editor" [toolbar]="[
+      ['bold', 'italic', 'underline'],
+      ['bullet_list', 'ordered_list'],
+      ['link'],
+    ]"></ngx-editor-menu>
+  <ngx-editor
+    [editor]="editor"
+    [(ngModel)]="html"
+    (ngModelChange)="onContentChange()"
+    [placeholder]="'Type here...'"
+  ></ngx-editor>
+</div>

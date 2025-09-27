@@ -1,16 +1,13 @@
 <div class="view-plan-container">
   <div class="container-left">
-    <!--<app-progress [totalSteps]="5" (progressStatusChange)="onProgressChange($event)">
-    </app-progress>-->
+  <app-progress
+  [totalSteps]="5"
+  (progressStatusChange)="onProgressChange($event)">
+</app-progress>
   </div>
-  <div class="container-middle"></div>
-  <div class="container-right"></div>
-  <!--<div class="container-right">
-    <button (click)="prevStep()">◀ Précédent</button>
-    <button (click)="nextStep()">Suivant ▶</button>
-    <div class="container-content"></div>
-    <app-gsup-side-bar></app-gsup-side-bar>
-  </div>-->
-  <app-chat></app-chat>
+  <div class="container-middle">
+  </div>
+  <div class="container-right">
+    <app-chat></app-chat>
+  </div>
 </div>
-

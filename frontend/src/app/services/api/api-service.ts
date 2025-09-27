@@ -71,6 +71,26 @@ export class ApiService {
     });
   }
 
+  submitStudyPlan(studyPlan: any): Observable<any> {
+    return this.http.post<any>(`${environment.serverUrl}/study-plan/student`, studyPlan);
+  }
+
+  cancelStudyPlan(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.serverUrl}/study-plan/cancel/${id}`);
+  }
+
+  approveStudyPlan(id: string): Observable<any> {
+    return this.http.patch<any>(`${environment.serverUrl}/study-plan/approuved/${id}`, {});
+  }
+
+  refuseStudyPlan(id: string): Observable<any> {
+    return this.http.patch<any>(`${environment.serverUrl}/study-plan/refuse/${id}`, {});
+  }
+
+  getStudyPlan(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
+  }
+
   deleteUser(
     userId: string,
     headers: HttpHeaders

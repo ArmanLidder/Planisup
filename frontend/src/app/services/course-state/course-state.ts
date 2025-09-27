@@ -297,14 +297,24 @@ export class CourseStateService {
       if (subModule?.courses) {
         for (const section of subModule.courses) {
           const course = section.courses.find(c => c.sigle === courseSigle);
-          if (course) return course;
+          if (course) {
+            // @ts-ignore
+            course.trimester = course.trimester[0];
+            console.log('Found course:', course);
+            return course;
+          }
         }
       }
     } else {
       if (module.courses) {
         for (const section of module.courses) {
           const course = section.courses.find(c => c.sigle === courseSigle);
-          if (course) return course;
+          if (course) {
+            // @ts-ignore
+            course.trimester = course.trimester[0];
+            console.log('Found course:', course);
+            return course;
+          }
         }
       }
     }

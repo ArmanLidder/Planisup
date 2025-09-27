@@ -7,6 +7,7 @@ import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
 import { StudyPlan as StudyPlanInterface, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
+import { ApiService } from '@app/services/api/api-service';
 
 @Component({
   selector: 'app-study-plan',
@@ -28,7 +29,8 @@ export class StudyPlan implements OnInit {
     private programService: ProgramService,
     private courseStateService: CourseStateService,
     private courseService: CourseService,
-    private authService: AuthentificationService
+    private authService: AuthentificationService,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
@@ -211,6 +213,15 @@ export class StudyPlan implements OnInit {
 
     console.log('Plan d\'études validé:', this.currentPlan);
 
-    alert('Plan d\'études validé avec succès!');
+    this.apiService.submitStudyPlan(this.currentPlan).subscribe({
+      next: (response) => {
+        console.log('Plan d\'études soumis avec succès:', response);
+        alert('Plan d\'études soumis avec succès!');
+      },
+      error: (error) => {
+        console.error('Erreur lors de la soumission du plan d\'études:', error);
+        alert('Erreur lors de la soumission du plan d\'études.');
+      }
+    });
   }
 }

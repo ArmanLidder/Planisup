@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { Logger } from '@app/services/logger.service/logger.service';
 import { UserModel, IUser } from '@app/models/user.model/user.model';
 import { ProgramModel } from '@app/models/program.model/program.model';
+import { ChatModel, IChat } from '@app/models/chat.model/chat.model';
 import { StudyPlanModel, IStudyPlan } from  '@app/models/study-plan.model/study-plan.model';
 import { StudyPlan, StepValidationStatus, StudyPlanStep, StudyPlanStatus, StudyPlanEntry } from '@common/study-plan';
 import { ProgramType } from '@common/program';
@@ -135,8 +136,8 @@ export class StudyPlanService {
     private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
         this.logger.info("Saving new study plan");
         try {
-            if (studyPlan.programType === ProgramType.DESS) // Will have to add validation for master professional
-            studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
+            // Will have to add ProgramType.MatrisePro
+            if (studyPlan.programType === ProgramType.DESS) studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
             else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
 
             studyPlan.status = StudyPlanStatus.LIVE;
@@ -144,10 +145,17 @@ export class StudyPlanService {
 
             const savedPlan =  await StudyPlanModel.create(studyPlan);
             const student: IUser = await UserModel.findById(studyPlan.studentId);
+            const chat: Partial<IChat> = {
+                studyPlanId: savedPlan._id as string,
+                messages: []
+            }
 
+            const createdChat: IChat = await ChatModel.create(chat);
+            savedPlan.chatId = createdChat.id;
             student.currentPlan = savedPlan._id as string;
-            student.plans.push(savedPlan._id as string)
-            await student.save()
+            student.plans.push(savedPlan._id as string);
+            await student.save();
+            await savedPlan.save();
 
             return savedPlan;
         } catch (e) {

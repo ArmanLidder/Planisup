@@ -10,14 +10,11 @@ import { HttpException } from "@app/classes/http.exception";
 import { AuthController } from "@app/controllers/auth.controller/auth.controller";
 import { ProgramController } from "@app/controllers/program.controller/program.controller";
 import { UserController } from "@app/controllers/user.controller/user.controller";
-
-import {
-  ProgramModel,
-  IProgram,
-} from "@app/models/program.model/program.model";
+import { ProgramModel, IProgram } from "@app/models/program.model/program.model";
 import { loadPrograms } from "@app/utils/load-program";
 import { CourseController } from "./controllers/course.controller/course.controller";
-import { StudyPlanController } from "./controllers/study-plan.controller/study-plan.controller";
+import { StudyPlanController } from "@app/controllers/study-plan.controller/study-plan.controller";
+import { ChatController } from "@app/controllers/chat.controller/chat.controller";
 
 @Service()
 export class Application {
@@ -29,7 +26,8 @@ export class Application {
     private readonly programController: ProgramController,
     private readonly userController: UserController,
     private readonly courseController: CourseController,
-    private readonly studyPlanController: StudyPlanController
+    private readonly studyPlanController: StudyPlanController,
+    private readonly chatController: ChatController,
   ) {
     this.app = express();
     this.initialiseDatabaseConnection();
@@ -44,6 +42,7 @@ export class Application {
     this.app.use("/api/users", this.userController.router);
     this.app.use("/api/course", this.courseController.router);
     this.app.use('/api/study-plan', this.studyPlanController.router);
+    this.app.use('/api/chat', this.chatController.router);
 
     /*this.app.use('/', (req, res) => {
             res.redirect('/');

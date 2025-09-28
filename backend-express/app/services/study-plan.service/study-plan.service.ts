@@ -65,13 +65,14 @@ export class StudyPlanService {
         this.logger.info("Validate study plan");
          try {
             const studyPlan =  await StudyPlanModel.findById(id);
+            const originalStep = studyPlan.studyPlanStep;
             // Increment Step
             if (studyPlan.studyPlanStep === StudyPlanStep.DIRECTOR) studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
             else if (studyPlan.studyPlanStep === StudyPlanStep.ADMIN_AGENT) studyPlan.studyPlanStep = StudyPlanStep.COORDONATOR;
             else if (studyPlan.studyPlanStep === StudyPlanStep.COORDONATOR) studyPlan.studyPlanStep = StudyPlanStep.REGISTRAR;
 
             // Update States
-            if (studyPlan.studyPlanStep === StudyPlanStep.REGISTRAR) {
+            if (originalStep === StudyPlanStep.REGISTRAR) {
                 studyPlan.status = StudyPlanStatus.VALIDATED;
                 studyPlan.stepValidation = StepValidationStatus.APPROVED;
             } else {

@@ -52,8 +52,16 @@ export class StudyPlanService {
     }
   }
 
-  approveStudyPlan(id: string) {
-
+  approveStudyPlan() {
+    this.loadingSubject.next(true);
+    if (this.studyPlan?._id) {
+      this.apiService.approveStudyPlan(this.studyPlan._id).subscribe({
+        complete: () => {
+          this.loadingSubject.next(false);
+          this.router.navigate(['/accueil']);
+        }
+      });
+    }
   }
 
   refuseStudyPlan(id: string) {

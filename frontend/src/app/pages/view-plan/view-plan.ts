@@ -75,17 +75,16 @@ export class ViewPlan {
     return this.currentUser?.role === UserRole.Etudiant;
   }
 
-  onValidate() {
-    console.log("Plan validé ✅");
-  // 👉 call your API or service here
+  protected onValidate() {
+    this.sPS.approveStudyPlan();
   }
 
-  onRefuse() {
+  protected onRefuse() {
     console.log("Plan refusé ❌");
     // 👉 call your API or service here
   }
 
-  onCancel() {
+  protected onCancel() {
     this.sPS.cancelStudyPlan();
   }
 }

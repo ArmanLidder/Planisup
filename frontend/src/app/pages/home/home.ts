@@ -9,6 +9,8 @@ import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
 import { CourseService } from '@app/services/course/course-service';
 import { MatIconModule } from '@angular/material/icon'; // Add this import
+import { StudyPlanStatus } from '@common/study-plan';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +31,7 @@ export class Home implements OnInit {
   constructor(
     private router: Router,
     private pS: ProgramService,
+    private sPS: StudyPlanService,
     private courseService: CourseService,
     public auth: AuthentificationService
   ) {}
@@ -37,6 +40,7 @@ export class Home implements OnInit {
     this.courseService.getCourses();
     console.log("Ng Onit")
     this.pS.reset();
+    this.sPS.resetPlan();
   }
 
   navigateTo(degree: string): void {

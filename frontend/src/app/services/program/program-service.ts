@@ -45,7 +45,7 @@ export class ProgramService {
         this.departementsSubject.next(departements);
         this.stepSubject.next(1);
       },
-      complete: () => setTimeout(() => this.loadingSubject.next(false), 2000),
+      complete: () => this.loadingSubject.next(false),
     });
   }
 
@@ -128,7 +128,7 @@ export class ProgramService {
         this.program = program;
         this.router.navigate(['/study-plan']);
       },
-      complete: () => setTimeout(() => this.loadingSubject.next(false), 2000),
+      complete: () => this.loadingSubject.next(false),
     });
   }
 

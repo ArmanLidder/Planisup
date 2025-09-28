@@ -68,7 +68,8 @@ export class UserManagement implements OnInit {
     this.availableRoles = [
       UserRole.Directeur,
       UserRole.Agent,
-      UserRole.Coordonnateur
+      UserRole.Coordonnateur,
+      UserRole.Registrar
     ];
   }
 

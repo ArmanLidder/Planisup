@@ -8,6 +8,7 @@ import { CourseService } from '@app/services/course/course-service';
 import { StudyPlan as StudyPlanInterface, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { ApiService } from '@app/services/api/api-service';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 
 @Component({
   selector: 'app-study-plan',
@@ -30,7 +31,8 @@ export class StudyPlan implements OnInit {
     private courseStateService: CourseStateService,
     private courseService: CourseService,
     private authService: AuthentificationService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private sPS: StudyPlanService,
   ) {}
 
   ngOnInit() {
@@ -196,12 +198,12 @@ export class StudyPlan implements OnInit {
       alert('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
-
+    // Tout ça devra être effacé et mis dans un beau service
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
-      directorId: '',
-      coordonatorId: '',
+      directorId: '68d84c20951bcefea1b2faf2',
+      coordonatorId: '68d879397bd1614a72e60539',
       programId: this.program._id!,
       programType: this.programService.type as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,
@@ -212,10 +214,13 @@ export class StudyPlan implements OnInit {
     };
 
     console.log('Plan d\'études validé:', this.currentPlan);
-
-    this.apiService.submitStudyPlan(this.currentPlan).subscribe({
+    if (this.sPS.studyPlan) {
+      alert('Plan d\'études déjè soumis!');
+    } else {
+      this.apiService.submitStudyPlan(this.currentPlan).subscribe({
       next: (response) => {
         console.log('Plan d\'études soumis avec succès:', response);
+        this.sPS.loadStudyPlan(response._id)
         alert('Plan d\'études soumis avec succès!');
       },
       error: (error) => {
@@ -223,5 +228,7 @@ export class StudyPlan implements OnInit {
         alert('Erreur lors de la soumission du plan d\'études.');
       }
     });
+    }
+  
   }
 }

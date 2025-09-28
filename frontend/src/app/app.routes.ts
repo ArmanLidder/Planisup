@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
-import { Login } from './pages/login/login';
-import { AuthGuard } from './guards/auth.guard';
-import { Program } from './pages/program/program';
-import { StudyPlan } from './pages/study-plan/study-plan';
+import { Home } from '@app/pages/home/home';
+import { Login } from '@app/pages/login/login';
+import { AuthGuard } from '@app/guards/auth.guard';
+import { Program } from '@app/pages/program/program';
+import { StudyPlan } from '@app/pages/study-plan/study-plan';
 import { Admin } from '@app/pages/admin/admin';
-import { ViewPlan } from './pages/view-plan/view-plan';
-import { Search } from './pages/search/search';
+import { ViewPlan } from '@app/pages/view-plan/view-plan';
+import { Search } from '@app/pages/search/search';
 
 export const routes: Routes = [
   { path: 'login', component: Login },

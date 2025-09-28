@@ -8,6 +8,7 @@ import { StudyPlan, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from 
 import { ApiService } from '@app/services/api/api-service';
 import { ActivatedRoute } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 
 @Component({
   selector: 'app-view-plan',
@@ -27,6 +28,7 @@ export class ViewPlan implements OnInit {
     private readonly apiService: ApiService,
     private readonly route: ActivatedRoute,
     private readonly authService: AuthentificationService,
+    private readonly sPS: StudyPlanService,
   ) {}
 
   ngOnInit(): void {
@@ -38,19 +40,10 @@ export class ViewPlan implements OnInit {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const studyPlanId = this.route.snapshot.paramMap.get('id');
-      
-      this.apiService.getStudyPlan(this.authService.currentUser?.currentPlan || "").subscribe({
-        next: (studyPlan) => {
-          this.studyPlan = studyPlan;
-          this.isLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Error loading study plan:', error);
-          this.error.set('Erreur lors du chargement du plan d\'étude');
-          this.isLoading.set(false);
-        }
-      });
+      this.studyPlan = this.sPS.studyPlan;
+      if (this.studyPlan) {
+        this.isLoading.set(false);
+      }
     } catch (error) {
       console.error('Error loading study plan:', error);
       this.error.set('Erreur lors du chargement du plan d\'étude');

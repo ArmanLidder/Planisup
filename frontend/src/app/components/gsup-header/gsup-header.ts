@@ -15,6 +15,7 @@ import { GsupMenu } from '../gsup-menu/gsup-menu';
 })
 export class GsupHeader implements OnInit {
   currentUser: User | null = null;
+  etudiantRole = UserRole.Etudiant;
 
   constructor(
     private authentificationService: AuthentificationService,

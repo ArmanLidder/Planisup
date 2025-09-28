@@ -203,7 +203,7 @@ export class StudyPlan implements OnInit {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
       directorId: '68d96bb5734ad2601d2bf2fa',
-      coordonatorId: '68d879397bd1614a72e60539',
+      coordonatorId: '68d983ab282429ab2d8d6604',
       programId: this.program._id!,
       programType: this.programService.type as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,

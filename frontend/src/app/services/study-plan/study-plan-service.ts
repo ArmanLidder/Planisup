@@ -34,18 +34,19 @@ export class StudyPlanService {
   }
 
   cancelStudyPlan() {
-    this.loadingSubject.next(false);
+    this.loadingSubject.next(true);
     if (this.studyPlan?._id) {
       this.apiService.cancelStudyPlan(this.studyPlan._id).subscribe({
         next: () => {
           this.auth.addStudyPlan('');
-          this.router.navigate(['/accueil']).then(ok => console.log('Navigation success?', ok));
+          this.studyPlan = null;
         },
         error: (err) => {
           console.error('Cancel failed:', err);
         },
         complete: () => {
           this.loadingSubject.next(false);
+          this.router.navigate(['/accueil']);
         }
       });
     }

@@ -11,7 +11,7 @@
   <div class="container-middle">
 
     <!-- Study Plan Content -->
-    <div class="study-plan-content" *ngIf="studyPlan">
+    <div class="study-plan-content" *ngIf="studyPlan$ | async as studyPlan">
       <div class="study-plan-header">
         <h2>Plan d'étude</h2>
         <div class="status-badge" [class]="'status-' + studyPlan.status">
@@ -79,6 +79,7 @@
       <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
     </div>
     <div *ngIf="this.isStudent()" class="action-buttons">
+      <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">Soumettre</button>
       <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
     </div>
   <div class="container-right">

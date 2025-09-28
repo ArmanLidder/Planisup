@@ -23,17 +23,16 @@ export class ViewPlan {
   studyPlan: StudyPlan | null = null;
   currentUser: User | null;
   isLoading$: typeof this.sPS.loading$;
+  studyPlan$: typeof this.sPS.studyPlan$;
 
   constructor(
-    private readonly progressHelper: ProgressHelperService,
-    private readonly apiService: ApiService,
-    private readonly route: ActivatedRoute,
     private readonly auth: AuthentificationService,
     private readonly sPS: StudyPlanService,
   ) {
     this.currentUser = this.auth.currentUser;
     this.studyPlan = this.sPS.studyPlan;
     this.isLoading$ = this.sPS.loading$;
+    this.studyPlan$ = this.sPS.studyPlan$;
   }
 
   editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
@@ -71,6 +70,10 @@ export class ViewPlan {
     return labels[validation] || validation;
   }
 
+  needsCorrection() : boolean {
+    return this.sPS.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
+  }
+
   protected isStudent(): boolean {
     return this.currentUser?.role === UserRole.Etudiant;
   }
@@ -80,11 +83,14 @@ export class ViewPlan {
   }
 
   protected onRefuse() {
-    console.log("Plan refusé ❌");
-    // 👉 call your API or service here
+    this.sPS.refuseStudyPlan();
   }
 
   protected onCancel() {
     this.sPS.cancelStudyPlan();
+  }
+
+  protected onSubmit() {
+    this.sPS.updateStudyPlan();
   }
 }

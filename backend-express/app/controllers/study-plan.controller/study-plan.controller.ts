@@ -60,7 +60,6 @@ export class StudyPlanController {
         }
     });
 
-
     this.router.patch("/approuved/:id", async (req: Request, res: Response) => {
         this.logger.info("Handle student study plan approbation")
         const id = req.params.id;

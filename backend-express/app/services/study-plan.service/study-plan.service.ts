@@ -159,8 +159,11 @@ export class StudyPlanService {
     private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
         this.logger.info("Update study plan");
         try {
-            studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
-            const savedPlan =  await StudyPlanModel.findOneAndUpdate(studyPlan);
+            const savedPlan = await StudyPlanModel.findOneAndUpdate(
+                { _id: studyPlan._id },                 
+                { $set: { stepValidation: StepValidationStatus.IN_PROGRESS } },
+                { new: true }                               
+            );
             return savedPlan
         } catch (e) {
             this.logger.error(e);

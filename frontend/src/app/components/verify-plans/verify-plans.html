@@ -1,24 +1,28 @@
+@if (isLoading$ | async) {
+<app-loading></app-loading>
+}
+
 <div class="full-width-table-container">
   <mat-table [dataSource]="dataSource" matSort>
 
-    <ng-container matColumnDef="matricule">
-      <mat-header-cell *matHeaderCellDef> Matricule </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.matricule}} </mat-cell>
+    <ng-container matColumnDef="Prénom">
+      <mat-header-cell *matHeaderCellDef> Prénom </mat-header-cell>
+      <mat-cell *matCellDef="let row"> {{row.firstName}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="nomEtudiant">
-      <mat-header-cell *matHeaderCellDef> Nom Étudiant </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.nomEtudiant}} </mat-cell>
+    <ng-container matColumnDef="Nom">
+      <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
+      <mat-cell *matCellDef="let row"> {{row.lastName}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="plan">
-      <mat-header-cell *matHeaderCellDef> Plan </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.plan}} </mat-cell>
+    <ng-container matColumnDef="Diplôme">
+      <mat-header-cell *matHeaderCellDef> Diplôme </mat-header-cell>
+      <mat-cell *matCellDef="let row"> {{row.degree}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="date">
+    <ng-container matColumnDef="Date">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.date}} </mat-cell>
+      <mat-cell *matCellDef="let row"> {{formatDate(row.date)}} </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
@@ -26,7 +30,7 @@
     <mat-row *matRowDef="let row; columns: displayedColumns;"
      class="clickable-row" 
      (click)="onRowClick(row)"
-     [class.selected]="selectedRow?.matricule === row.matricule"></mat-row>
+     [class.selected]="selectedRow?.studyPlanId === row.studyPlanId"></mat-row>
 
   </mat-table>
 </div>

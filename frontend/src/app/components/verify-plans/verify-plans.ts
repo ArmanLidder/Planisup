@@ -1,55 +1,71 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
-
-export interface Plan {
-  matricule: string;
-  nomEtudiant: string;
-  plan: string;
-  date: string;
-}
-
-const data: Plan[] = [
-  {
-    matricule: '123456',
-    nomEtudiant: 'Jean Dupont',
-    plan: 'DESS',
-    date: '2025-10-01',
-  },
-  {
-    matricule: '789012',
-    nomEtudiant: 'Marie Curie',
-    plan: 'Maitrise',
-    date: '2025-10-02',
-  },
-];
+import { ApiService } from '@app/services/api/api-service';
+import { AuthentificationService } from '@app/services/authentification/authentification-service';
+import { StudyPlanEntry } from '@common/study-plan';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { Loading } from '../loading/loading';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-verify-plans',
   standalone: true,
-  imports: [MatTableModule, MatSortModule],
+  imports: [MatTableModule, MatSortModule, Loading, CommonModule, RouterModule],
   templateUrl: './verify-plans.html',
   styleUrl: './verify-plans.scss',
 })
 export class VerifyPlans {
   //@Input() role ou user on sait pas: string = 'default';
-  displayedColumns: string[] = ['matricule', 'nomEtudiant', 'plan', 'date'];
-  dataSource = new MatTableDataSource<Plan>(data);
+  displayedColumns: string[] = ['Prénom', 'Nom', 'Diplôme', 'Date'];
+  dataSource = new MatTableDataSource<StudyPlanEntry>();
+  isLoading$: typeof this.sPS.loading$;
 
-  selectedRow: Plan | null = null;
+
+  selectedRow: StudyPlanEntry | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private router: Router) {}
+  constructor(
+    private apiService: ApiService,
+    private auth: AuthentificationService,
+    private sPS: StudyPlanService,
+  ) {
+    this.isLoading$ = this.sPS.loading$;
+  }
+
+  ngOnInit() {
+    const id = this.auth.currentUser?._id;
+    if(id){
+      this.apiService.getStudyPlans(id).subscribe(plans => {
+        this.dataSource.data = plans;
+      });
+    }
+  }
+
+  formatDate(date: string): string {
+    if (!date) return '';
+    
+    const dateObj = new Date(date);
+    return dateObj.toLocaleString('fr-CA', {
+      year: 'numeric',
+      month: '2-digit', 
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
 
-  onRowClick(row: Plan) {
-    this.selectedRow = this.selectedRow?.matricule === row.matricule ? null : row;
-    // console.log('Ligne cliquée :', this.selectedRow);
-    this.router.navigate(['/view-plan']);
+  onRowClick(row: StudyPlanEntry) {
+    this.sPS.loadStudyPlan(row.studyPlanId);
+    console.log('Selected Study Plan ID:', row.studyPlanId);
+    
   }
 }

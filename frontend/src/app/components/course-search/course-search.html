@@ -20,11 +20,7 @@
       <div class="filters">
         <select [(ngModel)]="creditFilter" (change)="filterCourses()" class="filter-select">
           <option value="">Tous les crédits</option>
-          <option value="1">1 crédit</option>
-          <option value="2">2 crédits</option>
-          <option value="3">3 crédits</option>
-          <option value="4">4 crédits</option>
-          <option value="6">6 crédits</option>
+          <option *ngFor="let item of numSequence(maxCredits)" [value]="item" >{{ item }} crédit{{ item > 1 ? 's' : '' }}</option>
         </select>
       </div>
       
@@ -39,6 +35,7 @@
                *ngFor="let course of paginatedCourses"
                [class.selected]="isSelected(course)"
                [class.disabled]="!canSelectCourse(course)"
+               [class.already-selected-elsewhere]="isSelectedElsewhere(course)"
                (click)="toggleCourse(course)">
             <div class="course-checkbox">
               <input type="checkbox" 

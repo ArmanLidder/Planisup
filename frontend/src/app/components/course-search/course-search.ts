@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Course } from '@common/program';
+import { CourseStateService } from '@app/services/course-state/course-state';
 
 @Component({
   selector: 'app-course-search',
@@ -32,8 +33,27 @@ export class CourseSearch implements OnInit {
   currentPage: number = 0;
   coursesPerPage: number = 10;
 
+  constructor(private courseStateService: CourseStateService) {}
+
   ngOnInit() {
     this.filteredCourses = [...this.allCourses];
+    this.loadAlreadySelectedCourses();
+  }
+
+  loadAlreadySelectedCourses() {
+    this.selectedCourses = [];
+    this.selectedCredits = 0;
+
+    this.allCourses.forEach(course => {
+      const state = this.courseStateService.getCourseState(course.sigle);
+      if (state.selected && 
+          state.selectedInModule === this.currentModuleTitle &&
+          state.selectedInSubmodule === this.currentSubmoduleTitle &&
+          state.selectedInSection === this.currentSectionDescription) {
+        this.selectedCourses.push(course);
+        this.selectedCredits += course.credits;
+      }
+    });
   }
 
   filterCourses() {
@@ -73,15 +93,38 @@ export class CourseSearch implements OnInit {
     return this.selectedCourses.some(c => c.sigle === course.sigle);
   }
 
+  isSelectedElsewhere(course: Course): boolean {
+    const state = this.courseStateService.getCourseState(course.sigle);
+    return state.selected && 
+           (state.selectedInModule !== this.currentModuleTitle ||
+            state.selectedInSubmodule !== this.currentSubmoduleTitle ||
+            state.selectedInSection !== this.currentSectionDescription);
+  }
+
   canSelectCourse(course: Course): boolean {
+    // Si le cours est sélectionné dans cette section, on peut le désélectionner
     if (this.isSelected(course)) return true;
+    
+    // Si le cours est sélectionné ailleurs, on ne peut pas le sélectionner
+    if (this.isSelectedElsewhere(course)) return false;
+    
+    // Vérifier la limite de crédits
     return this.selectedCredits + course.credits <= this.maxCredits;
   }
 
   getStatusMessage(course: Course): string {
+    if (this.isSelectedElsewhere(course)) {
+      const state = this.courseStateService.getCourseState(course.sigle);
+      const location = state.selectedInSubmodule 
+        ? `${state.selectedInModule} > ${state.selectedInSubmodule}`
+        : state.selectedInModule;
+      return `Déjà sélectionné dans: ${location}`;
+    }
+    
     if (this.selectedCredits + course.credits > this.maxCredits) {
       return `Dépasserait la limite de crédits (${this.selectedCredits + course.credits}/${this.maxCredits})`;
     }
+    
     return '';
   }
 
@@ -114,5 +157,9 @@ export class CourseSearch implements OnInit {
       this.selectedCredits -= course.credits;
       this.courseSelectionChange.emit({ course, selected: false });
     }
+  }
+
+  numSequence(n: number): Array<number> {
+    return Array(n).fill(0).map((x, i) => i + 1);
   }
 }

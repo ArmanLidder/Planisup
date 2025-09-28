@@ -300,7 +300,7 @@ export async function fetchCoursesFromUrl(): Promise<RawCourse[]> {
     }
 }
 
-async function fetchTriennalFromUrl(): Promise<planTriennal[]> {
+export async function fetchTriennalFromUrl(): Promise<planTriennal[]> {
     try {
         const response = await axios.get('https://dossieretudiant.polymtl.ca/WebEtudiant7/jsonwebservice/plantriennal');
         return response.data as planTriennal[];

@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { Service } from "typedi";
 import { Logger } from "@app/services/logger.service/logger.service";
-import { fetchCoursesFromUrl, RawCourse } from "@app/utils/load-program";
+import { fetchCoursesFromUrl, planTriennal, RawCourse, fetchTriennalFromUrl } from "@app/utils/load-program";
 
 @Service()
 export class CourseController {
@@ -80,6 +80,29 @@ export class CourseController {
       } catch (error) {
         this.logger.error(`Error searching courses: ${error}`);
         return res.status(500).json({ error: "Failed to search courses" });
+      }
+    });
+
+    this.router.get("/courses", async (req: Request, res: Response) => {
+      try {
+        this.logger.info("Fetching all courses from triennal...");
+
+        const courses: planTriennal[] = await fetchTriennalFromUrl();
+
+        const fetchCourse = courses
+          .filter((course) => course.codeSecteur === "ES")
+          .map((course) => ({
+            sigle: course.sigle.trim(),
+            name: course.titre,
+            credits: course.nbCredits,
+            trimester: course.listPlanTriennal,
+          }));
+
+        this.logger.info(`Found ${fetchCourse.length} courses from API`);
+        return res.status(200).json(fetchCourse);
+      } catch (error) {
+        this.logger.error(`Error fetching courses: ${error}`);
+        return res.status(500).json({ error: "Failed to fetch courses" });
       }
     });
   }

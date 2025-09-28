@@ -30,6 +30,11 @@ export class GsupHeader implements OnInit {
   }
 
   goBack(): void {
-    this.programService.goBack();
+    if (this.currentUser?.role !== UserRole.Etudiant) this.router.navigate(['/accueil']);
+    else this.programService.goBack();
+  }
+
+  isStudentWithActiveStudy(): boolean {
+    return this.currentUser?.role === UserRole.Etudiant && this.currentUser.currentPlan !== '';
   }
 }

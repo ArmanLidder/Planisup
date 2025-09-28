@@ -3,12 +3,12 @@
     <img
       src="assets/logo.png"
       class="logo"
-      *ngIf="this.router.url === '/accueil' || this.router.url === '/login' || (this.router.url === '/view-plan' && this.currentUser?.role !== etudiantRole) "
+      *ngIf="this.router.url === '/accueil' || this.router.url === '/login' || this.isStudentWithActiveStudy()"
     />
     <img
       src="assets/back_arrow.png"
       class="arrow"
-      *ngIf="this.router.url !== '/accueil' && this.router.url !== '/login' && (this.router.url === '/view-plan' && this.currentUser?.role !== etudiantRole)"
+      *ngIf="this.router.url !== '/accueil' && this.router.url !== '/login' && !this.isStudentWithActiveStudy()"
       (click)="goBack()"
     />
     <p class="title">PlaniSup</p>

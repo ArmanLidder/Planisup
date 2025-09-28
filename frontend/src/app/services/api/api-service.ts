@@ -99,6 +99,11 @@ export class ApiService {
     return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
   }
 
+  // This will get study plan in progress thst re linked to the user role 
+  getStudyPlans(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
+  }
+
   deleteUser(
     userId: string
   ): Observable<{ success: boolean; message: string }> {

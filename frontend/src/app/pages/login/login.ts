@@ -8,8 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthentificationService } from '../../services/authentification/authentification-service';
-import { UserRole, LoginRequest, User } from '../../../../../common/user';
+import { AuthentificationService } from '@app/services/authentification/authentification-service';
+import { UserRole, LoginRequest, User } from '@common/user';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { Loading } from '@app/components/loading/loading';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +25,7 @@ import { UserRole, LoginRequest, User } from '../../../../../common/user';
     MatCardModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    Loading,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -31,17 +34,20 @@ export class Login {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  isLoading$: typeof this.sPS.loading$;
 
   constructor(
     private fb: FormBuilder,
     private authentificationService: AuthentificationService,
-    private router: Router
+    private router: Router,
+    private readonly sPS: StudyPlanService,
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]]
     });
+    this.isLoading$ = this.sPS.loading$;
   }
 
   onSubmit(): void {
@@ -73,9 +79,13 @@ export class Login {
             // Redirect based on role
             if (user.role === UserRole.Administrateur) {
               this.router.navigate(['/admin']);
-            } else {
-              if(response.user.currentPlan) {
-                this.router.navigate(['/view-plan']);
+            } 
+            // else if (user.role !== UserRole.Etudiant) {
+            //   this.router.navigate(['/staff']);
+            // }
+             else {
+              if (response.user.currentPlan) {
+                this.sPS.loadStudyPlan(response.user.currentPlan, user.role === UserRole.Etudiant);
               } else {
                 this.router.navigate(['/accueil']);
               }

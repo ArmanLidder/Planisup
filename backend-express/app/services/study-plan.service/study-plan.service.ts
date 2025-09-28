@@ -101,7 +101,8 @@ export class StudyPlanService {
                 studyPlanId: plan._id as string,
                 firstName: student.firstName,
                 lastName: student.lastName,
-                degree: program.degree
+                degree: program.degree,
+                date: plan.modifiedDate as Date
             })
         }
         return entries;
@@ -144,7 +145,7 @@ export class StudyPlanService {
             student.plans.push(savedPlan._id as string)
             await student.save()
 
-            return studyPlan;
+            return savedPlan;
         } catch (e) {
             this.logger.error(e);
             return null;

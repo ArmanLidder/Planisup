@@ -94,6 +94,13 @@ export class AuthentificationService {
     return role === UserRole.Administrateur;
   }
 
+  addStudyPlan(studyPlanId: string): void {
+    const user = this.currentUserSubject.value;
+    if (user) user.currentPlan = studyPlanId;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   bypassLogin(): void {
     const fakeUser: User = {
       _id: 'fake-user-id',

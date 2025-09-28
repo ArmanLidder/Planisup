@@ -134,7 +134,7 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #f0f2f5;
-  
+
   h2 {
     margin: 0;
     color: #2d3748;
@@ -150,19 +150,19 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  
+
   &.status-live {
     background: linear-gradient(135deg, #e3f2fd, #bbdefb);
     color: #1565c0;
     border: 1px solid #2196f3;
   }
-  
+
   &.status-validated {
     background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
     color: #2e7d32;
     border: 1px solid #4caf50;
   }
-  
+
   &.status-cancelled {
     background: linear-gradient(135deg, #ffebee, #ffcdd2);
     color: #c62828;
@@ -185,31 +185,31 @@
   align-items: center;
   margin-bottom: 1rem;
   padding: 0.5rem 0;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
+
   .label {
     font-weight: 600;
     color: #4a5568;
     font-size: 0.95rem;
   }
-  
+
   .value {
     color: #2d3748;
     font-weight: 500;
-    
+
     &.validation-in-progress {
       color: #f57c00;
       font-weight: 600;
     }
-    
+
     &.validation-approved {
       color: #2e7d32;
       font-weight: 600;
     }
-    
+
     &.validation-needs-correction {
       color: #c62828;
       font-weight: 600;
@@ -253,13 +253,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   h4 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
   }
-  
+
   .course-count {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -279,7 +279,7 @@
   padding: 1.5rem;
   border-bottom: 1px solid #f7fafc;
   transition: background-color 0.2s ease;
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -294,7 +294,7 @@
   gap: 1rem;
   margin-bottom: 0.8rem;
   align-items: center;
-  
+
   .course-sigle {
     font-weight: bold;
     color: #4361ee;
@@ -304,13 +304,13 @@
     padding: 4px 8px;
     border-radius: 6px;
   }
-  
+
   .course-name {
     flex: 1;
     color: #2d3748;
     font-weight: 500;
   }
-  
+
   .course-credits {
     color: #718096;
     font-size: 14px;
@@ -327,7 +327,7 @@
   font-size: 14px;
   color: #718096;
   flex-wrap: wrap;
-  
+
   .course-trimester {
     background: #e6fffa;
     color: #319795;
@@ -335,7 +335,7 @@
     border-radius: 6px;
     font-weight: 500;
   }
-  
+
   .already-done {
     color: #38a169;
     font-weight: 600;
@@ -343,7 +343,7 @@
     padding: 4px 8px;
     border-radius: 6px;
   }
-  
+
   .course-grade {
     color: #3182ce;
     font-weight: 600;
@@ -373,7 +373,7 @@
   text-align: center;
   padding: 4rem 2rem;
   color: #718096;
-  
+
   p {
     margin: 0;
     font-size: 1.2rem;
@@ -384,7 +384,7 @@
   text-align: center;
   padding: 4rem 2rem;
   color: #c62828;
-  
+
   p {
     margin: 0 0 1rem 0;
     font-size: 1.2rem;
@@ -401,9 +401,59 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: linear-gradient(135deg, #3a56d4, #2f0a8c);
     transform: translateY(-1px);
   }
+}
+
+// Temporary: for action btn
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-action {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* --- Variants --- */
+.btn-validate {
+  background: linear-gradient(135deg, #43a047, #2e7d32);
+  color: white;
+}
+.btn-validate:hover {
+  background: linear-gradient(135deg, #388e3c, #1b5e20);
+  transform: translateY(-1px);
+}
+
+.btn-refuse {
+  background: linear-gradient(135deg, #e53935, #b71c1c);
+  color: white;
+}
+.btn-refuse:hover {
+  background: linear-gradient(135deg, #c62828, #8e0000);
+  transform: translateY(-1px);
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+}
+.btn-cancel:hover {
+  background: linear-gradient(135deg, #ef6c00, #e65100);
+  transform: translateY(-1px);
 }

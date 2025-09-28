@@ -1,13 +1,14 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ApiService } from '@app/services/api/api-service';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanEntry } from '@common/study-plan';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
-import { Loading } from '../loading/loading';
+import { Loading } from '@app/components/loading/loading';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { User } from '@common/user';
 
 @Component({
   selector: 'app-verify-plans',
@@ -19,6 +20,7 @@ import { RouterModule } from '@angular/router';
 export class VerifyPlans {
   //@Input() role ou user on sait pas: string = 'default';
   displayedColumns: string[] = ['Prénom', 'Nom', 'Diplôme', 'Date'];
+  currentUser: User | null;
   dataSource = new MatTableDataSource<StudyPlanEntry>();
   isLoading$: typeof this.sPS.loading$;
 
@@ -33,6 +35,7 @@ export class VerifyPlans {
     private sPS: StudyPlanService,
   ) {
     this.isLoading$ = this.sPS.loading$;
+    this.currentUser = this.auth.currentUser;
   }
 
   ngOnInit() {
@@ -46,11 +49,11 @@ export class VerifyPlans {
 
   formatDate(date: string): string {
     if (!date) return '';
-    
+
     const dateObj = new Date(date);
     return dateObj.toLocaleString('fr-CA', {
       year: 'numeric',
-      month: '2-digit', 
+      month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
@@ -58,14 +61,11 @@ export class VerifyPlans {
     });
   }
 
-
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
 
   onRowClick(row: StudyPlanEntry) {
     this.sPS.loadStudyPlan(row.studyPlanId);
-    console.log('Selected Study Plan ID:', row.studyPlanId);
-    
   }
 }

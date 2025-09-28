@@ -6,19 +6,9 @@
     </app-progress>
   </div>
   <div class="container-middle">
-    <!-- Loading State -->
-    <div class="loading-container" *ngIf="isLoading()">
-      <p>Chargement du plan d'étude...</p>
-    </div>
-
-    <!-- Error State -->
-    <div class="error-container" *ngIf="error() && !isLoading()">
-      <p>{{ error() }}</p>
-      <button class="retry-button" (click)="refreshStudyPlan()">Réessayer</button>
-    </div>
 
     <!-- Study Plan Content -->
-    <div class="study-plan-content" *ngIf="studyPlan && !isLoading() && !error()">
+    <div class="study-plan-content" *ngIf="studyPlan">
       <div class="study-plan-header">
         <h2>Plan d'étude</h2>
         <div class="status-badge" [class]="'status-' + studyPlan.status">
@@ -81,6 +71,13 @@
       </div>
     </div>
   </div>
+  <div *ngIf="!this.isStudent()" class="action-buttons">
+      <button class="btn-action btn-validate" (click)="onValidate()">Valider</button>
+      <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
+    </div>
+    <div *ngIf="this.isStudent()" class="action-buttons">
+      <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
+    </div>
   <div class="container-right">
     <app-chat></app-chat>
   </div>

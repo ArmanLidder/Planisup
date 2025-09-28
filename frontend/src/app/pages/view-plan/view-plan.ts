@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
 import { ProgressHelperService } from '@app/components/gsup-progress-bar/progress-helper.service';
@@ -9,6 +9,7 @@ import { ApiService } from '@app/services/api/api-service';
 import { ActivatedRoute } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { User, UserRole } from '@common/user';
 
 @Component({
   selector: 'app-view-plan',
@@ -17,50 +18,23 @@ import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
   templateUrl: './view-plan.html',
   styleUrl: './view-plan.scss',
 })
-export class ViewPlan implements OnInit {
-  open = signal(false);
+export class ViewPlan {
   studyPlan: StudyPlan | null = null;
-  isLoading = signal(true);
-  error = signal<string | null>(null);
+  currentUser: User | null;
 
   constructor(
-    private readonly progressHelper: ProgressHelperService, 
+    private readonly progressHelper: ProgressHelperService,
     private readonly apiService: ApiService,
     private readonly route: ActivatedRoute,
-    private readonly authService: AuthentificationService,
+    private readonly auth: AuthentificationService,
     private readonly sPS: StudyPlanService,
-  ) {}
-
-  ngOnInit(): void {
-    this.loadStudyPlan();
-  }
-
-  private loadStudyPlan(): void {
-    try {
-      this.isLoading.set(true);
-      this.error.set(null);
-
-      this.studyPlan = this.sPS.studyPlan;
-      if (this.studyPlan) {
-        this.isLoading.set(false);
-      }
-    } catch (error) {
-      console.error('Error loading study plan:', error);
-      this.error.set('Erreur lors du chargement du plan d\'étude');
-      this.isLoading.set(false);
-    }
+  ) {
+    this.currentUser = this.auth.currentUser;
+    this.studyPlan = this.sPS.studyPlan;
   }
 
   editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
-  
-  nextStep() {
-    this.progressHelper.eventHelper.next({ next: true, prev: false });
-  }
-  
-  prevStep() {
-    this.progressHelper.eventHelper.next({ prev: true, next: false });
-  }
-  
+
   onProgressChange(steps: ProgressStepModel[]) {
     console.log('État actuel des étapes :', steps);
   }
@@ -94,7 +68,22 @@ export class ViewPlan implements OnInit {
     return labels[validation] || validation;
   }
 
-  async refreshStudyPlan(): Promise<void> {
-    await this.loadStudyPlan();
+  protected isStudent(): boolean {
+    return this.currentUser?.role === UserRole.Etudiant;
+  }
+
+  onValidate() {
+    console.log("Plan validé ✅");
+  // 👉 call your API or service here
+  }
+
+  onRefuse() {
+    console.log("Plan refusé ❌");
+    // 👉 call your API or service here
+  }
+
+  onCancel() {
+    console.log("Plan abandonné 🚫");
+    // 👉 call your API or service here
   }
 }

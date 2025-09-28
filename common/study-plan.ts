@@ -48,4 +48,5 @@ export interface StudyPlanEntry {
     firstName: string,
     lastName: string,
     degree: string;
+    date: Date;
 }

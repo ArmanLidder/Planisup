@@ -10,17 +10,19 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { User, UserRole } from '@common/user';
+import { Loading } from "@app/components/loading/loading";
 
 @Component({
   selector: 'app-view-plan',
   standalone: true,
-  imports: [Progress, ChatComponent, CommonModule],
+  imports: [Progress, ChatComponent, CommonModule, Loading],
   templateUrl: './view-plan.html',
   styleUrl: './view-plan.scss',
 })
 export class ViewPlan {
   studyPlan: StudyPlan | null = null;
   currentUser: User | null;
+  isLoading$: typeof this.sPS.loading$;
 
   constructor(
     private readonly progressHelper: ProgressHelperService,
@@ -31,6 +33,7 @@ export class ViewPlan {
   ) {
     this.currentUser = this.auth.currentUser;
     this.studyPlan = this.sPS.studyPlan;
+    this.isLoading$ = this.sPS.loading$;
   }
 
   editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
@@ -83,7 +86,6 @@ export class ViewPlan {
   }
 
   onCancel() {
-    console.log("Plan abandonné 🚫");
-    // 👉 call your API or service here
+    this.sPS.cancelStudyPlan();
   }
 }

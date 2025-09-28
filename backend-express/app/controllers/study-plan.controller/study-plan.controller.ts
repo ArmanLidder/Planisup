@@ -22,7 +22,7 @@ export class StudyPlanController {
         const id = req.params.id;
         try {
             const studyPlan = await this.sPS.getStudyPlan(id);
-            return studyPlan ? res.status(201).json(studyPlan) : res.status(500);
+            return studyPlan ? res.status(201).json(studyPlan) : res.sendStatus(500);
         } catch(e) {
             return res.status(500).json(e)
         }
@@ -32,7 +32,7 @@ export class StudyPlanController {
         const id = req.params.id;
         try {
             const entries = await this.sPS.getStudyPlans(id);
-            return entries ? res.status(201).json(entries) : res.status(500);
+            return entries ? res.status(201).json(entries) : res.sendStatus(500);
         } catch(e) {
             return res.status(500).json(e)
         }
@@ -43,7 +43,7 @@ export class StudyPlanController {
         const data = req.body as Partial<StudyPlan>;
         try {
             const studyPlan = await this.sPS.handleStudentSubmission(data);
-            return studyPlan ? res.status(201).json(studyPlan) : res.status(500);
+            return studyPlan ? res.status(201).json(studyPlan) : res.sendStatus(500);
         } catch(e) {
             return res.status(500).json(e)
         }
@@ -54,18 +54,19 @@ export class StudyPlanController {
         const id = req.params.id;
         try {
             await this.sPS.cancelStudyPlan(id)
-            return res.status(200);
+            return res.status(200).json();
         } catch(e) {
             return res.status(500).json(e)
         }
     });
+
 
     this.router.patch("/approuved/:id", async (req: Request, res: Response) => {
         this.logger.info("Handle student study plan approbation")
         const id = req.params.id;
          try {
             await this.sPS.validateStudyPlan(id);
-            return res.status(200);
+            return res.status(200).json();
         } catch(e) {
             return res.status(500).json(e)
         }
@@ -76,7 +77,7 @@ export class StudyPlanController {
         const id = req.params.id;
         try {
             await this.sPS.refuseStudyPlan(id);
-            return res.status(200);
+            return res.status(200).json();
         } catch(e) {
             return res.status(500).json(e)
         }

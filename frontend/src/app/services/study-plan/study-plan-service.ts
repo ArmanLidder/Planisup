@@ -33,6 +33,31 @@ export class StudyPlanService {
     });
   }
 
+  cancelStudyPlan() {
+    this.loadingSubject.next(false);
+    if (this.studyPlan?._id) {
+      this.apiService.cancelStudyPlan(this.studyPlan._id).subscribe({
+        next: () => {
+          this.auth.addStudyPlan('');
+          this.router.navigate(['/accueil']).then(ok => console.log('Navigation success?', ok));
+        },
+        error: (err) => {
+          console.error('Cancel failed:', err);
+        },
+        complete: () => {
+          this.loadingSubject.next(false);
+        }
+      });
+    }
+  }
+
+  approveStudyPlan(id: string) {
+
+  }
+
+  refuseStudyPlan(id: string) {
+  }
+
   resetPlan() {
     this.studyPlan = null;
   }

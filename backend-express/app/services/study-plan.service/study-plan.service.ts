@@ -54,6 +54,8 @@ export class StudyPlanService {
             const student = await UserModel.findById(studyPlan.studentId);
             studyPlan.status = StudyPlanStatus.CANCELLED;
             student.currentPlan = "";
+            await studyPlan.save();
+            await student.save();
         } catch (e) {
             this.logger.error(e);
         }
@@ -110,6 +112,7 @@ export class StudyPlanService {
 
     private generateQuery(role: UserRole, userId: string) {
         const query: any = {};
+        query['status'] = StudyPlanStatus.LIVE;
         if (role === UserRole.Directeur) {
             query['directorId'] = userId;
             query['studyPlanStep'] = StudyPlanStep.DIRECTOR;

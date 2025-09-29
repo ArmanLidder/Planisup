@@ -1,12 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
-import { ProgressHelperService } from '@app/components/gsup-progress-bar/progress-helper.service';
 import { ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { StudyPlan, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
-import { ApiService } from '@app/services/api/api-service';
-import { ActivatedRoute } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { User, UserRole } from '@common/user';

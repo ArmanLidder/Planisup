@@ -10,8 +10,8 @@
 }
 
 .content {
-  width: 60vw;
-  height: 75vh;
+  width: 65vw;
+  height: 70vh;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -20,9 +20,18 @@
   background: rgba(255, 255, 255, 0.85);
   border-radius: 10px;
   box-shadow: 0 25px 30px rgba(0, 0, 0, 0.7);
-  gap: 3rem;
+  gap: 2.2rem;
   padding-top: 2rem;
-  overflow: hidden; /* évite les débordements */
+  overflow: hidden;
+}
+
+.content-search {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  align-items: stretch;
+  width: 80%;
+  gap: 2rem;
 }
 
 .content-search-bar {
@@ -37,7 +46,7 @@
   align-items: stretch;
   gap: 2rem;
   width: 80%;
-  height: 70%;
+  height: 80%;
   max-height: 100%;
   overflow-y: auto;
   padding-right: 0.5rem;
@@ -47,7 +56,7 @@
   width: 100%;
   min-height: 50px;
   display: grid;
-  grid-template-columns: 0.5fr 1.5fr 1fr 0.5fr 1fr 0.5fr;
+  grid-template-columns: 0.8fr 2.5fr 1.5fr 0.5fr 1.5fr 0.5fr;
   align-items: center;
   background: white;
   border-radius: 10px;
@@ -58,10 +67,10 @@
   font-size: 12px;
   overflow: hidden;
   white-space: nowrap;
+  font-weight: bold;
 }
 
 .content-course .sigle {
-  font-weight: bold;
   padding-left: 1rem;
 }
 
@@ -71,10 +80,46 @@
   gap: 5px;
   overflow: hidden;
   white-space: nowrap;
+  justify-content: center;
 }
 
 .semester {
   font-size: 12px;
+}
+
+.no-courses {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+::ng-deep .mat-mdc-form-field {
+  border-radius: 10px;
+  color: white;
+  width: 200px;
+}
+
+::ng-deep .mat-mdc-select-panel {
+  &::-webkit-scrollbar {
+    width: 15px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(7, 7, 7, 0.5);
+    border-radius: 12px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(7, 7, 7, 0.6);
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background: rgba(7, 7, 7, 0.7);
+  }
 }
 
 ::-webkit-scrollbar-thumb {
@@ -98,6 +143,10 @@
   width: 15px;
 }
 
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
 app-gsup-input {
   align-self: center;
   text-align: center;
@@ -107,4 +156,16 @@ app-gsup-input {
   height: auto; /* hauteur fluide */
   max-height: 100%; /* jamais plus haut que le conteneur */
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .content-search {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
 }

@@ -1,13 +1,51 @@
 <div class="search-container">
   <div class="content">
-    <div class="content-search-bar">
-      <app-gsup-input
-        [size]="'large'"
-        [image]="'./../../../assets/search.png'"
-        [placeholder]="'Rechercher des cours...'"
-        (value)="getSpecificCourse($event)"
-        [disabled]="this.loading"
-      ></app-gsup-input>
+    <div class="content-search">
+      <div class="content-search-bar">
+        <app-gsup-input
+          [size]="'large'"
+          [image]="'./../../../assets/search.png'"
+          [placeholder]="'Sigle ou nom de cours...'"
+          (value)="onSearch($event)"
+          [disabled]="this.loading"
+        ></app-gsup-input>
+      </div>
+      <mat-form-field>
+        <mat-select
+          placeholder="Département"
+          [(value)]="selectedDepartment"
+          (selectionChange)="filterBySelectedValue()"
+        >
+          <mat-option>---</mat-option>
+          <mat-option *ngFor="let department of this.departments" [value]="department">
+            {{ department }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select
+          placeholder="Trimestre"
+          [(value)]="selectedTrimester"
+          (selectionChange)="filterBySelectedValue()"
+        >
+          <mat-option>---</mat-option>
+          <mat-option *ngFor="let trimestre of this.trimesters" [value]="trimestre">
+            {{ trimestre }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-select
+          placeholder="Langue"
+          [(value)]="selectedLanguage"
+          (selectionChange)="filterBySelectedValue()"
+        >
+          <mat-option>---</mat-option>
+          <mat-option *ngFor="let language of this.languages" [value]="language">
+            {{ language }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
     <div *ngIf="this.loading" class="loading">Chargement des cours...</div>
@@ -16,7 +54,7 @@
         <p class="sigle">{{ course.sigle }}</p>
         <p class="name">{{ course.name }}</p>
         <p class="department">{{ course.department }}</p>
-        <p class="credits">{{ course.credits }} cr.</p>
+        <p class="credits">{{ course.credits }} crédits</p>
 
         <div class="semester-list">
           <p class="semester" *ngFor="let term of course.semesterList">
@@ -24,9 +62,8 @@
           </p>
         </div>
         <p class="language">{{ course.language }}</p>
-
-        <div *ngIf="this.filteredCourses.length === 0" class="no-courses">Aucun cours trouvé</div>
       </div>
+      <div *ngIf="this.filteredCourses.length === 0" class="no-courses">Aucun cours trouvé</div>
     </div>
   </div>
 </div>

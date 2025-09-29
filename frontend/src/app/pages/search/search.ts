@@ -3,11 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { GsupInput } from '@app/components/gsup-input/gsup-input';
 import { CourseService } from '@app/services/course/course-service';
 import { ExtendedInfoCourse } from '@common/program';
+import { MatInputModule } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [GsupInput, CommonModule],
+  imports: [GsupInput, CommonModule, MatInputModule, MatSelect, MatOption],
   templateUrl: './search.html',
   styleUrl: './search.scss',
 })
@@ -16,31 +18,54 @@ export class Search implements OnInit {
   public allCourses: ExtendedInfoCourse[] = [];
   public filteredCourses: ExtendedInfoCourse[] = [];
 
+  public selectedDepartment: string | null = null;
+  public selectedTrimester: string | null = null;
+  public selectedLanguage: string | null = null;
+
+  public departments: string[] = [];
+  public trimesters: string[] = [];
+  public languages: string[] = [];
+
+  private searchValue: string = '';
+
   constructor(protected readonly courseService: CourseService) {}
 
   public ngOnInit(): void {
     this.loading = true;
     this.courseService.getAllCourses().subscribe((listCourses) => {
       this.allCourses = this.formatTrimester(listCourses);
-      this.filteredCourses = [...listCourses];
+      this.filteredCourses = [...this.allCourses];
+
+      this.departments = [...new Set(this.allCourses.map((course) => course.department))];
+      this.trimesters = [...new Set(this.allCourses.flatMap((course) => course.semesterList))];
+      this.languages = [...new Set(this.allCourses.map((course) => course.language))];
+
       this.loading = false;
     });
   }
 
-  public getSpecificCourse(value: string): void {
-    const searchedValue = value.toLowerCase().trim();
-    if (searchedValue === '') {
-      this.filteredCourses = [...this.allCourses];
-    } else {
-      this.filteredCourses = this.allCourses.filter(
-        (course) =>
-          course.sigle.toLowerCase().includes(searchedValue) ||
-          course.name.toLowerCase().includes(searchedValue) ||
-          course.department.toLowerCase().includes(searchedValue) ||
-          course.semesterList.some((semester) => semester.toLowerCase().includes(searchedValue)) ||
-          course.language.toLowerCase().includes(searchedValue)
-      );
-    }
+  public onSearch(value: string): void {
+    this.searchValue = value.toLowerCase().trim();
+    this.filterBySelectedValue();
+  }
+
+  public filterBySelectedValue(): void {
+    this.filteredCourses = this.allCourses.filter((course) => {
+      const matchSearch =
+        this.searchValue === '' ||
+        course.sigle.toLowerCase().startsWith(this.searchValue) ||
+        course.name.toLowerCase().startsWith(this.searchValue);
+
+      const matchDepartment =
+        !this.selectedDepartment || course.department === this.selectedDepartment;
+
+      const matchTrimester =
+        !this.selectedTrimester || course.semesterList.includes(this.selectedTrimester);
+
+      const matchLanguage = !this.selectedLanguage || course.language === this.selectedLanguage;
+
+      return matchSearch && matchDepartment && matchTrimester && matchLanguage;
+    });
   }
 
   private formatTrimester(listCourses: ExtendedInfoCourse[]): ExtendedInfoCourse[] {

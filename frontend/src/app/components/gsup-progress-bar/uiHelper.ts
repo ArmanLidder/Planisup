@@ -17,7 +17,6 @@ export enum UiState {
 export const getStepOrderForProgram = (programType: ProgramType): StudyPlanStep[] => {
   switch (programType) {
     case ProgramType.DESS:
-    case ProgramType.MASTER:
       return [
         // StudyPlanStep.STUDENT,
         StudyPlanStep.ADMIN_AGENT,
@@ -25,6 +24,7 @@ export const getStepOrderForProgram = (programType: ProgramType): StudyPlanStep[
         StudyPlanStep.COORDONATOR,
         StudyPlanStep.REGISTRAR
       ];
+    case ProgramType.MASTER:
     case ProgramType.PHD:
       return [
         // StudyPlanStep.STUDENT,

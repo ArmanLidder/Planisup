@@ -3,13 +3,13 @@
     // user-select: none;
     display: grid;
     grid-template-columns: min-content 1fr;
-    grid-column-gap: 25px;
+    // grid-column-gap: 25px;
     justify-content: start;
 
     .steps-progress {
-        position: absolute;
-        top: 135px;
-        left: 34px;
+        // position: absolute;
+        // top: 135px;
+        // left: 34px;
         padding: 5px 5px 10px 0;
         box-shadow: 0 8px 16px rgba(0,0,0, 6.08);
         grid-column: 1 / 2;
@@ -17,7 +17,7 @@
         background-color: #fff;
         border-radius: 10px;
         height: fit-content;
-        width: 80px;
+        width: 91px;
     }
 
     .step-content {
@@ -155,6 +155,31 @@ svg#checkbox {
             stroke-dashoffset: 0;
         }
     }
+}
+
+.check-box.needs-correction {
+  svg#checkbox {
+    .circle {
+    //   stroke-dashoffset: 280; // cercle plein
+      fill: #c62828; // rouge vif (tu peux ajuster)
+    }
+    
+    // Ajoute une croix (si tu l’as dans le SVG)
+    // .cross {
+    //   stroke-dasharray: 40;
+    //   stroke-dashoffset: 0;
+    //   stroke: #fff;
+    //   stroke-width: 5;
+    //   opacity: 1;
+    // }
+  }
+
+  .info {
+    span.progress-info.needs-correction {
+      background-color: #c62828;
+      color: #fff;
+    }
+  }
 }
 
 // Version responsive pour petits écrans

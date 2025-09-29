@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
-import { ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
+import { getStepOrderForProgram, ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { StudyPlan, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
@@ -34,8 +34,8 @@ export class ViewPlan {
 
   editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
 
-  onProgressChange(steps: ProgressStepModel[]) {
-    console.log('État actuel des étapes :', steps);
+  get progressSteps(): ProgressStepModel[] {
+    return this.getProgressSteps();
   }
 
   getStatusLabel(status: StudyPlanStatus): string {
@@ -65,6 +65,41 @@ export class ViewPlan {
       [StepValidationStatus.NEEDS_CORRECTION]: 'Corrections requises'
     };
     return labels[validation] || validation;
+  }
+
+   private getCurrentStepOrder(): StudyPlanStep[] {
+    const studyPlan = this.studyPlan;
+    return getStepOrderForProgram(studyPlan!.programType);
+  }
+
+  getProgressSteps(): ProgressStepModel[] {
+    const studyPlan = this.studyPlan;
+    if (!studyPlan) return [];
+
+    const stepOrder = this.getCurrentStepOrder();
+    const currentStep = this.sPS.studyPlan?.studyPlanStep;
+
+    return stepOrder.map((step, index) => {
+      let displayLabel = '';
+
+      const stepIndex = stepOrder.indexOf(step);
+      const currentStepIndex = stepOrder.indexOf(currentStep!);
+
+      if (stepIndex < currentStepIndex) {
+        displayLabel = 'Approuvé';
+      } else if (stepIndex === currentStepIndex) {
+        displayLabel = this.getValidationLabel(this.sPS.studyPlan?.stepValidation!);
+      } else {
+        displayLabel = 'En attente';
+      }
+
+      return {
+        stepIndex: index,
+        label: this.getStepLabel(step),
+        displayLabel,
+        businessStep: step
+      };
+    });
   }
 
   needsCorrection() : boolean {

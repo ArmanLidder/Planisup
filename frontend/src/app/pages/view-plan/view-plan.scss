@@ -4,9 +4,15 @@
   align-items: flex-start;
   flex-direction: row;
   box-sizing: border-box;
-  gap: 2rem;
-  padding: 2rem;
-  min-height: 100vh;
+  gap: 9rem;
+  &.one-button {
+    gap: 12rem;
+  }
+  &.correction {
+    gap: 7.5rem;
+  }
+  // padding: 2rem;
+  // min-height: 100vh;
 }
 
 .container-left {
@@ -14,12 +20,12 @@
   justify-content: center;
   align-items: flex-start;
   flex-direction: column;
-  width: 15vw;
-  min-width: 200px;
+  // width: 15vw;
+  // min-width: 200px;
   height: auto;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  // padding: 1.5rem;
 }
 
 .container-middle {
@@ -28,7 +34,7 @@
   align-items: flex-start;
   flex-direction: column;
   width: 60vw;
-  min-height: 80vh;
+  // min-height: 80vh;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -38,16 +44,16 @@
 }
 
 .container-right {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex-direction: column;
-  width: 20vw;
-  min-width: 280px;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  // display: flex;
+  // justify-content: flex-start;
+  // align-items: stretch;
+  // flex-direction: column;
+  // width: 20vw;
+  // min-width: 280px;
+  // height: auto;
+  // border-radius: 12px;
+  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  // padding: 1.5rem;
 
   .NgxEditor__Wrapper {
     width: 100%;
@@ -413,7 +419,7 @@
 .action-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  // margin-top: 2rem;
 }
 
 .btn-action {

@@ -1,11 +1,10 @@
 @if (isLoading$ | async) {
 <app-loading></app-loading>
 }
-<div class="view-plan-container">
+<div class="view-plan-container" [class.one-button]="isStudent() && !needsCorrection()" [class.correction]="needsCorrection()">
   <div class="container-left">
     <app-progress
-      [totalSteps]="5"
-      (progressStatusChange)="onProgressChange($event)">
+      [itemProgressList]="progressSteps">
     </app-progress>
   </div>
   <div class="container-middle">
@@ -74,7 +73,8 @@
       </div>
     </div>
   </div>
-  <div *ngIf="!this.isStudent()" class="action-buttons">
+  <div class="container-right">
+    <div *ngIf="!this.isStudent()" class="action-buttons">
       <button class="btn-action btn-validate" (click)="onValidate()">Valider</button>
       <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
     </div>
@@ -82,7 +82,6 @@
       <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">Soumettre</button>
       <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
     </div>
-  <div class="container-right">
     <app-chat></app-chat>
   </div>
 </div>

@@ -9,17 +9,19 @@ import { ReducedProgram, Program, Course, ExtendedInfoCourse } from '@common/pro
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     //Pour securite avec tokens (?) dans le futur....
     return new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
   }
 
-  postLogin(loginRequest: LoginRequest): Observable<{success: boolean, user?: User, message?: string}> {
-    return this.http.post<{success: boolean, user?: User, message?: string}>(
+  postLogin(
+    loginRequest: LoginRequest
+  ): Observable<{ success: boolean; user?: User; message?: string }> {
+    return this.http.post<{ success: boolean; user?: User; message?: string }>(
       `${environment.serverUrl}/auth/login`,
       loginRequest,
       { headers: this.getAuthHeaders() }
@@ -73,12 +75,6 @@ export class ApiService {
     return this.http.get<Course[]>(`${environment.serverUrl}/course/courses`);
   }
 
-  getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
-    return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/course`, {
-      params: { value },
-    });
-  }
-
   submitStudyPlan(studyPlan: any): Observable<any> {
     return this.http.post<any>(`${environment.serverUrl}/study-plan/student`, studyPlan);
   }
@@ -99,14 +95,12 @@ export class ApiService {
     return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
   }
 
-  // This will get study plan in progress thst re linked to the user role 
+  // This will get study plan in progress thst re linked to the user role
   getStudyPlans(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
   }
 
-  deleteUser(
-    userId: string
-  ): Observable<{ success: boolean; message: string }> {
+  deleteUser(userId: string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${environment.serverUrl}/users/${userId}`,
       { headers: this.getAuthHeaders() }

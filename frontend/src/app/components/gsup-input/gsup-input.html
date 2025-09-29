@@ -5,6 +5,6 @@
     [value]="valueInput"
     [ngClass]="[size]"
     (input)="valueEmitted($event)"
-    (keydown.space)="$event.preventDefault()"
+    [disabled]="disabled"
   />
 </div>

@@ -56,8 +56,8 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
   }
 
   &.opened {
-    height: 480px;
-    width: 480px;
+    height: 660px;
+    width: 586px;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
   }
@@ -127,6 +127,10 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
       transform: scale(0.95);
     }
   }
+}
+
+.arrow-icon {
+  font-size: 1.4rem;
 }
 
 /* ============================

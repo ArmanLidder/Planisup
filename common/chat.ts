@@ -15,5 +15,5 @@ export interface Message {
     lastName: string;
     role: UserRole;
     message: string,
-    sentDate?: Date
+    createdAt?: Date
 }

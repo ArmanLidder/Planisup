@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, User, UserRole } from '@common/user';
 import { ReducedProgram, Program, Course, ExtendedInfoCourse } from '@common/program';
+import { Message } from '@common/chat';
 
 @Injectable({
   providedIn: 'root',
@@ -99,14 +100,20 @@ export class ApiService {
     return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
   }
 
-  // This will get study plan in progress thst re linked to the user role 
+  // This will get study plan in progress thst re linked to the user role
   getStudyPlans(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
   }
 
-  deleteUser(
-    userId: string
-  ): Observable<{ success: boolean; message: string }> {
+  getChat(chatId: string): Observable<any> {
+    return this.http.get<any>(`${environment.serverUrl}/chat/${chatId}`);
+  }
+
+  sendMessage(studyPlanId: string, message: Message): Observable<any> {
+    return this.http.post<any>(`${environment.serverUrl}/chat/${studyPlanId}`, message);
+  }
+
+  deleteUser(userId: string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${environment.serverUrl}/users/${userId}`,
       { headers: this.getAuthHeaders() }

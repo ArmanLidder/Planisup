@@ -2,7 +2,6 @@ import { Request, Response, Router } from "express";
 import { Service } from "typedi";
 import { Logger } from "@app/services/logger.service/logger.service";
 import { ChatModel, convertToChat } from "@app/models/chat.model/chat.model";
-import { StudyPlanModel } from "@app/models/study-plan.model/study-plan.model";
 import { IMessage } from "@app/models/chat.model/chat.model";
 
 @Service()
@@ -18,7 +17,7 @@ export class ChatController {
 
     this.router.get("/:id", async (req: Request, res: Response) => {
         this.logger.info("Fetching message for study-plan");
-        const id = req.params.studyPlanId;
+        const id = req.params.id;
         try {
             const chat = await ChatModel.findById(id);
             return res.status(200).json(convertToChat(chat));
@@ -28,27 +27,17 @@ export class ChatController {
         }
     });
 
-    this.router.post("/:studyPlanId", async (req: Request, res: Response) => {
+    this.router.post("/:id", async (req: Request, res: Response) => {
         this.logger.info("Handle message reception");
-        const id = req.params.studyPlanId;
+        const id = req.params.id;
         const message: IMessage = req.body;
-
+        console.log("message", message)
         try {
-            const studyPlan = await StudyPlanModel.findById(id);
-            if (!studyPlan) {
-                return res.status(404).json({ error: "Study plan not found" });
-            }
-
-            if (!studyPlan.chatId) {
-                return res.status(400).json({ error: "No chatId linked to this study plan" });
-            }
-
             const updatedChat = await ChatModel.findOneAndUpdate(
-                { _id: studyPlan.chatId },
+                { _id: id },
                 { $push: { messages: message } },
                 { new: true },
             );
-
             return res.status(200).json(updatedChat);
         } catch (e) {
             this.logger.error(`Error handling message reception: ${e}`);

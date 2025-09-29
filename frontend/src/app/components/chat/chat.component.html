@@ -9,7 +9,7 @@
 
   <div class="chat-content" [hidden]="state === 0">
     <div class="chat-area">
-      <div #chatscrollable class="messages">
+      <!-- <div #chatscrollable class="messages">
         <ng-container *ngFor="let msg of canal.messages">
           <div [ngClass]="['message', getMessageClass(msg)]">
             <div class="bubble">
@@ -19,7 +19,21 @@
             </div>
           </div>
         </ng-container>
-      </div>
+      </div> -->
+      <div #chatscrollable class="messages">
+      <ng-container *ngIf="chat$ | async as chat">
+        <ng-container *ngFor="let msg of chat?.messages">
+          <div [ngClass]="['message', getMessageClass(msg)]">
+            <div class="bubble">
+              <div class="sender-name">{{ getSenderName(msg) }}</div>
+              <div class="message-content" [innerHTML]="safeHtml(msg.message)"></div>
+              <div class="message-timestamp">{{ formatSentDate(msg.createdAt) }}</div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+
 
       <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form">
         <app-editor-component formControlName="message"></app-editor-component>

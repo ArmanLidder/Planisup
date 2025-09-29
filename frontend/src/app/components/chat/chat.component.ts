@@ -1,10 +1,12 @@
 import { Component, ElementRef, inject, ViewChild, HostListener, ViewEncapsulation } from '@angular/core';
-import { Message } from "@common/chat";
+import { Message, Chat } from "@common/chat";
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf, CommonModule } from '@angular/common';
 import { EditorComponent } from "../editor-component/editor-component";
 import { UserRole } from '@common/user';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ChatService } from '@app/services/chat/chat-service';
+import { AuthentificationService } from '@app/services/authentification/authentification-service';
 
 export enum State {
   closed,
@@ -21,13 +23,15 @@ export enum State {
     NgClass,
     NgFor,
     NgIf,
-    EditorComponent
+    EditorComponent,
+    CommonModule
   ],
   encapsulation: ViewEncapsulation.None,
 })
-
 export class ChatComponent {
   private fb: FormBuilder = inject(FormBuilder);
+  private chatService = inject(ChatService);
+  private auth = inject(AuthentificationService);
 
   @ViewChild('chatscrollable') private scrollContainer!: ElementRef;
 
@@ -37,39 +41,16 @@ export class ChatComponent {
 
   state: State = State.closed;
   isChatFocused: boolean = true;
-
-  currentUserUid = 'user-123';
-  currentUserFirstName = 'John';
-  currentUserLastName = 'Doe';
-  currentUserRole: UserRole = UserRole.Etudiant;
-
-  canal: {
-    messages: Message[];
-  } = {
-    messages: [
-      {
-        _id: 'msg-1',
-        senderId: 'user-456',
-        firstName: 'Alice',
-        lastName: 'Smith',
-        role: UserRole.Etudiant,
-        message: 'Bonjour ! Comment ça va ?',
-        sentDate: new Date(Date.now() - 60000)
-      },
-      {
-        _id: 'msg-2',
-        senderId: 'user-123',
-        firstName: this.currentUserFirstName,
-        lastName: this.currentUserLastName,
-        role: this.currentUserRole,
-        message: 'Salut ! Tout va bien, merci !',
-        sentDate: new Date()
-      }
-    ]
-  };
+  chat$: typeof this.chatService.chat$;
 
   constructor(private sanitizer: DomSanitizer) {
     this.setUp();
+    this.chat$ = this.chatService.chat$;
+  }
+
+  ngOnInit() {
+    // load initial messages
+    this.chatService.loadMessages();
   }
 
   @HostListener('click', ['$event'])
@@ -84,7 +65,6 @@ export class ChatComponent {
 
   toggleChatState() {
     this.state = this.state === State.closed ? State.opened : State.closed;
-
     // if (this.state === State.opened) {
     //   this.scrollToBottom();
     // }
@@ -98,39 +78,38 @@ export class ChatComponent {
   }
 
   getMessageClass(msg: Message): string {
-    return msg.senderId === this.currentUserUid ? 'sent' : 'received';
+    return msg.senderId === this.auth.currentUser?._id ? 'sent' : 'received';
   }
 
   getSenderName(msg: Message): string {
-    return `${msg.firstName} ${msg.lastName}`;
+    return `${msg.firstName} ${msg.lastName} | ${msg.role}`;
   }
 
   formatSentDate(date: Date | undefined): string {
-    if (!date) return '';
+    console.log("date", date);
+    if (!date) return 'karim';
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  async sendMessage() {
-    if (this.messageForm.invalid) return;
+  sendMessage() {
+    if (this.messageForm.invalid || !this.chat$) return;
 
     const messageContent = this.messageForm.get('message')?.value?.trim();
     if (!messageContent) return;
 
     const newMessage: Message = {
-      _id: `msg-${Date.now()}`,
-      senderId: this.currentUserUid,
-      firstName: this.currentUserFirstName,
-      lastName: this.currentUserLastName,
-      role: this.currentUserRole,
+      senderId: this.auth.currentUser?._id as string,
+      firstName: this.auth.currentUser?.firstName as string,
+      lastName: this.auth.currentUser?.lastName as string,
+      role: this.auth.currentUser?.role as UserRole,
       message: messageContent,
-      sentDate: new Date()
     };
 
-    this.canal.messages.push(newMessage);
+    // use service instead of pushing locally
+    this.chatService.sendMessage(newMessage);
 
     this.messageForm.reset('');
     // this.scrollToBottom();
-    console.log('Message sent:', newMessage);
   }
 
   // private scrollToBottom(): void {
@@ -150,6 +129,5 @@ export class ChatComponent {
   safeHtml(content: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(content);
   }
-
-  protected readonly console = console;
 }
+

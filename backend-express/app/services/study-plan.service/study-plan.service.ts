@@ -67,10 +67,16 @@ export class StudyPlanService {
          try {
             const studyPlan =  await StudyPlanModel.findById(id);
             const originalStep = studyPlan.studyPlanStep;
-            // Increment Step
-            if (studyPlan.studyPlanStep === StudyPlanStep.DIRECTOR) studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
-            else if (studyPlan.studyPlanStep === StudyPlanStep.ADMIN_AGENT) studyPlan.studyPlanStep = StudyPlanStep.COORDONATOR;
-            else if (studyPlan.studyPlanStep === StudyPlanStep.COORDONATOR) studyPlan.studyPlanStep = StudyPlanStep.REGISTRAR;
+            // Increment Step Eventually distinguish between master research and master professional
+            if (studyPlan.programType !== ProgramType.DESS) {
+                if (studyPlan.studyPlanStep === StudyPlanStep.DIRECTOR) studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
+                else if (studyPlan.studyPlanStep === StudyPlanStep.ADMIN_AGENT) studyPlan.studyPlanStep = StudyPlanStep.COORDONATOR;
+                else if (studyPlan.studyPlanStep === StudyPlanStep.COORDONATOR) studyPlan.studyPlanStep = StudyPlanStep.REGISTRAR;
+            } else {
+                if (studyPlan.studyPlanStep === StudyPlanStep.ADMIN_AGENT) studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
+                else if (studyPlan.studyPlanStep === StudyPlanStep.DIRECTOR) studyPlan.studyPlanStep = StudyPlanStep.COORDONATOR;
+                else if (studyPlan.studyPlanStep === StudyPlanStep.COORDONATOR) studyPlan.studyPlanStep = StudyPlanStep.REGISTRAR;
+            }
 
             // Update States
             if (originalStep === StudyPlanStep.REGISTRAR) {

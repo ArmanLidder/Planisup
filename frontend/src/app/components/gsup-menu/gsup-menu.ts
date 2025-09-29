@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, Input } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { User, UserRole } from '@common/user';
@@ -18,7 +19,8 @@ export class GsupMenu {
   constructor(
     private readonly reference: ElementRef,
     private readonly router: Router,
-    private readonly authentificationService: AuthentificationService
+    private readonly authentificationService: AuthentificationService,
+    private readonly dialog: MatDialog
   ) {}
 
   public openMenu(): void {

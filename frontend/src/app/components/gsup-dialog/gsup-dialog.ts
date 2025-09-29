@@ -14,7 +14,8 @@ import { CommonModule } from '@angular/common';
 export class GsupDialog {
   constructor(
     public dialogRef: MatDialogRef<GsupDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+    @Inject(MAT_DIALOG_DATA)
+    public data: { message?: string; firstButton?: string; secondButton?: string }
   ) {}
 
   onConfirmClick(): void {

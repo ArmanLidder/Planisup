@@ -48,7 +48,7 @@ export class UserManagement implements OnInit {
   searchTerm = '';
   selectedTabIndex = 0;
 
-  constructor(private apiService: ApiService, private dialog: MatDialog) {}
+  constructor(private readonly apiService: ApiService, private readonly dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.getCurrentAdminId();
@@ -119,7 +119,7 @@ export class UserManagement implements OnInit {
     const message = `Assigner le rôle "${roleDisplayName}" à ${employee.firstName} ${employee.lastName} (${employee.usercode}) ?\n\nCette action retirera l'employé de la liste des utilisateurs non assignés.`;
 
     const dialogRef = this.dialog.open(GsupDialog, {
-      data: { message },
+      data: { message, firstButton: 'Annuler', secondButton: 'Confirmer' },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -136,6 +136,8 @@ export class UserManagement implements OnInit {
     const dialogRef = this.dialog.open(GsupDialog, {
       data: {
         message: `Êtes-vous sûr de vouloir changer le rôle de ${user.firstName} ${user.lastName} de "${currentRoleDisplayName}" vers "${roleDisplayName}" ?`,
+        firstButton: 'Annuler',
+        secondButton: 'Confirmer',
       },
     });
 
@@ -168,6 +170,8 @@ export class UserManagement implements OnInit {
     const dialogRef = this.dialog.open(GsupDialog, {
       data: {
         message: `ATTENTION: Vous êtes sur le point de supprimer définitivement l'utilisateur ${user.firstName} ${user.lastName} (${user.usercode}).\n\nCette action est irréversible. Êtes-vous absolument certain ?`,
+        firstButton: 'Annuler',
+        secondButton: 'Confirmer',
       },
     });
 

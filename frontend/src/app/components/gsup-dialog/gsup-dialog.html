@@ -6,6 +6,8 @@
   <p class="dialog-message">{{ data.message }}</p>
 </div>
 <div mat-dialog-actions class="dialog-actions">
-  <button mat-button (click)="onCancelClick()">Annuler</button>
-  <button mat-raised-button color="warn" (click)="onConfirmClick()">Confirmer</button>
+  <button mat-button (click)="onCancelClick()">{{ data.firstButton }}</button>
+  <button mat-raised-button color="warn" (click)="onConfirmClick()">
+    {{ data.secondButton }}
+  </button>
 </div>

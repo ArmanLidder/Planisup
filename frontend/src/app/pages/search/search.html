@@ -5,18 +5,28 @@
         [size]="'large'"
         [image]="'./../../../assets/search.png'"
         [placeholder]="'Rechercher des cours...'"
-        (value)="sendValue($event)"
+        (value)="getSpecificCourse($event)"
+        [disabled]="this.loading"
       ></app-gsup-input>
     </div>
 
-    <div *ngIf="loading" class="loading">Chargement des cours...</div>
-    <div *ngIf="!loading" class="content-search-list-courses">
-      <div class="content-course" *ngFor="let course of courses">
-        {{ course.sigle }} - {{ course.name }} - {{ course.department }} - {{ course.credits }} -
-        {{ course.language }}
-      </div>
+    <div *ngIf="this.loading" class="loading">Chargement des cours...</div>
+    <div *ngIf="!this.loading" class="content-search-list-courses">
+      <div class="content-course" *ngFor="let course of this.filteredCourses">
+        <p class="sigle">{{ course.sigle }}</p>
+        <p class="name">{{ course.name }}</p>
+        <p class="department">{{ course.department }}</p>
+        <p class="credits">{{ course.credits }} cr.</p>
 
-      <div *ngIf="courses.length === 0" class="no-courses">Aucun cours trouvé</div>
+        <div class="semester-list">
+          <p class="semester" *ngFor="let term of course.semesterList">
+            {{ term }}
+          </p>
+        </div>
+        <p class="language">{{ course.language }}</p>
+
+        <div *ngIf="this.filteredCourses.length === 0" class="no-courses">Aucun cours trouvé</div>
+      </div>
     </div>
   </div>
 </div>

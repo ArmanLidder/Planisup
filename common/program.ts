@@ -39,7 +39,12 @@ export interface ExtendedInfoCourse extends Course {
   department: string;
   language: string;
   description: string;
-  semester: Object;
+  semester: {
+    Automne?: string;
+    Hiver?: string;
+    Été?: string;
+  };
+  semesterList: string[];
 }
 
 export interface Trimester {

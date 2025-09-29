@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 export class CourseService {
   public courses: Course[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(private readonly apiService: ApiService) {}
 
   public getAllCourses(): Observable<ExtendedInfoCourse[]> {
     return this.apiService.getAllCourses();
@@ -19,9 +19,5 @@ export class CourseService {
     this.apiService.getCourses().subscribe((listCourses) => {
       this.courses = listCourses;
     });
-  }
-  
-  public getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
-    return this.apiService.getSpecificCourse(value);
   }
 }

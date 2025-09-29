@@ -10,17 +10,19 @@ import { Message } from '@common/chat';
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     //Pour securite avec tokens (?) dans le futur....
     return new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
   }
 
-  postLogin(loginRequest: LoginRequest): Observable<{success: boolean, user?: User, message?: string}> {
-    return this.http.post<{success: boolean, user?: User, message?: string}>(
+  postLogin(
+    loginRequest: LoginRequest
+  ): Observable<{ success: boolean; user?: User; message?: string }> {
+    return this.http.post<{ success: boolean; user?: User; message?: string }>(
       `${environment.serverUrl}/auth/login`,
       loginRequest,
       { headers: this.getAuthHeaders() }
@@ -72,12 +74,6 @@ export class ApiService {
 
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${environment.serverUrl}/course/courses`);
-  }
-
-  getSpecificCourse(value: string): Observable<ExtendedInfoCourse[]> {
-    return this.http.get<ExtendedInfoCourse[]>(`${environment.serverUrl}/course/course`, {
-      params: { value },
-    });
   }
 
   submitStudyPlan(studyPlan: any): Observable<any> {

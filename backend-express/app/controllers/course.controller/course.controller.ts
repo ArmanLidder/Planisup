@@ -1,13 +1,18 @@
 import { Request, Response, Router } from "express";
 import { Service } from "typedi";
 import { Logger } from "@app/services/logger.service/logger.service";
-import { fetchCoursesFromUrl, planTriennal, RawCourse, fetchTriennalFromUrl } from "@app/utils/load-program";
+import {
+  fetchCoursesFromUrl,
+  planTriennal,
+  RawCourse,
+  fetchTriennalFromUrl,
+} from "@app/utils/load-program";
 
 @Service()
 export class CourseController {
   public router: Router;
 
-  constructor(private logger: Logger) {
+  constructor(private readonly logger: Logger) {
     this.configureRouter();
   }
 
@@ -42,44 +47,6 @@ export class CourseController {
       } catch (error) {
         this.logger.error(`Error fetching courses: ${error}`);
         return res.status(500).json({ error: "Failed to fetch courses" });
-      }
-    });
-
-    this.router.get("/course", async (req: Request, res: Response) => {
-      try {
-        const { value } = req.query;
-        this.logger.info(`Searching courses: ${value}`);
-
-        const allCourses: RawCourse[] = await fetchCoursesFromUrl();
-
-        const filteredCourses = allCourses.filter(
-          (course) =>
-            course.sigle
-              .toLowerCase()
-              .includes(value?.toString().toLowerCase() || "") ||
-            course.titre
-              .toLowerCase()
-              .includes(value?.toString().toLowerCase() || "")
-        );
-
-        const extendedCourses = filteredCourses.map((course) => ({
-          sigle: course.sigle.trim(),
-          name: course.titre,
-          credits: course.nombreCredit,
-          semester: {
-            Automne: course.indPlanTriAut,
-            Hiver: course.indPlanTriHiv,
-            Été: course.indPlanTriEte,
-          },
-          department: course.departement,
-          description: course.descriptionCours,
-          language: course.sigle.trim().endsWith("E") ? "Anglais" : "Français",
-        }));
-
-        return res.status(200).json(extendedCourses);
-      } catch (error) {
-        this.logger.error(`Error searching courses: ${error}`);
-        return res.status(500).json({ error: "Failed to search courses" });
       }
     });
 

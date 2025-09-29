@@ -13,6 +13,7 @@ export class GsupInput {
   @Input() placeholder: string = '';
   @Input() image?: string = '';
   @Input() size: string = 'medium';
+  @Input() disabled: boolean = false;
 
   @Output() value = new EventEmitter<string>();
 

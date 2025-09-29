@@ -11,17 +11,15 @@ import { User, UserRole } from '@common/user';
   templateUrl: './gsup-menu.html',
   styleUrls: ['./gsup-menu.scss'],
 })
-export class GsupMenu implements OnInit {
+export class GsupMenu {
   @Input() currentUser: User | null = null;
   public isMenuOpen: boolean = false;
 
   constructor(
-    private reference: ElementRef,
-    private router: Router,
-    private authentificationService: AuthentificationService
+    private readonly reference: ElementRef,
+    private readonly router: Router,
+    private readonly authentificationService: AuthentificationService
   ) {}
-
-  public ngOnInit(): void {}
 
   public openMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

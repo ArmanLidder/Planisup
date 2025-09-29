@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ConfirmationDialog } from './confirmation-dialog';
+import { GsupDialog } from './gsup-dialog';
 
-describe('ConfirmationDialog', () => {
-  let component: ConfirmationDialog;
-  let fixture: ComponentFixture<ConfirmationDialog>;
+describe('GsupDialog', () => {
+  let component: GsupDialog;
+  let fixture: ComponentFixture<GsupDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConfirmationDialog]
+      imports: [GsupDialog]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ConfirmationDialog);
+    fixture = TestBed.createComponent(GsupDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

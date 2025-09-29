@@ -13,7 +13,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ApiService } from '../../services/api/api-service';
 import { User, UserRole } from '../../../../../common/user';
-import { ConfirmationDialog } from '../../components/confirmation-dialog/confirmation-dialog';
+import { GsupDialog } from '../gsup-dialog/gsup-dialog';
 
 @Component({
   selector: 'app-user-management',
@@ -33,7 +33,7 @@ import { ConfirmationDialog } from '../../components/confirmation-dialog/confirm
     MatTabsModule,
   ],
   templateUrl: './user-management.html',
-  styleUrl: './user-management.scss'
+  styleUrl: './user-management.scss',
 })
 export class UserManagement implements OnInit {
   users: User[] = [];
@@ -48,10 +48,7 @@ export class UserManagement implements OnInit {
   searchTerm = '';
   selectedTabIndex = 0;
 
-  constructor(
-    private apiService: ApiService,
-    private dialog: MatDialog
-  ) {}
+  constructor(private apiService: ApiService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.getCurrentAdminId();
@@ -69,7 +66,7 @@ export class UserManagement implements OnInit {
       UserRole.Directeur,
       UserRole.Agent,
       UserRole.Coordonnateur,
-      UserRole.Registrar
+      UserRole.Registrar,
     ];
   }
 
@@ -79,7 +76,7 @@ export class UserManagement implements OnInit {
     this.apiService.getAllUsers().subscribe({
       next: (response) => {
         if (response.success) {
-          this.users = response.users.filter(user => user._id !== this.currentAdminId);
+          this.users = response.users.filter((user) => user._id !== this.currentAdminId);
           this.categorizeUsers();
           this.filterUsers();
         }
@@ -87,13 +84,13 @@ export class UserManagement implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-      }
+      },
     });
   }
 
   private categorizeUsers(): void {
-    this.unassignedEmployees = this.users.filter(user => user.role === UserRole.Employe);
-    this.assignedUsers = this.users.filter(user => user.role !== UserRole.Employe);
+    this.unassignedEmployees = this.users.filter((user) => user.role === UserRole.Employe);
+    this.assignedUsers = this.users.filter((user) => user.role !== UserRole.Employe);
   }
 
   onSearchChange(event: any): void {
@@ -105,11 +102,12 @@ export class UserManagement implements OnInit {
     const searchLower = this.searchTerm.toLowerCase();
 
     if (this.searchTerm) {
-      this.filteredUsers = this.assignedUsers.filter(user =>
-        user.firstName.toLowerCase().includes(searchLower) ||
-        user.lastName.toLowerCase().includes(searchLower) ||
-        user.usercode.toLowerCase().includes(searchLower) ||
-        this.getRoleDisplayName(user.role).toLowerCase().includes(searchLower)
+      this.filteredUsers = this.assignedUsers.filter(
+        (user) =>
+          user.firstName.toLowerCase().includes(searchLower) ||
+          user.lastName.toLowerCase().includes(searchLower) ||
+          user.usercode.toLowerCase().includes(searchLower) ||
+          this.getRoleDisplayName(user.role).toLowerCase().includes(searchLower)
       );
     } else {
       this.filteredUsers = this.assignedUsers;
@@ -120,11 +118,11 @@ export class UserManagement implements OnInit {
     const roleDisplayName = this.getRoleDisplayName(newRole);
     const message = `Assigner le rôle "${roleDisplayName}" à ${employee.firstName} ${employee.lastName} (${employee.usercode}) ?\n\nCette action retirera l'employé de la liste des utilisateurs non assignés.`;
 
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
-      data: { message }
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: { message },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.updateUserRole(employee, newRole);
       }
@@ -135,13 +133,13 @@ export class UserManagement implements OnInit {
     const roleDisplayName = this.getRoleDisplayName(newRole);
     const currentRoleDisplayName = this.getRoleDisplayName(user.role);
 
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
+    const dialogRef = this.dialog.open(GsupDialog, {
       data: {
-        message: `Êtes-vous sûr de vouloir changer le rôle de ${user.firstName} ${user.lastName} de "${currentRoleDisplayName}" vers "${roleDisplayName}" ?`
-      }
+        message: `Êtes-vous sûr de vouloir changer le rôle de ${user.firstName} ${user.lastName} de "${currentRoleDisplayName}" vers "${roleDisplayName}" ?`,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.updateUserRole(user, newRole);
       }
@@ -152,7 +150,7 @@ export class UserManagement implements OnInit {
     this.apiService.updateUserRole(user._id, newRole).subscribe({
       next: (response) => {
         if (response.success) {
-          const userIndex = this.users.findIndex(u => u._id === user._id);
+          const userIndex = this.users.findIndex((u) => u._id === user._id);
           if (userIndex !== -1) {
             this.users[userIndex] = response.user;
           }
@@ -162,18 +160,18 @@ export class UserManagement implements OnInit {
       },
       error: (error) => {
         this.loadUsers();
-      }
+      },
     });
   }
 
   confirmDeleteUser(user: User): void {
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
+    const dialogRef = this.dialog.open(GsupDialog, {
       data: {
-        message: `ATTENTION: Vous êtes sur le point de supprimer définitivement l'utilisateur ${user.firstName} ${user.lastName} (${user.usercode}).\n\nCette action est irréversible. Êtes-vous absolument certain ?`
-      }
+        message: `ATTENTION: Vous êtes sur le point de supprimer définitivement l'utilisateur ${user.firstName} ${user.lastName} (${user.usercode}).\n\nCette action est irréversible. Êtes-vous absolument certain ?`,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.deleteUser(user);
       }
@@ -184,14 +182,14 @@ export class UserManagement implements OnInit {
     this.apiService.deleteUser(user._id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.users = this.users.filter(u => u._id !== user._id);
+          this.users = this.users.filter((u) => u._id !== user._id);
           this.categorizeUsers();
           this.filterUsers();
         }
       },
       error: (error) => {
         // Handle error
-      }
+      },
     });
   }
 
@@ -203,7 +201,7 @@ export class UserManagement implements OnInit {
       [UserRole.Agent]: 'Agent administratif',
       [UserRole.Coordonnateur]: 'Coordonnateur (CPES)',
       [UserRole.Administrateur]: 'Administrateur',
-      [UserRole.Registrar]: 'Registraire'
+      [UserRole.Registrar]: 'Registraire',
     };
     return roleNames[role];
   }
@@ -216,7 +214,7 @@ export class UserManagement implements OnInit {
       [UserRole.Agent]: 'accent',
       [UserRole.Coordonnateur]: '',
       [UserRole.Administrateur]: '',
-      [UserRole.Registrar]: ''
+      [UserRole.Registrar]: '',
     };
     return roleColors[role];
   }

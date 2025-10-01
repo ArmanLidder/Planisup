@@ -32,16 +32,12 @@ export class Search implements OnInit {
 
   public ngOnInit(): void {
     this.loading = true;
-    this.courseService.getAllCourses().subscribe((listCourses) => {
-      this.allCourses = this.formatTrimester(listCourses);
-      this.filteredCourses = [...this.allCourses];
-
-      this.departments = [...new Set(this.allCourses.map((course) => course.department))];
-      this.trimesters = [...new Set(this.allCourses.flatMap((course) => course.semesterList))];
-      this.languages = [...new Set(this.allCourses.map((course) => course.language))];
-
-      this.loading = false;
-    });
+    this.allCourses = this.formatTrimester(this.courseService.searchCourses);
+    this.filteredCourses = [...this.allCourses];
+    this.departments = [...new Set(this.allCourses.map((course) => course.department))];
+    this.trimesters = [...new Set(this.allCourses.flatMap((course) => course.semesterList))];
+    this.languages = [...new Set(this.allCourses.map((course) => course.language))];
+    this.loading = false;
   }
 
   public onSearch(value: string): void {

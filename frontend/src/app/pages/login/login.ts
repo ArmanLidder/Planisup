@@ -12,6 +12,7 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { UserRole, LoginRequest, User } from '@common/user';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Loading } from '@app/components/loading/loading';
+import { CourseService } from '@app/services/course/course-service';
 
 @Component({
   selector: 'app-login',
@@ -41,6 +42,7 @@ export class Login {
     private authentificationService: AuthentificationService,
     private router: Router,
     private readonly sPS: StudyPlanService,
+    private coursesService: CourseService,
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
@@ -48,6 +50,7 @@ export class Login {
       lastName: ['', [Validators.required, Validators.minLength(2)]]
     });
     this.isLoading$ = this.sPS.loading$;
+    this.coursesService.getAllCourses();
   }
 
   onSubmit(): void {
@@ -79,7 +82,7 @@ export class Login {
             // Redirect based on role
             if (user.role === UserRole.Administrateur) {
               this.router.navigate(['/admin']);
-            } 
+            }
             // else if (user.role !== UserRole.Etudiant) {
             //   this.router.navigate(['/staff']);
             // }

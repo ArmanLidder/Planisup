@@ -29,8 +29,8 @@ export const getStepOrderForProgram = (programType: ProgramType): StudyPlanStep[
       return [
         // StudyPlanStep.STUDENT,
         StudyPlanStep.DIRECTOR,
-        StudyPlanStep.COORDONATOR,
         StudyPlanStep.ADMIN_AGENT,
+        StudyPlanStep.COORDONATOR,
         StudyPlanStep.REGISTRAR
       ];
   }
@@ -40,7 +40,7 @@ export const getStepOrderForProgram = (programType: ProgramType): StudyPlanStep[
 export class UiHelper {
     public itemProgressList: ProgressStepModel[] = [];
     public activeIndex: number = 0;
-    
+
     constructor(protected progressHelper: ProgressHelperService) {}
 
     // Hook pour les classes enfants

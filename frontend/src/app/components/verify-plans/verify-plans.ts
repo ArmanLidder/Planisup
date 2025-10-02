@@ -24,15 +24,14 @@ export class VerifyPlans {
   dataSource = new MatTableDataSource<StudyPlanEntry>();
   isLoading$: typeof this.sPS.loading$;
 
-
   selectedRow: StudyPlanEntry | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private apiService: ApiService,
-    private auth: AuthentificationService,
-    private sPS: StudyPlanService,
+    private readonly apiService: ApiService,
+    private readonly auth: AuthentificationService,
+    private readonly sPS: StudyPlanService
   ) {
     this.isLoading$ = this.sPS.loading$;
     this.currentUser = this.auth.currentUser;
@@ -40,8 +39,8 @@ export class VerifyPlans {
 
   ngOnInit() {
     const id = this.auth.currentUser?._id;
-    if(id){
-      this.apiService.getStudyPlans(id).subscribe(plans => {
+    if (id) {
+      this.apiService.getStudyPlans(id).subscribe((plans) => {
         this.dataSource.data = plans;
       });
     }
@@ -57,7 +56,7 @@ export class VerifyPlans {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
     });
   }
 

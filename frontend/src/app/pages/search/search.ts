@@ -5,16 +5,34 @@ import { CourseService } from '@app/services/course/course-service';
 import { ExtendedInfoCourse } from '@common/program';
 import { MatInputModule } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
+import { MatHeaderCell, MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [GsupInput, CommonModule, MatInputModule, MatSelect, MatOption],
+  imports: [
+    CommonModule,
+    MatInputModule,
+    MatSelect,
+    MatOption,
+    MatHeaderCell,
+    MatTableModule,
+    MatIconModule,
+  ],
   templateUrl: './search.html',
   styleUrl: './search.scss',
 })
 export class Search implements OnInit {
-  public loading: boolean = false;
+  public displayedColumns: string[] = [
+    'sigle',
+    'name',
+    'department',
+    'credits',
+    'semesterList',
+    'language',
+  ];
+
   public allCourses: ExtendedInfoCourse[] = [];
   public filteredCourses: ExtendedInfoCourse[] = [];
 
@@ -31,13 +49,11 @@ export class Search implements OnInit {
   constructor(protected readonly courseService: CourseService) {}
 
   public ngOnInit(): void {
-    this.loading = true;
     this.allCourses = this.formatTrimester(this.courseService.searchCourses);
     this.filteredCourses = [...this.allCourses];
     this.departments = [...new Set(this.allCourses.map((course) => course.department))];
     this.trimesters = [...new Set(this.allCourses.flatMap((course) => course.semesterList))];
     this.languages = [...new Set(this.allCourses.map((course) => course.language))];
-    this.loading = false;
   }
 
   public onSearch(value: string): void {

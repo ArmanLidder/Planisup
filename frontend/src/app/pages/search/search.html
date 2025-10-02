@@ -1,69 +1,80 @@
 <div class="search-container">
-  <div class="content">
-    <div class="content-search">
-      <div class="content-search-bar">
-        <app-gsup-input
-          [size]="'large'"
-          [image]="'./../../../assets/search.png'"
-          [placeholder]="'Sigle ou nom de cours...'"
-          (value)="onSearch($event)"
-          [disabled]="this.loading"
-        ></app-gsup-input>
-      </div>
-      <mat-form-field>
-        <mat-select
-          placeholder="Département"
-          [(value)]="selectedDepartment"
-          (selectionChange)="filterBySelectedValue()"
-        >
-          <mat-option>---</mat-option>
-          <mat-option *ngFor="let department of this.departments" [value]="department">
-            {{ department }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select
-          placeholder="Trimestre"
-          [(value)]="selectedTrimester"
-          (selectionChange)="filterBySelectedValue()"
-        >
-          <mat-option>---</mat-option>
-          <mat-option *ngFor="let trimestre of this.trimesters" [value]="trimestre">
-            {{ trimestre }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-select
-          placeholder="Langue"
-          [(value)]="selectedLanguage"
-          (selectionChange)="filterBySelectedValue()"
-        >
-          <mat-option>---</mat-option>
-          <mat-option *ngFor="let language of this.languages" [value]="language">
-            {{ language }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+  <div class="content-search">
+    <mat-form-field appearance="outline" class="search-bar">
+      <mat-label>Sigle ou nom de cours...</mat-label>
+      <input matInput type="text" (input)="onSearch($event.target.value)" />
+      <mat-progress-spinner matSuffix mode="indeterminate" diameter="20"></mat-progress-spinner>
+    </mat-form-field>
 
-    <div *ngIf="this.loading" class="loading">Chargement des cours...</div>
-    <div *ngIf="!this.loading" class="content-search-list-courses">
-      <div class="content-course" *ngFor="let course of this.filteredCourses">
-        <p class="sigle">{{ course.sigle }}</p>
-        <p class="name">{{ course.name }}</p>
-        <p class="department">{{ course.department }}</p>
-        <p class="credits">{{ course.credits }} crédits</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Département</mat-label>
+      <mat-select [(value)]="selectedDepartment" (selectionChange)="filterBySelectedValue()">
+        <mat-option>---</mat-option>
+        <mat-option *ngFor="let department of departments" [value]="department">
+          {{ department }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
 
-        <div class="semester-list">
-          <p class="semester" *ngFor="let term of course.semesterList">
-            {{ term }}
-          </p>
-        </div>
-        <p class="language">{{ course.language }}</p>
-      </div>
-      <div *ngIf="this.filteredCourses.length === 0" class="no-courses">Aucun cours trouvé</div>
-    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Trimestre</mat-label>
+      <mat-select [(value)]="selectedTrimester" (selectionChange)="filterBySelectedValue()">
+        <mat-option>---</mat-option>
+        <mat-option *ngFor="let trimestre of trimesters" [value]="trimestre">
+          {{ trimestre }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Langue</mat-label>
+      <mat-select [(value)]="selectedLanguage" (selectionChange)="filterBySelectedValue()">
+        <mat-option>---</mat-option>
+        <mat-option *ngFor="let language of languages" [value]="language">
+          {{ language }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
+
+  <mat-table [dataSource]="filteredCourses" class="cdk-table mat-elevation-z2">
+    <ng-container matColumnDef="sigle">
+      <mat-header-cell *matHeaderCellDef> Sigle </mat-header-cell>
+      <mat-cell *matCellDef="let course"> {{ course.sigle }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
+      <mat-cell *matCellDef="let course"> {{ course.name }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="department">
+      <mat-header-cell *matHeaderCellDef> Département </mat-header-cell>
+      <mat-cell *matCellDef="let course"> {{ course.department }} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="credits">
+      <mat-header-cell *matHeaderCellDef> Crédits </mat-header-cell>
+      <mat-cell *matCellDef="let course"> {{ course.credits }} crédits </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="semesterList">
+      <mat-header-cell *matHeaderCellDef> Trimestres </mat-header-cell>
+      <mat-cell *matCellDef="let course">
+        <div class="semester-list">
+          <span class="semester" *ngFor="let term of course.semesterList">{{ term }}</span>
+        </div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="language">
+      <mat-header-cell *matHeaderCellDef> Langue </mat-header-cell>
+      <mat-cell *matCellDef="let course"> {{ course.language }} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns" class="clickable-row"></mat-row>
+  </mat-table>
+
+  <div *ngIf="filteredCourses.length === 0" class="no-courses">Aucun cours trouvé</div>
 </div>

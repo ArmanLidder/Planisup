@@ -4,33 +4,33 @@
 
 <div class="full-width-table-container">
   <mat-table [dataSource]="dataSource" matSort>
-
     <ng-container matColumnDef="Prénom">
       <mat-header-cell *matHeaderCellDef> Prénom </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.firstName}} </mat-cell>
+      <mat-cell *matCellDef="let row"> {{ row.firstName }} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="Nom">
       <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.lastName}} </mat-cell>
+      <mat-cell *matCellDef="let row"> {{ row.lastName }} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="Diplôme">
       <mat-header-cell *matHeaderCellDef> Diplôme </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{row.degree}} </mat-cell>
+      <mat-cell *matCellDef="let row"> {{ row.degree }} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="Date">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{formatDate(row.date)}} </mat-cell>
+      <mat-cell *matCellDef="let row"> {{ formatDate(row.date) }} </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
 
-    <mat-row *matRowDef="let row; columns: displayedColumns;"
-     class="clickable-row" 
-     (click)="onRowClick(row)"
-     [class.selected]="selectedRow?.studyPlanId === row.studyPlanId"></mat-row>
-
+    <mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="clickable-row"
+      (click)="onRowClick(row)"
+      [class.selected]="selectedRow?.studyPlanId === row.studyPlanId"
+    ></mat-row>
   </mat-table>
 </div>

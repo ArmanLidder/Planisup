@@ -40,6 +40,27 @@ export class CourseSearch implements OnInit {
     this.loadAlreadySelectedCourses();
   }
 
+  get isExcludedBySubModuleRule(): boolean {
+    // Créer un cours fictif pour tester l'exclusion
+    const testResult = this.courseStateService.canSearchCourseBeSelected(
+      'TEST',
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle
+    );
+    
+    return (!testResult.canSelect && testResult.reason?.includes('module exclusif')) || false;
+  }
+
+  get exclusionMessage(): string {
+    const testResult = this.courseStateService.canSearchCourseBeSelected(
+      'TEST',
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle
+    );
+    
+    return testResult.reason || '';
+  }
+
   loadAlreadySelectedCourses() {
     this.selectedCourses = [];
     this.selectedCredits = 0;

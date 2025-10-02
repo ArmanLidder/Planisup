@@ -6,6 +6,47 @@
   margin: 15px 0;
   box-sizing: border-box;
   
+  // Style pour le message d'exclusion
+  .exclusion-message {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    
+    .exclusion-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1;
+    }
+    
+    h4 {
+      color: #856404;
+      margin: 0 0 0.75rem 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    p {
+      color: #856404;
+      margin: 0.5rem 0;
+      font-size: 14px;
+      line-height: 1.5;
+      
+      &:first-of-type {
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+    }
+    
+    .exclusion-hint {
+      font-size: 13px;
+      font-style: italic;
+      color: #9c7a08;
+      margin-top: 1rem;
+    }
+  }
+  
   .search-header {
     display: flex;
     justify-content: space-between;
@@ -41,12 +82,12 @@
     
     .search-input {
       width: 100%;
-      max-width: 100%; // Empêcher le dépassement
+      max-width: 100%;
       padding: 10px 40px 10px 15px;
       border: 1px solid #ced4da;
       border-radius: 6px;
       font-size: 14px;
-      box-sizing: border-box; // Inclure le padding dans la largeur
+      box-sizing: border-box;
       transition: border-color 0.2s;
       
       &:focus {
@@ -146,7 +187,7 @@
         .course-checkbox {
           margin-right: 12px;
           margin-top: 2px;
-          flex-shrink: 0; // Empêcher la compression de la checkbox
+          flex-shrink: 0;
           
           input[type="checkbox"] {
             opacity: 0;
@@ -198,7 +239,7 @@
         
         .course-info {
           flex: 1;
-          min-width: 0; // Permettre la compression du texte si nécessaire
+          min-width: 0;
           
           .course-header {
             display: flex;
@@ -227,7 +268,7 @@
             font-size: 13px;
             line-height: 1.4;
             margin-bottom: 4px;
-            word-wrap: break-word; // Permettre la coupure des mots longs
+            word-wrap: break-word;
             overflow-wrap: break-word;
           }
           
@@ -312,7 +353,7 @@
           margin: 0 10px;
           font-size: 13px;
           color: #495057;
-          min-width: 0; // Permettre la compression
+          min-width: 0;
           word-wrap: break-word;
           overflow-wrap: break-word;
         }

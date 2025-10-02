@@ -20,20 +20,31 @@ export interface SectionRule {
   subModuleTitle: string | null;
 }
 
+export interface ExclusiveSubModuleRule {
+  moduleTitle: string;
+  subModulePrefixes: string[]; // Ex: ['B1', 'B2', 'B3']
+  subModuleTitles: string[];   // Titres complets des sous-modules
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CourseStateService {
   public courseStates: Map<string, CourseState> = new Map();
   public sectionRules: SectionRule[] = [];
+  public exclusiveSubModuleRules: ExclusiveSubModuleRule[] = [];
   private modules: Module[] = [];
 
   initializeCourseStates(modules: any[]) {
     this.courseStates.clear();
     this.sectionRules = [];
+    this.exclusiveSubModuleRules = [];
     this.modules = modules;
     
     modules.forEach(module => {
+      // Vérifier les règles d'exclusivité dans la description du module
+      this.parseExclusiveSubModuleRules(module);
+      
       if (module.courses) {
         this.processSections(module.courses, module.title, null);
       }
@@ -48,6 +59,51 @@ export class CourseStateService {
 
     console.log('Course States:', this.courseStates);
     console.log('Section Rules:', this.sectionRules);
+    console.log('Exclusive SubModule Rules:', this.exclusiveSubModuleRules);
+  }
+
+  private parseExclusiveSubModuleRules(module: Module) {
+    if (!module.description || module.description.length === 0) return;
+    
+    // Regex pour capturer : "Choisir un module parmi les modules X, Y et Z"
+    const exclusiveRegex = /Choisir\s+un\s+module\s+parmi\s+les\s+modules\s+((?:[A-Z]\d+(?:,\s*|\s+et\s+))+[A-Z]\d+)/i;
+    
+    module.description.forEach(desc => {
+      const match = desc.match(exclusiveRegex);
+      if (match) {
+        // Extraire les préfixes (B1, B2, B3)
+        const prefixesStr = match[1];
+        const prefixes = prefixesStr
+          .split(/,\s*|\s+et\s+/)
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+        
+        // Trouver les titres complets des sous-modules correspondants
+        const subModuleTitles: string[] = [];
+        if (module.subModules) {
+          module.subModules.forEach(subModule => {
+            const subModulePrefix = this.extractSubModulePrefix(subModule.title);
+            if (prefixes.includes(subModulePrefix)) {
+              subModuleTitles.push(subModule.title);
+            }
+          });
+        }
+        
+        if (subModuleTitles.length > 0) {
+          this.exclusiveSubModuleRules.push({
+            moduleTitle: module.title,
+            subModulePrefixes: prefixes,
+            subModuleTitles
+          });
+        }
+      }
+    });
+  }
+
+  private extractSubModulePrefix(subModuleTitle: string): string {
+    // Extraire le préfixe entre parenthèses : "(B1) Module de Base" -> "B1"
+    const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
+    return match ? match[1] : '';
   }
 
   private processSections(sections: Section[], moduleTitle: string, subModuleTitle: string | null) {
@@ -60,12 +116,10 @@ export class CourseStateService {
       const parsedRule = this.parseRuleFromDescription(section.description);
 
       if (parsedRule.type !== 'none') {
-        // Finaliser le groupe précédent
         if (currentGroup) {
           this.finalizeRuleGroup(currentGroup);
         }
 
-        // Créer un nouveau groupe
         const newRule: SectionRule = {
           type: parsedRule.type,
           requiredCredits: parsedRule.requiredCredits,
@@ -80,12 +134,10 @@ export class CourseStateService {
           sections: [section.description]
         };
       } 
-      // Si nous sommes dans un groupe actif et que cette section n'a pas de règle spécifique
       else if (currentGroup && parsedRule.type === 'none') {
         currentGroup.sections.push(section.description);
       } 
 
-      // Initialiser les états des cours
       section.courses.forEach((course: Course) => {
         if (!this.courseStates.has(course.sigle)) {
           this.courseStates.set(course.sigle, {
@@ -99,7 +151,6 @@ export class CourseStateService {
       });
     });
 
-    // Finaliser le dernier groupe
     if (currentGroup) {
       this.finalizeRuleGroup(currentGroup);
     }
@@ -112,7 +163,7 @@ export class CourseStateService {
 
   private parseRuleFromDescription(description: string): Omit<SectionRule, 'moduleTitle' | 'subModuleTitle'> {
     description = description.trim().replace(/\s+/g, ' ');
-    // Regex pour "Au moins X crédits au choix parmi les suivants"
+    
     const creditsMinimumRegex = /Au\s+moins\s+(\d+)\s*crédits?\s+au\s+choix\s+parmi\s+les\s+(?:cours\s+)?suivants/i;
     const creditsMinimumMatch = description.match(creditsMinimumRegex);
     
@@ -125,7 +176,6 @@ export class CourseStateService {
       };
     }
 
-    // Regex pour "X crédits au choix parmi les suivants"
     const creditsChoiceRegex = /(\d+)\s*crédits?\s+au\s+choix\s+parmi\s+les\s+suivants/i;
     const match = description.match(creditsChoiceRegex);
     
@@ -137,7 +187,6 @@ export class CourseStateService {
       };
     }
 
-    // Regex pour "Et jusqu'à X crédits au choix avec l'approbation du directeur"
     const directorApprovalRegex = /Et\s+jusqu['']?à\s+(\d+)\s*crédits?\s+au\s+choix\s+avec\s+l['']?approbation\s/i;
     const directorApprovalMatch = description.match(directorApprovalRegex);
     
@@ -174,7 +223,6 @@ export class CourseStateService {
     };
   }
 
-  // Méthode pour ajouter un cours au système (pour les cours de la recherche)
   addCourseToStates(course: Course): void {
     if (!this.courseStates.has(course.sigle)) {
       this.courseStates.set(course.sigle, {
@@ -185,6 +233,37 @@ export class CourseStateService {
         credits: course.credits
       });
     }
+  }
+
+  // Vérifier si un sous-module est exclu par la règle d'exclusivité
+  private isSubModuleExcluded(
+    targetModuleTitle: string,
+    targetSubModuleTitle: string | null
+  ): boolean {
+    if (!targetSubModuleTitle) return false;
+
+    // Trouver la règle d'exclusivité applicable
+    const rule = this.exclusiveSubModuleRules.find(r => 
+      r.moduleTitle === targetModuleTitle &&
+      r.subModuleTitles.includes(targetSubModuleTitle)
+    );
+
+    if (!rule) return false;
+
+    // Vérifier si un cours est déjà sélectionné dans un autre sous-module du groupe
+    let hasSelectionInOtherSubModule = false;
+    
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && 
+          state.selectedInModule === targetModuleTitle &&
+          state.selectedInSubmodule &&
+          rule.subModuleTitles.includes(state.selectedInSubmodule) &&
+          state.selectedInSubmodule !== targetSubModuleTitle) {
+        hasSelectionInOtherSubModule = true;
+      }
+    });
+
+    return hasSelectionInOtherSubModule;
   }
 
   setCourseSelected(
@@ -200,6 +279,11 @@ export class CourseStateService {
       // Vérifier si le cours est déjà sélectionné ailleurs
       const alreadySelected = this.isCourseSelected(courseSigle);
       if (alreadySelected) {
+        return false;
+      }
+
+      // Vérifier la règle d'exclusivité des sous-modules
+      if (this.isSubModuleExcluded(moduleTitle, submoduleTitle)) {
         return false;
       }
       
@@ -219,7 +303,6 @@ export class CourseStateService {
       state.selectedInSubmodule = submoduleTitle;
       state.selectedInSection = sectionDescription;
     } else {
-      // Désélectionner
       state.selected = false;
       state.selectedInModule = null;
       state.selectedInSubmodule = null;
@@ -243,12 +326,10 @@ export class CourseStateService {
   getSectionSelectedCredits(moduleTitle: string, subModuleTitle: string | null, sectionDescription: string): number {
     const rule = this.getSectionRule(moduleTitle, subModuleTitle, sectionDescription);
     
-    // Si la section fait partie d'un groupe de règles, calculer les crédits pour tout le groupe
     if (rule?.groupSections) {
       return this.getGroupSelectedCredits(rule);
     }
     
-    // Sinon, calculer seulement pour cette section
     let credits = 0;
     this.courseStates.forEach((state, courseSigle) => {
       if (state.selected && 
@@ -280,7 +361,7 @@ export class CourseStateService {
 
   public getSelectedCoursesByModule(): SelectedModule[] {
     const moduleMap: { [moduleTitle: string]: Course[] } = {};
-    console.log('Course States:', this.courseStates);
+    
     this.courseStates.forEach((state, courseSigle) => {
       if (state.selected && state.selectedInModule) {
         if (!moduleMap[state.selectedInModule]) {
@@ -311,7 +392,6 @@ export class CourseStateService {
           if (course) {
             // @ts-ignore
             course.trimester = course.trimester[0];
-            console.log('Found course:', course);
             return course;
           }
         }
@@ -323,7 +403,6 @@ export class CourseStateService {
           if (course) {
             // @ts-ignore
             course.trimester = course.trimester[0];
-            console.log('Found course:', course);
             return course;
           }
         }
@@ -338,13 +417,39 @@ export class CourseStateService {
     subModuleTitle: string | null, 
     sectionDescription: string
   ): { canSelect: boolean; reason?: string } {
-    // Si le cours est déjà sélectionné ailleurs
     const alreadySelected = this.isCourseSelected(courseSigle);
     if (alreadySelected) {
       return { canSelect: false, reason: 'Déjà sélectionné ailleurs' };
     }
 
-    // Vérifier les règles de la section
+    // Vérifier la règle d'exclusivité des sous-modules
+    if (this.isSubModuleExcluded(moduleTitle, subModuleTitle)) {
+      const rule = this.exclusiveSubModuleRules.find(r => 
+        r.moduleTitle === moduleTitle &&
+        subModuleTitle &&
+        r.subModuleTitles.includes(subModuleTitle)
+      );
+      
+      if (rule) {
+        // Trouver quel sous-module est déjà sélectionné
+        let selectedSubModule = '';
+        this.courseStates.forEach((state) => {
+          if (state.selected && 
+              state.selectedInModule === moduleTitle &&
+              state.selectedInSubmodule &&
+              rule.subModuleTitles.includes(state.selectedInSubmodule) &&
+              state.selectedInSubmodule !== subModuleTitle) {
+            selectedSubModule = state.selectedInSubmodule;
+          }
+        });
+        
+        return { 
+          canSelect: false, 
+          reason: `Un autre module exclusif est déjà sélectionné (${this.extractSubModulePrefix(selectedSubModule)})` 
+        };
+      }
+    }
+
     const rule = this.getSectionRule(moduleTitle, subModuleTitle, sectionDescription);
     if (rule && (rule.type === 'credits_choice' || rule.type === 'director_approval')) {
       const currentCredits = this.getSectionSelectedCredits(moduleTitle, subModuleTitle, sectionDescription);
@@ -361,6 +466,47 @@ export class CourseStateService {
     return { canSelect: true };
   }
 
+  // Méthode pour vérifier si un cours de la recherche peut être sélectionné
+  canSearchCourseBeSelected(
+    courseSigle: string,
+    moduleTitle: string,
+    subModuleTitle: string | null
+  ): { canSelect: boolean; reason?: string } {
+    const alreadySelected = this.isCourseSelected(courseSigle);
+    if (alreadySelected) {
+      return { canSelect: false, reason: 'Déjà sélectionné ailleurs' };
+    }
+
+    // Vérifier la règle d'exclusivité des sous-modules
+    if (this.isSubModuleExcluded(moduleTitle, subModuleTitle)) {
+      const rule = this.exclusiveSubModuleRules.find(r => 
+        r.moduleTitle === moduleTitle &&
+        subModuleTitle &&
+        r.subModuleTitles.includes(subModuleTitle)
+      );
+      
+      if (rule) {
+        let selectedSubModule = '';
+        this.courseStates.forEach((state) => {
+          if (state.selected && 
+              state.selectedInModule === moduleTitle &&
+              state.selectedInSubmodule &&
+              rule.subModuleTitles.includes(state.selectedInSubmodule) &&
+              state.selectedInSubmodule !== subModuleTitle) {
+            selectedSubModule = state.selectedInSubmodule;
+          }
+        });
+        
+        return { 
+          canSelect: false, 
+          reason: `Un autre module exclusif est déjà sélectionné (${this.extractSubModulePrefix(selectedSubModule)})` 
+        };
+      }
+    }
+
+    return { canSelect: true };
+  }
+
   private isCourseSelected(courseSigle: string): boolean {
     const state = this.courseStates.get(courseSigle);
     return state ? state.selected : false;
@@ -368,14 +514,11 @@ export class CourseStateService {
 
   getSelectedCredits(): number {
     let credits = 0;
-
-    // Parcourir tous les cours sélectionnés
     this.courseStates.forEach((state, courseSigle) => {
       if (state.selected) {
         credits += state.credits;
       }
     });
-    
     return credits;
   }
 
@@ -385,7 +528,6 @@ export class CourseStateService {
     
     this.sectionRules.forEach(rule => {
       if ((rule.type === 'credits_choice' || rule.type === 'credits_minimum') && rule.groupSections) {
-        // Créer un identifiant unique pour éviter les doublons
         const ruleId = `${rule.moduleTitle}::${rule.subModuleTitle || 'main'}::${rule.description}`;
         
         if (!processedRules.has(ruleId)) {
@@ -399,7 +541,6 @@ export class CourseStateService {
               : rule.moduleTitle;
               
             if (rule.isMinimum) {
-              // Pour les règles de minimum : vérifier seulement le minimum
               if (selectedCredits < rule.requiredCredits) {
                 errors.push(
                   `Groupe de règle "${rule.description}" dans ${groupName} : ` +
@@ -407,7 +548,6 @@ export class CourseStateService {
                 );
               }
             } else {
-              // Pour les règles exactes : vérifier minimum ET maximum
               if (selectedCredits < rule.requiredCredits) {
                 errors.push(
                   `Groupe de règle "${rule.description}" dans ${groupName} : ` +
@@ -458,7 +598,6 @@ export class CourseStateService {
     };
   }
 
-  // Méthode utilitaire pour obtenir les détails d'un groupe de règles
   getRuleGroupDetails(moduleTitle: string, subModuleTitle: string | null, sectionDescription: string): {
     rule: SectionRule | null;
     sections: string[];
@@ -471,7 +610,6 @@ export class CourseStateService {
     const selectedCredits = rule ? this.getGroupSelectedCredits(rule) : 0;
     const selectedCourses: { sigle: string; credits: number; section: string }[] = [];
     
-    // Collecter les cours sélectionnés dans le groupe
     if (rule?.groupSections) {
       this.courseStates.forEach((state, courseSigle) => {
         if (state.selected && 

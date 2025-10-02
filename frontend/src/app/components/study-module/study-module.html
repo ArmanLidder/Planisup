@@ -1,6 +1,9 @@
 <div class="study-module">
-  <div class="module-header">
-    <h2>{{ title }}</h2>
+  <div class="module-header" (click)="toggleModule()">
+    <div class="header-left">
+      <span class="expand-icon" [class.collapsed]="!isExpanded">▼</span>
+      <h2>{{ title }}</h2>
+    </div>
     <div class="module-credits">
       <span class="credits-count">{{ selectedCredits }} / {{ credits }}</span>
       <span class="credits-label">Crédits</span>
@@ -11,37 +14,46 @@
     <div class="progress-fill" [ngStyle]="getModuleProgressStyle()"></div>
   </div>
   
-  <div class="module-description" *ngIf="module.description && module.description.length">
-    <p *ngFor="let desc of module.description">{{ desc }}</p>
-  </div>
-  
-  <div class="sections" *ngIf="module.courses && module.courses.length">
-    <app-study-section 
-      *ngFor="let section of module.courses" 
-      [section]="section"
-      [currentModuleTitle]="module.title"
-      [allCourses]="allCourses"
-      (courseSelectionChange)="onCourseSelectionChange($event)">
-    </app-study-section>
-  </div>
+  <div class="module-content" [class.collapsed]="!isExpanded">
+    <div class="module-description" *ngIf="module.description && module.description.length">
+      <p *ngFor="let desc of module.description">{{ desc }}</p>
+    </div>
+    
+    <div class="sections" *ngIf="module.courses && module.courses.length">
+      <app-study-section 
+        *ngFor="let section of module.courses" 
+        [section]="section"
+        [currentModuleTitle]="module.title"
+        [allCourses]="allCourses"
+        (courseSelectionChange)="onCourseSelectionChange($event)">
+      </app-study-section>
+    </div>
 
-  <div class="sub-modules" *ngIf="module.subModules && module.subModules.length">
-    <div class="sub-module" *ngFor="let subModule of module.subModules">
-      <h3>{{ getModuleTitleWithoutCredits(subModule.title) }}</h3>
-      
-      <div class="sub-module-description" *ngIf="subModule.description && subModule.description.length">
-        <p *ngFor="let desc of subModule.description">{{ desc }}</p>
-      </div>
-      
-      <div class="sections" *ngIf="subModule.courses && subModule.courses.length">
-        <app-study-section 
-          *ngFor="let section of subModule.courses" 
-          [section]="section"
-          [currentModuleTitle]="module.title"
-          [currentSubmoduleTitle]="subModule.title"
-          [allCourses]="allCourses"
-          (courseSelectionChange)="onCourseSelectionChange($event)">
-        </app-study-section>
+    <div class="sub-modules" *ngIf="module.subModules && module.subModules.length">
+      <div class="sub-module" *ngFor="let subModule of module.subModules">
+        <div class="sub-module-header" (click)="toggleSubModule(subModule.title)">
+          <div class="header-left">
+            <span class="expand-icon" [class.collapsed]="!isSubModuleExpanded(subModule.title)">▼</span>
+            <h3>{{ getModuleTitleWithoutCredits(subModule.title) }}</h3>
+          </div>
+        </div>
+        
+        <div class="sub-module-content" [class.collapsed]="!isSubModuleExpanded(subModule.title)">
+          <div class="sub-module-description" *ngIf="subModule.description && subModule.description.length">
+            <p *ngFor="let desc of subModule.description">{{ desc }}</p>
+          </div>
+          
+          <div class="sections" *ngIf="subModule.courses && subModule.courses.length">
+            <app-study-section 
+              *ngFor="let section of subModule.courses" 
+              [section]="section"
+              [currentModuleTitle]="module.title"
+              [currentSubmoduleTitle]="subModule.title"
+              [allCourses]="allCourses"
+              (courseSelectionChange)="onCourseSelectionChange($event)">
+            </app-study-section>
+          </div>
+        </div>
       </div>
     </div>
   </div>

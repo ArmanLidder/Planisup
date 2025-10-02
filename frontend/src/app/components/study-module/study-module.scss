@@ -9,11 +9,38 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    padding: 8px;
+    margin: -8px;
+    border-radius: 6px;
     
-    h2 {
-      color: #2c3e50;
-      margin: 0;
-      font-size: 20px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      
+      .expand-icon {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+        color: #6c757d;
+        
+        &.collapsed {
+          transform: rotate(-90deg);
+        }
+      }
+      
+      h2 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 20px;
+      }
     }
     
     .module-credits {
@@ -46,6 +73,18 @@
       transition: width 0.3s ease;
     }
   }
+  
+  .module-content {
+    max-height: 10000px;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    opacity: 1;
+    
+    &.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+  }
 }
 
 .sub-modules {
@@ -56,23 +95,59 @@
   .sub-module {
     margin-bottom: 20px;
     
-    h3 {
-      color: #495057;
-      margin: 0 0 10px 0;
-      font-size: 16px;
-    }
-    
     .sub-module-header {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+      padding: 8px;
+      margin: -8px;
       margin-bottom: 10px;
+      border-radius: 6px;
       
-      .sub-module-credits {
-        font-size: 14px;
-        color: #6c757d;
-        font-style: italic;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+      }
+      
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        .expand-icon {
+          font-size: 10px;
+          transition: transform 0.3s ease;
+          color: #6c757d;
+          
+          &.collapsed {
+            transform: rotate(-90deg);
+          }
+        }
+        
+        h3 {
+          color: #495057;
+          margin: 0;
+          font-size: 16px;
+        }
       }
     }
     
-    .courses-list {
+    .sub-module-content {
+      max-height: 10000px;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+      
+      &.collapsed {
+        max-height: 0;
+        opacity: 0;
+      }
+    }
+    
+    .sub-module-description {
+      margin-bottom: 10px;
+    }
+    
+    .sections {
       margin-left: 20px;
       border-left: 2px solid #dee2e6;
       padding-left: 15px;

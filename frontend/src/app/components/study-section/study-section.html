@@ -1,16 +1,19 @@
 <div class="study-section" 
      [class.rule-section]="isFirstInRuleGroup"
      [class.rule-group-section]="isInRuleGroup && !isFirstInRuleGroup"
-     [class.director-approval-section]="isDirectorApprovalSection">
+     [class.director-approval-section]="isDirectorApprovalSection"
+     [class.minimum-rule-section]="isMinimumRuleSection">
   <div class="section-header" *ngIf="section.description">
     <h3 [class.rule-title]="isFirstInRuleGroup" 
         [class.group-section-title]="isInRuleGroup && !isFirstInRuleGroup"
-        [class.director-approval-title]="isDirectorApprovalSection">
+        [class.director-approval-title]="isDirectorApprovalSection"
+        [class.minimum-rule-title]="isMinimumRuleSection">
       {{ section.description }}
     </h3>
     
     <!-- Affichage du statut seulement pour la première section du groupe -->
-    <div class="section-status" *ngIf="isFirstInRuleGroup && hasRequiredCredits">
+    <!-- Ne pas afficher pour les sections credits_minimum -->
+    <div class="section-status" *ngIf="isFirstInRuleGroup && hasRequiredCredits && !isMinimumRuleSection">
       <div class="credits-info">
         <span class="credits-count">{{ sectionStatus.selectedCredits }} / {{ sectionStatus.requiredCredits }}</span>
         <span class="credits-label">crédits</span>
@@ -19,9 +22,7 @@
       <div class="progress-bar-small">
         <div class="progress-fill-small" 
              [style.width.%]="progressPercentage"
-             [style.background-color]="sectionStatus.isComplete ? '#4caf50' : 
-                                       isCreditsComplete ? '#4caf50' :
-                                       sectionStatus.selectedCredits > 0 ? '#2196f3' : '#e0e0e0'">
+             [style.background-color]="getProgressColor()">
         </div>
       </div>
     </div>

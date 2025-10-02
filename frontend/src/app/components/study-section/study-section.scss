@@ -22,6 +22,30 @@
     }
   }
   
+  &.minimum-rule-section {
+    background-color: rgba(76, 175, 80, 0.05);
+    border-left: 4px solid #4caf50;
+    padding: 15px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px dashed rgba(76, 175, 80, 0.3);
+    padding-bottom: 10px;
+    
+    .section-header {
+      .minimum-rule-title {
+        color: #2e7d32;
+        font-weight: bold;
+        position: relative;
+        
+        &:before {
+          content: "📊";
+          margin-right: 8px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  
   // Style unifié pour toutes les sections d'un même groupe de règles
   &.rule-section,
   &.rule-group-section {
@@ -53,6 +77,13 @@
     .courses-list {
       margin-left: 0;
     }
+  }
+  
+  // Style spécifique pour les sections avec règle de minimum
+  &.rule-section.minimum-rule-section,
+  &.rule-group-section.minimum-rule-section {
+    background-color: rgba(76, 175, 80, 0.05);
+    border-left: 4px solid #4caf50;
   }
   
   .section-header {

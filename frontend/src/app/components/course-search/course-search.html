@@ -1,10 +1,6 @@
 <div class="course-search-container">
       <div class="search-header">
         <h4>Recherche de cours</h4>
-        <div class="credits-info">
-          <span class="credits-count">{{ selectedCredits }} / {{ maxCredits }}</span>
-          <span class="credits-label">crédits sélectionnés</span>
-        </div>
       </div>
       
       <div class="search-input-container">
@@ -20,7 +16,11 @@
       <div class="filters">
         <select [(ngModel)]="creditFilter" (change)="filterCourses()" class="filter-select">
           <option value="">Tous les crédits</option>
-          <option *ngFor="let item of numSequence(maxCredits)" [value]="item" >{{ item }} crédit{{ item > 1 ? 's' : '' }}</option>
+          <option value="1">1 crédit</option>
+          <option value="2">2 crédits</option>
+          <option value="3">3 crédits</option>
+          <option value="4">4 crédits</option>
+          <option value="6">6 crédits</option>
         </select>
       </div>
       

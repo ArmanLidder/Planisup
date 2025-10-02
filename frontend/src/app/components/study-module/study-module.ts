@@ -25,12 +25,19 @@ export class StudyModule implements OnInit {
   title: string = '';
   credits: number = 0;
   selectedCredits: number = 0;
+  isExpanded: boolean = true;
+  expandedSubModules: Map<string, boolean> = new Map();
   
   constructor(private courseStateService: CourseStateService) {}
 
   ngOnInit(): void {
     this.initialization();
     this.calculateSelectedCredits();
+    if (this.module.subModules) {
+      this.module.subModules.forEach(subModule => {
+        this.expandedSubModules.set(subModule.title, true);
+      });
+    }
   }
 
   initialization() {
@@ -42,6 +49,19 @@ export class StudyModule implements OnInit {
       this.title = this.module.title;
       this.credits = 0;
     }
+  }
+
+  toggleModule() {
+    this.isExpanded = !this.isExpanded;
+  }
+
+  toggleSubModule(subModuleTitle: string) {
+    const currentState = this.expandedSubModules.get(subModuleTitle) || false;
+    this.expandedSubModules.set(subModuleTitle, !currentState);
+  }
+
+  isSubModuleExpanded(subModuleTitle: string): boolean {
+    return this.expandedSubModules.get(subModuleTitle) || false;
   }
 
   onCourseSelectionChange(event: {
@@ -63,41 +83,12 @@ export class StudyModule implements OnInit {
   calculateSelectedCredits() {
     this.selectedCredits = 0;
     
-    if (this.module.courses) {
-      this.module.courses.forEach(section => {
-        section.courses.forEach(course => {
-          const state = this.courseStateService.getCourseState(course.sigle);
-          if (
-            state.selected && 
-            state.selectedInModule === this.module.title && 
-            state.selectedInSubmodule === null &&
-            section.description === state.selectedInSection
-          ) {
-            this.selectedCredits += course.credits;
-          }
-        });
-      });
-    }
-
-    if (this.module.subModules) {
-      this.module.subModules.forEach(subModule => {
-        if (subModule.courses) {
-          subModule.courses.forEach(section => {
-            section.courses.forEach(course => {
-              const state = this.courseStateService.getCourseState(course.sigle);
-              if (
-                state.selected && 
-                  state.selectedInModule === this.module.title && 
-                  state.selectedInSubmodule === subModule.title &&
-                  section.description === state.selectedInSection
-                ) {
-                this.selectedCredits += course.credits;
-              }
-            });
-          });
-        }
-      });
-    }
+    // Parcourir tous les courseStates et compter ceux de ce module
+    this.courseStateService.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && state.selectedInModule === this.module.title) {
+        this.selectedCredits += state.credits;
+      }
+    });
   }
 
   getModuleProgressStyle(): any {

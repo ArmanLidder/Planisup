@@ -114,7 +114,7 @@ export class StudyPlan implements OnInit {
   }
 
   calculateTotalCredits() {
-    this.selectedCredits = this.courseStateService.getSelectedCredits(this.modules);
+    this.selectedCredits = this.courseStateService.getSelectedCredits();
   }
 
   getProgressStyle(): any {
@@ -147,41 +147,12 @@ export class StudyPlan implements OnInit {
     this.modules.forEach(module => {
       let moduleCredits = 0;
 
-      // Calculate module credits (sections principales)
-      if (module.courses) {
-        module.courses.forEach(section => {
-          section.courses.forEach(course => {
-            const state = this.courseStateService.getCourseState(course.sigle);
-            if (state.selected &&
-                state.selectedInModule === module.title &&
-                state.selectedInSubmodule === null &&
-                state.selectedInSection === section.description
-              ) {
-              moduleCredits += course.credits;
-            }
-          });
-        });
-      }
-
-      // Calculate module credits (sous-modules)
-      if (module.subModules) {
-        module.subModules.forEach(subModule => {
-          if (subModule.courses) {
-            subModule.courses.forEach(section => {
-              section.courses.forEach(course => {
-                const state = this.courseStateService.getCourseState(course.sigle);
-                if (state.selected &&
-                    state.selectedInModule === module.title &&
-                    state.selectedInSubmodule === subModule.title &&
-                    state.selectedInSection === section.description
-                  ) {
-                  moduleCredits += course.credits;
-                }
-              });
-            });
-          }
-        });
-      }
+      // Calculer les crédits du module directement depuis courseStates
+      this.courseStateService.courseStates.forEach((state, courseSigle) => {
+        if (state.selected && state.selectedInModule === module.title) {
+          moduleCredits += state.credits;
+        }
+      });
 
       const requiredCredits = this.extractCreditsFromTitle(module.title);
 

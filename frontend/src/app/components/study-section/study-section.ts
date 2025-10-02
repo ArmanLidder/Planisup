@@ -16,7 +16,7 @@ export class StudySection {
   @Input() section!: Section;
   @Input() currentModuleTitle!: string;
   @Input() currentSubmoduleTitle: string | null = null;
-  @Input() allCourses: Course[] = []; // Tous les cours pour la recherche
+  @Input() allCourses: Course[] = [];
   @Output() courseSelectionChange = new EventEmitter<{
     courseSigle: string, 
     selected: boolean, 
@@ -68,6 +68,10 @@ export class StudySection {
     return this.sectionRule?.type === 'director_approval';
   }
 
+  get isMinimumRuleSection(): boolean {
+    return this.sectionRule?.type === 'credits_minimum';
+  }
+
   get isInRuleGroup(): boolean {
     return this.sectionRule?.groupSections !== undefined;
   }
@@ -75,12 +79,35 @@ export class StudySection {
   get isFirstInRuleGroup(): boolean {
     // Vérifier si c'est la section leader du groupe (celle qui a défini la règle originale)
     return this.sectionRule?.description === this.section.description && 
-           (this.sectionRule?.type === 'credits_choice' || this.sectionRule?.type === 'director_approval');
+           (this.sectionRule?.type === 'credits_choice' || 
+            this.sectionRule?.type === 'credits_minimum' || 
+            this.sectionRule?.type === 'director_approval');
   }
 
   get progressPercentage(): number {
     if (!this.hasRequiredCredits) return 0;
-    return Math.min((this.sectionStatus.selectedCredits / this.sectionStatus.requiredCredits!) * 100, 100);
+    const percentage = (this.sectionStatus.selectedCredits / this.sectionStatus.requiredCredits!) * 100;
+    return Math.min(percentage, 100);
+  }
+
+  getProgressColor(): string {
+    if (!this.hasRequiredCredits) return '#e0e0e0';
+    
+    const selected = this.sectionStatus.selectedCredits;
+    const required = this.sectionStatus.requiredCredits!;
+    const isMinimum = this.sectionStatus.isMinimum;
+    
+    if (isMinimum) {
+      // Pour les minimums : vert si >= requis, bleu si > 0, gris sinon
+      if (selected >= required) return '#4caf50'; // Vert - minimum atteint
+      if (selected > 0) return '#2196f3'; // Bleu - en cours
+      return '#e0e0e0'; // Gris - rien sélectionné
+    } else {
+      // Pour les exacts : vert si === requis, bleu si > 0, gris sinon
+      if (selected === required) return '#4caf50'; // Vert - exact
+      if (selected > 0) return '#2196f3'; // Bleu - en cours
+      return '#e0e0e0'; // Gris - rien sélectionné
+    }
   }
 
   get hasRequiredCredits(): boolean {

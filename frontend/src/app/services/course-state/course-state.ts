@@ -7,13 +7,15 @@ export interface CourseState {
   selectedInModule: string | null;
   selectedInSubmodule: string | null;
   selectedInSection: string | null;
+  credits: number;
 }
 
 export interface SectionRule {
-  type: 'credits_choice' | 'director_approval' | 'none';
+  type: 'credits_choice' | 'director_approval' | 'credits_minimum' | 'none';
   requiredCredits?: number;
+  isMinimum?: boolean;
   description: string;
-  groupSections?: string[]; // Toutes les sections concernées par cette règle
+  groupSections?: string[];
   moduleTitle: string;
   subModuleTitle: string | null;
 }
@@ -56,8 +58,7 @@ export class CourseStateService {
 
     sections.forEach((section: Section, index: number) => {
       const parsedRule = this.parseRuleFromDescription(section.description);
-      
-      // Si c'est une nouvelle règle de choix de crédits
+
       if (parsedRule.type !== 'none') {
         // Finaliser le groupe précédent
         if (currentGroup) {
@@ -91,7 +92,8 @@ export class CourseStateService {
             selected: false,
             selectedInModule: null,
             selectedInSubmodule: null,
-            selectedInSection: null
+            selectedInSection: null,
+            credits: course.credits
           });
         }
       });
@@ -109,6 +111,20 @@ export class CourseStateService {
   }
 
   private parseRuleFromDescription(description: string): Omit<SectionRule, 'moduleTitle' | 'subModuleTitle'> {
+    description = description.trim().replace(/\s+/g, ' ');
+    // Regex pour "Au moins X crédits au choix parmi les suivants"
+    const creditsMinimumRegex = /Au\s+moins\s+(\d+)\s*crédits?\s+au\s+choix\s+parmi\s+les\s+(?:cours\s+)?suivants/i;
+    const creditsMinimumMatch = description.match(creditsMinimumRegex);
+    
+    if (creditsMinimumMatch) {
+      return {
+        type: 'credits_minimum',
+        requiredCredits: parseInt(creditsMinimumMatch[1], 10),
+        isMinimum: true,
+        description
+      };
+    }
+
     // Regex pour "X crédits au choix parmi les suivants"
     const creditsChoiceRegex = /(\d+)\s*crédits?\s+au\s+choix\s+parmi\s+les\s+suivants/i;
     const match = description.match(creditsChoiceRegex);
@@ -122,7 +138,7 @@ export class CourseStateService {
     }
 
     // Regex pour "Et jusqu'à X crédits au choix avec l'approbation du directeur"
-    const directorApprovalRegex = /Et\s+jusqu['']?à\s+(\d+)\s*crédits?\s+au\s+choix\s+avec\s+l['']?approbation\s+du\s+directeur/i;
+    const directorApprovalRegex = /Et\s+jusqu['']?à\s+(\d+)\s*crédits?\s+au\s+choix\s+avec\s+l['']?approbation\s/i;
     const directorApprovalMatch = description.match(directorApprovalRegex);
     
     if (directorApprovalMatch) {
@@ -153,8 +169,22 @@ export class CourseStateService {
       selected: false,
       selectedInModule: null,
       selectedInSubmodule: null,
-      selectedInSection: null
+      selectedInSection: null,
+      credits: 0
     };
+  }
+
+  // Méthode pour ajouter un cours au système (pour les cours de la recherche)
+  addCourseToStates(course: Course): void {
+    if (!this.courseStates.has(course.sigle)) {
+      this.courseStates.set(course.sigle, {
+        selected: false,
+        selectedInModule: null,
+        selectedInSubmodule: null,
+        selectedInSection: null,
+        credits: course.credits
+      });
+    }
   }
 
   setCourseSelected(
@@ -175,9 +205,9 @@ export class CourseStateService {
       
       // Vérifier les règles de la section
       const rule = this.getSectionRule(moduleTitle, submoduleTitle, sectionDescription);
-      if (rule && rule.type !== 'none') {
+      if (rule && (rule.type === 'credits_choice' || rule.type === 'director_approval')) {
         const currentCredits = this.getSectionSelectedCredits(moduleTitle, submoduleTitle, sectionDescription);
-        const courseCredits = this.getCourseCredits(courseSigle, moduleTitle, submoduleTitle, sectionDescription);
+        const courseCredits = this.getCourseCredits(courseSigle);
         
         if (currentCredits + courseCredits > rule.requiredCredits!) {
           return false;
@@ -200,27 +230,13 @@ export class CourseStateService {
     return true;
   }
 
-  private getCourseCredits(courseSigle: string, moduleTitle: string, subModuleTitle: string | null, sectionDescription: string): number {
-    const module = this.modules.find(m => m.title === moduleTitle);
-    if (!module) return 0;
-
-    if (subModuleTitle) {
-      const subModule = module.subModules?.find(sm => sm.title === subModuleTitle);
-      if (subModule?.courses) {
-        for (const section of subModule.courses) {
-          const course = section.courses.find(c => c.sigle === courseSigle);
-          if (course) return course.credits;
-        }
-      }
-    } else {
-      if (module.courses) {
-        for (const section of module.courses) {
-          const course = section.courses.find(c => c.sigle === courseSigle);
-          if (course) return course.credits;
-        }
-      }
+  private getCourseCredits(courseSigle: string): number {
+    const state = this.courseStates.get(courseSigle);
+    if (state) {
+      return state.credits;
     }
     
+    console.warn(`Course ${courseSigle} not found in courseStates`);
     return 0;
   }
 
@@ -239,7 +255,7 @@ export class CourseStateService {
           state.selectedInModule === moduleTitle &&
           state.selectedInSubmodule === subModuleTitle &&
           state.selectedInSection === sectionDescription) {
-        credits += this.getCourseCredits(courseSigle, moduleTitle, subModuleTitle, sectionDescription);
+        credits += this.getCourseCredits(courseSigle);
       }
     });
     
@@ -255,12 +271,7 @@ export class CourseStateService {
           state.selectedInModule === rule.moduleTitle &&
           state.selectedInSubmodule === rule.subModuleTitle &&
           rule.groupSections!.includes(state.selectedInSection || '')) {
-        totalCredits += this.getCourseCredits(
-          courseSigle, 
-          state.selectedInModule!, 
-          state.selectedInSubmodule, 
-          state.selectedInSection!
-        );
+        totalCredits += this.getCourseCredits(courseSigle);
       }
     });
 
@@ -335,9 +346,9 @@ export class CourseStateService {
 
     // Vérifier les règles de la section
     const rule = this.getSectionRule(moduleTitle, subModuleTitle, sectionDescription);
-    if (rule && rule.type === 'credits_choice') {
+    if (rule && (rule.type === 'credits_choice' || rule.type === 'director_approval')) {
       const currentCredits = this.getSectionSelectedCredits(moduleTitle, subModuleTitle, sectionDescription);
-      const courseCredits = this.getCourseCredits(courseSigle, moduleTitle, subModuleTitle, sectionDescription);
+      const courseCredits = this.getCourseCredits(courseSigle);
       
       if (currentCredits + courseCredits > rule.requiredCredits!) {
         return { 
@@ -355,42 +366,13 @@ export class CourseStateService {
     return state ? state.selected : false;
   }
 
-  getSelectedCredits(modules: Module[]): number {
+  getSelectedCredits(): number {
     let credits = 0;
 
-    modules.forEach(module => {
-      if (module.courses) {
-        module.courses.forEach((section: Section) => {
-          section.courses.forEach((course: Course) => {
-            const state = this.getCourseState(course.sigle);
-            if (state.selected &&
-              state.selectedInModule === module.title &&
-              state.selectedInSubmodule === null &&
-              state.selectedInSection === section.description
-            ) {
-              credits += course.credits;
-            }
-          });
-        });
-      }
-
-      // submodule
-      if (module.subModules) {
-        module.subModules.forEach((subModule: SubModule) => {
-          if (subModule.courses) {
-            subModule.courses.forEach((section: Section) => {
-              section.courses.forEach((course: Course) => {
-                const state = this.getCourseState(course.sigle);
-                if (state.selected && 
-                    state.selectedInModule === module.title && 
-                    state.selectedInSubmodule === subModule.title &&
-                    state.selectedInSection === section.description) {
-                  credits += course.credits;
-                }
-              });
-            });
-          }
-        });
+    // Parcourir tous les cours sélectionnés
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected) {
+        credits += state.credits;
       }
     });
     
@@ -402,7 +384,7 @@ export class CourseStateService {
     const processedRules = new Set<string>();
     
     this.sectionRules.forEach(rule => {
-      if (rule.type === 'credits_choice' && rule.groupSections) {
+      if ((rule.type === 'credits_choice' || rule.type === 'credits_minimum') && rule.groupSections) {
         // Créer un identifiant unique pour éviter les doublons
         const ruleId = `${rule.moduleTitle}::${rule.subModuleTitle || 'main'}::${rule.description}`;
         
@@ -412,24 +394,33 @@ export class CourseStateService {
           const selectedCredits = this.getGroupSelectedCredits(rule);
           
           if (rule.requiredCredits) {
-            if (selectedCredits < rule.requiredCredits) {
-              const groupName = rule.subModuleTitle 
-                ? `${rule.moduleTitle} > ${rule.subModuleTitle}`
-                : rule.moduleTitle;
-              errors.push(
-                `Groupe de règle "${rule.description}" dans ${groupName} : ` +
-                `${selectedCredits}/${rule.requiredCredits} crédits sélectionnés`
-              );
-            }
-            
-            if (selectedCredits > rule.requiredCredits) {
-              const groupName = rule.subModuleTitle 
-                ? `${rule.moduleTitle} > ${rule.subModuleTitle}`
-                : rule.moduleTitle;
-              errors.push(
-                `Groupe de règle "${rule.description}" dans ${groupName} : ` +
-                `Trop de crédits sélectionnés (${selectedCredits}/${rule.requiredCredits})`
-              );
+            const groupName = rule.subModuleTitle 
+              ? `${rule.moduleTitle} > ${rule.subModuleTitle}`
+              : rule.moduleTitle;
+              
+            if (rule.isMinimum) {
+              // Pour les règles de minimum : vérifier seulement le minimum
+              if (selectedCredits < rule.requiredCredits) {
+                errors.push(
+                  `Groupe de règle "${rule.description}" dans ${groupName} : ` +
+                  `${selectedCredits}/${rule.requiredCredits} crédits sélectionnés (minimum requis)`
+                );
+              }
+            } else {
+              // Pour les règles exactes : vérifier minimum ET maximum
+              if (selectedCredits < rule.requiredCredits) {
+                errors.push(
+                  `Groupe de règle "${rule.description}" dans ${groupName} : ` +
+                  `${selectedCredits}/${rule.requiredCredits} crédits sélectionnés`
+                );
+              }
+              
+              if (selectedCredits > rule.requiredCredits) {
+                errors.push(
+                  `Groupe de règle "${rule.description}" dans ${groupName} : ` +
+                  `Trop de crédits sélectionnés (${selectedCredits}/${rule.requiredCredits})`
+                );
+              }
             }
           }
         }
@@ -449,6 +440,7 @@ export class CourseStateService {
     hasRule: boolean;
     isInGroup: boolean;
     isGroupLeader: boolean;
+    isMinimum?: boolean;
   } {
     const rule = this.getSectionRule(moduleTitle, subModuleTitle, sectionDescription);
     const selectedCredits = this.getSectionSelectedCredits(moduleTitle, subModuleTitle, sectionDescription);
@@ -461,7 +453,8 @@ export class CourseStateService {
       isComplete: rule?.type === 'credits_choice' ? selectedCredits === rule.requiredCredits! : false,
       hasRule: rule?.type !== 'none' && rule !== null,
       isInGroup,
-      isGroupLeader
+      isGroupLeader,
+      isMinimum: rule?.isMinimum,
     };
   }
 
@@ -485,12 +478,7 @@ export class CourseStateService {
             state.selectedInModule === rule.moduleTitle &&
             state.selectedInSubmodule === rule.subModuleTitle &&
             rule.groupSections!.includes(state.selectedInSection || '')) {
-          const credits = this.getCourseCredits(
-            courseSigle, 
-            state.selectedInModule!, 
-            state.selectedInSubmodule, 
-            state.selectedInSection!
-          );
+          const credits = this.getCourseCredits(courseSigle);
           selectedCourses.push({
             sigle: courseSigle,
             credits,

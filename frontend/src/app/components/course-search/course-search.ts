@@ -145,6 +145,9 @@ export class CourseSearch implements OnInit {
   addCourse(course: Course) {
     if (!this.canSelectCourse(course)) return;
     
+    // Ajouter le cours aux états si pas déjà présent
+    this.courseStateService.addCourseToStates(course);
+
     this.selectedCourses.push(course);
     this.selectedCredits += course.credits;
     this.courseSelectionChange.emit({ course, selected: true });

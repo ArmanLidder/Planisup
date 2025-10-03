@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { User, UserRole } from '@common/user';
+import { Search } from '@app/pages/search/search';
 
 @Component({
   selector: 'app-gsup-menu',
@@ -35,10 +36,19 @@ export class GsupMenu {
   public isAdmin(): boolean {
     return this.currentUser?.role === UserRole.Administrateur;
   }
-
   public navigateTo(page: string) {
     this.isMenuOpen = false;
     this.router.navigate([`/${page}`]);
+  }
+
+  public searchCourses(): void {
+    this.dialog.open(Search, {
+      width: '80vw',
+      height: '80vh',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      panelClass: 'transparent-dialog'
+    });
   }
 
   @HostListener('document:click', ['$event'])

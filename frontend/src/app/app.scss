@@ -20,3 +20,9 @@
   align-items: center;
   flex-direction: row;
 }
+
+.transparent-dialog .mat-dialog-container {
+  background: transparent !important; /* remove grey/white background */
+  box-shadow: none !important;        /* remove shadow */
+  padding: 0 !important;
+}

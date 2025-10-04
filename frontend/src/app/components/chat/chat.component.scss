@@ -447,16 +447,16 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
    ============================ */
 @media (max-width: 500px) {
   .chat-container {
-    width: 100vw !important;
+    // width: 100vw !important;
     max-width: 100vw !important;
     bottom: 0;
     right: 0;
     border-radius: 0;
-    height: 100vh;
+    // height: 100vh;
 
     &.closed {
       height: 50px;
-      width: 100%;
+      // width: 100%;
     }
 
     &.opened {

@@ -56,7 +56,7 @@ export class StudyCourse {
              this.courseState.selectedInSection !== this.currentSectionDescription;
     }
 
-    // Désactivé si la limite de crédits est atteinte dans la section/groupe de règles
+    // Désactivé si la limite de crédits est atteinte dans la section/groupe de règles ou dans le module
     const canSelect = this.courseStateService.canCourseBeSelected(
       this.course.sigle,
       this.currentModuleTitle,

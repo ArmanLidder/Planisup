@@ -319,7 +319,6 @@ export class CourseStateService {
       return state.credits;
     }
     
-    console.warn(`Course ${courseSigle} not found in courseStates`);
     return 0;
   }
 
@@ -422,6 +421,23 @@ export class CourseStateService {
       return { canSelect: false, reason: 'Déjà sélectionné ailleurs' };
     }
 
+    // Vérifier la limite de crédits du module
+    const module = this.modules.find(m => m.title === moduleTitle);
+    if (module) {
+      const moduleMaxCredits = this.extractCreditsFromTitle(module.title);
+      if (moduleMaxCredits > 0) {
+        const currentModuleCredits = this.getModuleSelectedCredits(moduleTitle);
+        const courseCredits = this.getCourseCredits(courseSigle);
+        
+        if (currentModuleCredits + courseCredits > moduleMaxCredits) {
+          return { 
+            canSelect: false, 
+            reason: `Limite de crédits du module atteinte (${currentModuleCredits}/${moduleMaxCredits})` 
+          };
+        }
+      }
+    }
+
     // Vérifier la règle d'exclusivité des sous-modules
     if (this.isSubModuleExcluded(moduleTitle, subModuleTitle)) {
       const rule = this.exclusiveSubModuleRules.find(r => 
@@ -431,7 +447,6 @@ export class CourseStateService {
       );
       
       if (rule) {
-        // Trouver quel sous-module est déjà sélectionné
         let selectedSubModule = '';
         this.courseStates.forEach((state) => {
           if (state.selected && 
@@ -458,7 +473,7 @@ export class CourseStateService {
       if (currentCredits + courseCredits > rule.requiredCredits!) {
         return { 
           canSelect: false, 
-          reason: `Limite de crédits atteinte (${currentCredits}/${rule.requiredCredits})` 
+          reason: `Limite de crédits de la section atteinte (${currentCredits}/${rule.requiredCredits})` 
         };
       }
     }
@@ -475,6 +490,23 @@ export class CourseStateService {
     const alreadySelected = this.isCourseSelected(courseSigle);
     if (alreadySelected) {
       return { canSelect: false, reason: 'Déjà sélectionné ailleurs' };
+    }
+
+    // Vérifier la limite de crédits du module
+    const module = this.modules.find(m => m.title === moduleTitle);
+    if (module) {
+      const moduleMaxCredits = this.extractCreditsFromTitle(module.title);
+      if (moduleMaxCredits > 0) {
+        const currentModuleCredits = this.getModuleSelectedCredits(moduleTitle);
+        const courseCredits = this.getCourseCredits(courseSigle);
+        
+        if (currentModuleCredits + courseCredits > moduleMaxCredits) {
+          return { 
+            canSelect: false, 
+            reason: `Limite de crédits du module atteinte (${currentModuleCredits}/${moduleMaxCredits})` 
+          };
+        }
+      }
     }
 
     // Vérifier la règle d'exclusivité des sous-modules
@@ -505,6 +537,21 @@ export class CourseStateService {
     }
 
     return { canSelect: true };
+  }
+
+  private extractCreditsFromTitle(title: string): number {
+    const creditMatch = title.match(/\((\d+)\s*crédits\)/i);
+    return creditMatch ? parseInt(creditMatch[1], 10) : 0;
+  }
+
+  getModuleSelectedCredits(moduleTitle: string): number {
+    let credits = 0;
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && state.selectedInModule === moduleTitle) {
+        credits += state.credits;
+      }
+    });
+    return credits;
   }
 
   private isCourseSelected(courseSigle: string): boolean {

@@ -20,7 +20,7 @@ export class CourseService {
   }
 
   public getCourses(): void {
-    if (!this.courses) {
+    if (this.courses.length === 0) {
       this.apiService.getCourses().subscribe((listCourses) => {
         this.courses = listCourses;
       });

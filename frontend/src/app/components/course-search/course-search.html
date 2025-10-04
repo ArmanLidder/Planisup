@@ -7,7 +7,6 @@
     <p class="exclusion-hint">Désélectionnez d'abord les cours de l'autre module pour accéder à cette section.</p>
   </div>
 
-  <!-- Interface de recherche normale si pas exclu -->
   <ng-container *ngIf="!isExcludedBySubModuleRule">
     <div class="search-header">
       <h4>Recherche de cours</h4>
@@ -26,7 +25,7 @@
     <div class="filters">
       <select [(ngModel)]="creditFilter" (change)="filterCourses()" class="filter-select">
         <option value="">Tous les crédits</option>
-        <option *ngFor="let item of numSequence(maxCredits)" [value]="item" >{{ item }} crédit{{ item > 1 ? 's' : '' }}</option>
+        <option *ngFor="let item of numSequence(maxCredits)" [value]="item">{{ item }} crédit{{ item > 1 ? 's' : '' }}</option>
       </select>
     </div>
     
@@ -36,32 +35,36 @@
         <span class="expand-icon" [class.rotated]="isExpanded">▼</span>
       </div>
       
-      <div class="results-list" *ngIf="isExpanded">
-        <div class="course-item" 
-             *ngFor="let course of paginatedCourses"
-             [class.selected]="isSelected(course)"
-             [class.disabled]="!canSelectCourse(course)"
-             [class.already-selected-elsewhere]="isSelectedElsewhere(course)"
-             (click)="toggleCourse(course)">
-          <div class="course-checkbox">
-            <input type="checkbox" 
-                   [checked]="isSelected(course)"
-                   [disabled]="!canSelectCourse(course)"
-                   (click)="$event.stopPropagation()">
-            <span class="checkmark" [class.disabled]="!canSelectCourse(course)"></span>
-          </div>
-          <div class="course-info">
-            <div class="course-header">
-              <span class="course-code">{{ course.sigle }}</span>
-              <span class="course-credits">{{ course.credits }} crédits</span>
+      <!-- DÉPLACER LA PAGINATION À L'INTÉRIEUR DU CONTENEUR -->
+      <div class="results-list-container" *ngIf="isExpanded">
+        <div class="results-list">
+          <div class="course-item" 
+               *ngFor="let course of paginatedCourses"
+               [class.selected]="isSelected(course)"
+               [class.disabled]="!canSelectCourse(course)"
+               [class.already-selected-elsewhere]="isSelectedElsewhere(course)"
+               (click)="toggleCourse(course)">
+            <div class="course-checkbox">
+              <input type="checkbox" 
+                     [checked]="isSelected(course)"
+                     [disabled]="!canSelectCourse(course)"
+                     (click)="$event.stopPropagation()">
+              <span class="checkmark" [class.disabled]="!canSelectCourse(course)"></span>
             </div>
-            <div class="course-name">{{ course.name }}</div>
-            <div class="course-status" *ngIf="!canSelectCourse(course)">
-              {{ getStatusMessage(course) }}
+            <div class="course-info">
+              <div class="course-header">
+                <span class="course-code">{{ course.sigle }}</span>
+                <span class="course-credits">{{ course.credits }} crédits</span>
+              </div>
+              <div class="course-name">{{ course.name }}</div>
+              <div class="course-status" *ngIf="!canSelectCourse(course)">
+                {{ getStatusMessage(course) }}
+              </div>
             </div>
           </div>
         </div>
         
+        <!-- PAGINATION DÉPLACÉE ICI -->
         <div class="pagination" *ngIf="filteredCourses.length > coursesPerPage">
           <button class="page-btn" 
                   [disabled]="currentPage === 0"

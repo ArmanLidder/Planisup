@@ -129,7 +129,16 @@ export class CourseSearch implements OnInit {
     // Si le cours est sélectionné ailleurs, on ne peut pas le sélectionner
     if (this.isSelectedElsewhere(course)) return false;
     
-    // Vérifier la limite de crédits
+    // Vérifier toutes les restrictions via le service
+    const canSelect = this.courseStateService.canSearchCourseBeSelected(
+      course.sigle,
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle
+    );
+    
+    if (!canSelect.canSelect) return false;
+    
+    // Vérifier la limite de crédits de la section
     return this.selectedCredits + course.credits <= this.maxCredits;
   }
 
@@ -142,8 +151,19 @@ export class CourseSearch implements OnInit {
       return `Déjà sélectionné dans: ${location}`;
     }
     
+    // Vérifier les restrictions du module et de l'exclusivité
+    const canSelect = this.courseStateService.canSearchCourseBeSelected(
+      course.sigle,
+      this.currentModuleTitle,
+      this.currentSubmoduleTitle
+    );
+    
+    if (!canSelect.canSelect && canSelect.reason) {
+      return canSelect.reason;
+    }
+    
     if (this.selectedCredits + course.credits > this.maxCredits) {
-      return `Dépasserait la limite de crédits (${this.selectedCredits + course.credits}/${this.maxCredits})`;
+      return `Dépasserait la limite de crédits de la section (${this.selectedCredits + course.credits}/${this.maxCredits})`;
     }
     
     return '';

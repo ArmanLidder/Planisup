@@ -5,14 +5,20 @@
   padding: 20px;
   margin: 15px 0;
   box-sizing: border-box;
+  // FORCER une hauteur fixe et empêcher tout débordement
+  height: auto !important;
+  min-height: 200px;
+  overflow: visible !important;
+  position: relative;
   
-  // Style pour le message d'exclusion
   .exclusion-message {
     text-align: center;
     padding: 2.5rem 1.5rem;
     background-color: #fff3cd;
     border: 1px solid #ffc107;
     border-radius: 8px;
+    // Empêcher le débordement
+    overflow: hidden;
     
     .exclusion-icon {
       font-size: 3rem;
@@ -45,6 +51,13 @@
       color: #9c7a08;
       margin-top: 1rem;
     }
+  }
+
+  // CONTENEUR PRINCIPAL SANS DÉFILEMENT
+  .search-content {
+    height: auto;
+    overflow: visible;
+    position: relative;
   }
   
   .search-header {
@@ -82,7 +95,6 @@
     
     .search-input {
       width: 100%;
-      max-width: 100%;
       padding: 10px 40px 10px 15px;
       border: 1px solid #ced4da;
       border-radius: 6px;
@@ -126,13 +138,59 @@
     }
   }
   
+  // RÉINITIALISATION COMPLÈTE DU CONTENEUR DE RÉSULTATS
   .courses-results {
     border: 1px solid #dee2e6;
     border-radius: 6px;
     background-color: white;
     margin-bottom: 15px;
     box-sizing: border-box;
+    // HAUTEUR VARIABLE SELON L'ÉTAT
+    height: auto;
+    min-height: 50px; // Hauteur minimale quand réduit
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
     
+    // QUAND EXPANDÉ - hauteur fixe avec défilement
+    &.expanded {
+    height: 450px; // Un peu plus haut pour accommoder la pagination
+    
+    .results-list-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .results-list {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      // S'assurer que la liste prend tout l'espace disponible
+      min-height: 0;
+    }
+    
+    .pagination {
+      flex-shrink: 0;
+      margin-top: auto; // Pousse la pagination vers le bas
+    }
+  }
+    
+    // QUAND RÉDUIT - cacher le contenu
+    &:not(.expanded) {
+      .results-list-container {
+        display: none;
+      }
+      
+      .pagination {
+        display: none;
+      }
+    }
+
     .results-header {
       padding: 12px 15px;
       background-color: #f8f9fa;
@@ -143,13 +201,18 @@
       align-items: center;
       font-weight: 500;
       transition: background-color 0.2s;
+      flex-shrink: 0;
+      z-index: 10;
+      position: relative;
+      min-height: 50px; // Hauteur fixe du header
+      box-sizing: border-box;
       
       &:hover {
         background-color: #e9ecef;
       }
       
       .expand-icon {
-        transition: transform 0.2s;
+        transition: transform 0.3s ease;
         
         &.rotated {
           transform: rotate(180deg);
@@ -157,9 +220,19 @@
       }
     }
     
+    .results-list-container {
+      // État par défaut - caché
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    
     .results-list {
-      max-height: 400px;
-      overflow-y: auto;
+      // Reset des styles quand pas expanded
+      height: auto;
+      overflow: visible;
+      flex: 1;
+      min-height: 0;
       
       .course-item {
         display: flex;
@@ -230,10 +303,6 @@
               border-width: 0 2px 2px 0;
               transform: rotate(45deg);
             }
-            
-            &.disabled {
-              cursor: not-allowed;
-            }
           }
         }
         
@@ -289,6 +358,9 @@
       padding: 12px;
       border-top: 1px solid #dee2e6;
       background-color: #f8f9fa;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
       
       .page-btn {
         background-color: white;
@@ -320,6 +392,8 @@
   }
   
   .selected-courses {
+    margin-top: 15px;
+    
     h5 {
       margin: 0 0 10px 0;
       color: #495057;
@@ -329,6 +403,7 @@
     .selected-list {
       max-height: 150px;
       overflow-y: auto;
+      overflow-x: hidden;
       
       .selected-item {
         display: flex;
@@ -387,4 +462,15 @@
       }
     }
   }
+}
+
+// FORCER LA SUPPRESSION DU DÉFILEMENT SUR LES ÉLÉMENTS PARENTS
+:host {
+  overflow: visible !important;
+  display: block;
+}
+
+app-course-search {
+  overflow: visible !important;
+  display: block;
 }

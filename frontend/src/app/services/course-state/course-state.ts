@@ -500,7 +500,7 @@ export class CourseStateService {
         const currentModuleCredits = this.getModuleSelectedCredits(moduleTitle);
         const courseCredits = this.getCourseCredits(courseSigle);
         
-        if (currentModuleCredits + courseCredits > moduleMaxCredits) {
+        if (currentModuleCredits >= moduleMaxCredits || currentModuleCredits + courseCredits > moduleMaxCredits) {
           return { 
             canSelect: false, 
             reason: `Limite de crédits du module atteinte (${currentModuleCredits}/${moduleMaxCredits})` 
@@ -574,7 +574,7 @@ export class CourseStateService {
     const processedRules = new Set<string>();
     
     this.sectionRules.forEach(rule => {
-      if ((rule.type === 'credits_choice' || rule.type === 'credits_minimum') && rule.groupSections) {
+      if ((rule.type === 'credits_choice' || rule.type === 'credits_minimum' || rule.type === 'director_approval') && rule.groupSections) {
         const ruleId = `${rule.moduleTitle}::${rule.subModuleTitle || 'main'}::${rule.description}`;
         
         if (!processedRules.has(ruleId)) {
@@ -582,16 +582,41 @@ export class CourseStateService {
           
           const selectedCredits = this.getGroupSelectedCredits(rule);
           
+          // Si le sous-module n'a aucun cours sélectionné, ignorer cette règle
+          // Cela permet de ne valider que les sous-modules effectivement choisis
+          if (rule.subModuleTitle) {
+            let hasAnySelectionInSubModule = false;
+            this.courseStates.forEach((state) => {
+              if (state.selected && 
+                  state.selectedInModule === rule.moduleTitle &&
+                  state.selectedInSubmodule === rule.subModuleTitle) {
+                hasAnySelectionInSubModule = true;
+              }
+            });
+            
+            // Si aucun cours n'est sélectionné dans ce sous-module, ignorer la validation
+            if (!hasAnySelectionInSubModule) {
+              return;
+            }
+          }
+          
           if (rule.requiredCredits) {
             const groupName = rule.subModuleTitle 
               ? `${rule.moduleTitle} > ${rule.subModuleTitle}`
               : rule.moduleTitle;
               
-            if (rule.isMinimum) {
+            if (rule.isMinimum || rule.type === 'credits_minimum') {
               if (selectedCredits < rule.requiredCredits) {
                 errors.push(
                   `Groupe de règle "${rule.description}" dans ${groupName} : ` +
                   `${selectedCredits}/${rule.requiredCredits} crédits sélectionnés (minimum requis)`
+                );
+              }
+            } else if (rule.type === 'director_approval') {
+              if (selectedCredits > rule.requiredCredits) {
+                errors.push(
+                  `Groupe de règle "${rule.description}" dans ${groupName} : ` +
+                  `Trop de crédits sélectionnés (${selectedCredits}/${rule.requiredCredits})`
                 );
               }
             } else {

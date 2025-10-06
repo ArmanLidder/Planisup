@@ -143,6 +143,37 @@ export class StudyPlan implements OnInit {
       errors.push(...groupValidation.errors);
     }
 
+    // Validation de la règle d'exclusivité des sous-modules
+    this.courseStateService.exclusiveSubModuleRules.forEach(rule => {
+      let selectedSubModulesInGroup: string[] = [];
+      
+      // Trouver tous les sous-modules de ce groupe qui ont des cours sélectionnés
+      rule.subModuleTitles.forEach(subModuleTitle => {
+        let hasSelection = false;
+        this.courseStateService.courseStates.forEach((state) => {
+          if (state.selected && 
+              state.selectedInModule === rule.moduleTitle &&
+              state.selectedInSubmodule === subModuleTitle) {
+            hasSelection = true;
+          }
+        });
+        if (hasSelection) {
+          selectedSubModulesInGroup.push(subModuleTitle);
+        }
+      });
+      
+      // Valider qu'un seul sous-module a été choisi
+      if (selectedSubModulesInGroup.length === 0) {
+        const prefixes = rule.subModulePrefixes.join(', ');
+        errors.push(`Vous devez choisir un module parmi: ${prefixes}`);
+      } else if (selectedSubModulesInGroup.length > 1) {
+        const prefixes = selectedSubModulesInGroup
+          .map(title => this.extractSubModulePrefix(title))
+          .join(', ');
+        errors.push(`Vous ne pouvez choisir qu'un seul module parmi le groupe d'exclusivité. Actuellement sélectionnés: ${prefixes}`);
+      }
+    });
+
     // Validation des modules
     this.modules.forEach(module => {
       let moduleCredits = 0;
@@ -169,6 +200,7 @@ export class StudyPlan implements OnInit {
       alert('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
+    
     // Tout ça devra être effacé et mis dans un beau service
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
@@ -186,20 +218,25 @@ export class StudyPlan implements OnInit {
 
     console.log('Plan d\'études validé:', this.currentPlan);
     if (this.sPS.studyPlan) {
-      alert('Plan d\'études déjè soumis!');
+      alert('Plan d\'études déjà soumis!');
     } else {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
-      next: (response) => {
-        console.log('Plan d\'études soumis avec succès:', response);
-        this.sPS.loadStudyPlan(response._id, true)
-        alert('Plan d\'études soumis avec succès!');
-      },
-      error: (error) => {
-        console.error('Erreur lors de la soumission du plan d\'études:', error);
-        alert('Erreur lors de la soumission du plan d\'études.');
-      }
-    });
+        next: (response) => {
+          console.log('Plan d\'études soumis avec succès:', response);
+          this.sPS.loadStudyPlan(response._id, true)
+          alert('Plan d\'études soumis avec succès!');
+        },
+        error: (error) => {
+          console.error('Erreur lors de la soumission du plan d\'études:', error);
+          alert('Erreur lors de la soumission du plan d\'études.');
+        }
+      });
     }
+  }
 
+  // Ajouter cette méthode helper
+  extractSubModulePrefix(subModuleTitle: string): string {
+    const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
+    return match ? match[1] : subModuleTitle;
   }
 }

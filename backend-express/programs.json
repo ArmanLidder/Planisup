@@ -26566,7 +26566,7 @@
                 ]
               },
               {
-                "title_section": "Et jusqu’à 3 crédits au choix avec l’approbation du directeur ou de la directrice d’études.",
+                "title_section": "Et jusqu'à 3 crédits au choix avec l'approbation du directeur ou de la directrice d'études.",
                 "courses": []
               }
             ]
@@ -26576,12 +26576,11 @@
       {
         "title": "(C) Module d’intégration pour la maitrise professionnelle (15 crédits)",
         "texte_module": [
-          "6, 9, 12 ou 15 crédits parmi les cours suivants, plus de 0 à 9 crédits de cours au choix avec l’approbation du directeur ou de la directrice d’études, pour un total de 15 crédits.",
           "Les étudiants et les étudiantes qui ont complété le module B3 peuvent réaliser un projet entrepreneurial dans l’incubateur d'entrepreneurs technologiques Propolys."
         ],
         "tableau": [
           {
-            "title_section": "",
+            "title_section": "Au moins 6 crédits au choix parmi les cours suivants :",
             "courses": [
               {
                 "sigle": "INF6972S",
@@ -26626,6 +26625,10 @@
                 "trimestre": "Automne 2025\n              Hiver 2026\n              Été 2026"
               }
             ]
+          },
+          {
+            "title_section": "Et jusqu'à 9 crédits au choix avec l'approbation du directeur ou de la directrice d'études.",
+            "courses": []
           }
         ],
         "sous_modules": []
@@ -26653,19 +26656,14 @@
     "dispositions": "Les cours de cette option ont un contenu de nature informatique et/ou mathématique. Cette maîtrise est donc accessible a priori à des candidats ayant une formation universitaire en génie, en informatique ou en mathématique. Les candidats ayant une formation scientifique de niveau universitaire comportant des composantes significatives en informatique et en mathématique ou détenant une expérience professionnelle pertinente seront aussi considérés.\n\nPour en savoir plus sur le processus et les conditions d'admission visitez https://www.polymtl.ca/futur/es/admission.\n\nLe programme de maîtrise (ou DESS) modulaire permet à l'étudiant de recevoir soit :\n\n\n\t\n\tune Attestation spécifique de l'École Polytechnique, lorsqu'il a terminé le module obligatoire (A) ou le module de spécialisation (B) (l’étudiant doit en faire la demande par écrit au Registrariat);\n\t\n\t\n\ts’il est inscrit au DESS, un Diplôme d'études supérieures spécialisées (DESS), s'il complète le module obligatoire et le module de spécialisation (A)+(B);\n\t\n\t\n\tun diplôme de Maîtrise s'il complète les trois modules prévus au programme (A)+(B)+(C).\n\t\n\n\nNote 1 : Un étudiant inscrit dans un programme de maîtrise modulaire et qui a complété les modules A et B ne recevra pas de diplôme de DESS. Toutefois, si cet étudiant décide de ne plus poursuivre ses études de maîtrise, il pourra demander un changement de programme et ainsi obtenir le DESS.\n\nNote 2 : Un étudiant ayant obtenu le DESS modulaire (au cours des 3 années précédant sa nouvelle admission) pourra s’inscrire dans le programme de maîtrise modulaire de la même option et obtenir, suite à la complétion du module C, le diplôme de maîtrise modulaire (ce diplôme comportera alors la mention d’obtention du DESS modulaire décerné antérieurement).\n\nNote 3 : La mention de l’option apparaîtra sur le relevé de notes ainsi que sur le diplôme de maîtrise ou de DESS.",
     "structure": "Le programme est composé de trois modules ayant chacun des objectifs spécifiques. Le module de base vise une couverture du domaine suffisante pour garantir qu’aucun aspect important ne soit négligé. Le module de spécialisation permet à l’étudiant de compléter sa formation, soit en fonction de besoins spécifiques à un domaine d’application particulier, soit en fonction de son expérience antérieure. Le module d’intégration vise la synthèse de l’ensemble des connaissances acquises dans le cadre d’un projet ou stage.\n\n \n\n\n\t\n\t\t\n\t\t\tModules\n\t\t\tCrédits\n\t\t\n\t\n\t\n\t\t\n\t\t\t(A) Module de base (cours)\n\t\t\t15\n\t\t\n\t\t\n\t\t\t(B) Module de spécialisation (cours)\n\t\t\t15\n\t\t\n\t\t\n\t\t\t(C) Module d'intégration (stage ou projet)\n\t\t\t15",
     "modules": [
-      {
-        "title": "Liste de cours",
-        "texte_module": [],
-        "tableau": [],
-        "sous_modules": [
           {
             "title": "(A) - Module de base (15 crédits)",
-            "texte_sous_module": [
-              "Cours au choix parmi les suivants (15 crédits)"
+            "texte_module": [
+              "Note : l'étudiant possédant déjà une formation en recherche opérationnelle pourra remplacer le cours MTH8415 par un cours au choix."
             ],
-            "section": [
+            "tableau": [
               {
-                "title_section": "Note : l'étudiant possédant déjà une formation en recherche opérationnelle pourra remplacer le cours MTH8415 par un cours au choix.",
+                "title_section": "Cours au choix parmi les suivants (15 crédits)",
                 "courses": [
                   {
                     "sigle": "INF8111",
@@ -26709,18 +26707,44 @@
                 "title_section": "Ou un cours au choix avec l’approbation du directeur ou de la directrice d’études.",
                 "courses": []
               }
-            ]
+            ],
+            "sous_modules": []
           },
           {
             "title": "(B) - Module de spécialisation (15 crédits)",
-            "texte_sous_module": [
-              "Cours au choix parmi les cours du module de base (0 à 3 crédits)\n\nIngénierie des données\n\nCours au choix parmi les suivants (3 à 6 crédits)",
-              "Analytique des données\n\nCours au choix parmi les suivants (9 à 12 crédits)",
-              "Ou un cours au choix avec l’approbation du directeur ou de la directrice d’études."
-            ],
-            "section": [
+            "texte_module": [],
+            "tableau": [
               {
-                "title_section": "",
+                "title_section": "Cours au choix parmi les suivants (3 à 6 crédits)",
+                "courses": [
+                  {
+                    "sigle": "INF6422",
+                    "titre": "Concepts avancés en sécurité informatique",
+                    "credits": "3",
+                    "trimestre": ""
+                  },
+                  {
+                    "sigle": "INF8102",
+                    "titre": "Sécurité dans les environnements infonuagique",
+                    "credits": "3",
+                    "trimestre": "Automne 2025"
+                  },
+                  {
+                    "sigle": "LOG8415",
+                    "titre": "Concepts avancés en infonuagique",
+                    "credits": "3",
+                    "trimestre": ""
+                  },
+                  {
+                    "sigle": "LOG8415E",
+                    "titre": "Advanced Concepts of Cloud Computing",
+                    "credits": "3",
+                    "trimestre": "Automne 2025"
+                  }
+                ]
+              },
+              {
+                "title_section": "Cours au choix parmi les suivants (9 à 12 crédits)",
                 "courses": [
                   {
                     "sigle": "INF8225",
@@ -26795,17 +26819,23 @@
                     "trimestre": "Hiver 2026"
                   }
                 ]
+              },
+              {
+                "title_section": "Ou un cours au choix avec l’approbation du directeur ou de la directrice d’études.",
+                "courses": []
               }
-            ]
+            ],
+            "sous_modules": []
           },
           {
             "title": "(C) - Module d'intégration (15 crédits)",
-            "texte_sous_module": [
-              "Pour les projets et les stages de 9 crédits et plus, l'étudiant doit avoir complété 9 crédits de cours avant d'entreprendre l'activité (stage ou projet) du module d'intégration.\n\nCours au choix (0 à 3 crédits)\n\nStage1 ou projet :\n\n(1) L’étudiant désirant effectuer un stage industriel dans le cadre de son programme doit établir, en collaboration avec un professeur du département, des liens avec une entreprise pour obtenir son stage. Le stage doit être fait sous la cosupervision d’un professionnel de l’entreprise et d’un professeur du département. Le contenu du stage doit être approuvé par le responsable du programme au moins un mois avant le début du stage. \nL'étudiant peut prendre des projets et/ou un stage pour un maximum de 15 crédits."
+            "texte_module": [
+              "Pour les projets et les stages de 9 crédits et plus, l'étudiant doit avoir complété 9 crédits de cours avant d'entreprendre l'activité (stage ou projet) du module d'intégration.",
+              "Stage1 ou projet :\n\n(1) L’étudiant désirant effectuer un stage industriel dans le cadre de son programme doit établir, en collaboration avec un professeur du département, des liens avec une entreprise pour obtenir son stage. Le stage doit être fait sous la cosupervision d’un professionnel de l’entreprise et d’un professeur du département. Le contenu du stage doit être approuvé par le responsable du programme au moins un mois avant le début du stage. \nL'étudiant peut prendre des projets et/ou un stage pour un maximum de 15 crédits."
             ],
-            "section": [
+            "tableau": [
               {
-                "title_section": "",
+                "title_section": "Au moins 12 crédits au choix parmi les cours suivants :",
                 "courses": [
                   {
                     "sigle": "INF6972S",
@@ -26850,11 +26880,14 @@
                     "trimestre": "Automne 2025\n              Hiver 2026\n              Été 2026"
                   }
                 ]
+              },
+              {
+                "title_section": "Et jusqu'à 3 crédits au choix avec l'approbation du directeur ou de la directrice d'études.",
+                "courses": []
               }
-            ]
+            ],
+            "sous_modules": []
           }
-        ]
-      }
     ]
   },
   {

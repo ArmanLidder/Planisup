@@ -16,6 +16,7 @@ export class CourseSearch implements OnInit {
   @Input() currentModuleTitle!: string;
   @Input() currentSubmoduleTitle: string | null = null;
   @Input() currentSectionDescription!: string;
+  @Input() maxCourses: number = 999;
   
   @Output() courseSelectionChange = new EventEmitter<{
     course: Course;
@@ -38,6 +39,10 @@ export class CourseSearch implements OnInit {
   ngOnInit() {
     this.filteredCourses = [...this.allCourses];
     this.loadAlreadySelectedCourses();
+  }
+
+  get isCourseLimitReached(): boolean {
+    return this.selectedCourses.length >= this.maxCourses;
   }
 
   get isExcludedBySubModuleRule(): boolean {
@@ -123,11 +128,11 @@ export class CourseSearch implements OnInit {
   }
 
   canSelectCourse(course: Course): boolean {
-    // Si le cours est sélectionné dans cette section, on peut le désélectionner
     if (this.isSelected(course)) return true;
     
-    // Si le cours est sélectionné ailleurs, on ne peut pas le sélectionner
     if (this.isSelectedElsewhere(course)) return false;
+
+    if (this.isCourseLimitReached) return false;
     
     // Vérifier toutes les restrictions via le service
     const canSelect = this.courseStateService.canSearchCourseBeSelected(
@@ -138,8 +143,12 @@ export class CourseSearch implements OnInit {
     
     if (!canSelect.canSelect) return false;
     
-    // Vérifier la limite de crédits de la section
-    return this.selectedCredits + course.credits <= this.maxCredits;
+    // Vérifier la limite de crédits (si maxCredits > 0)
+    if (this.maxCredits > 0 && this.selectedCredits + course.credits > this.maxCredits) {
+      return false;
+    }
+    
+    return true;
   }
 
   getStatusMessage(course: Course): string {
@@ -151,6 +160,11 @@ export class CourseSearch implements OnInit {
       return `Déjà sélectionné dans: ${location}`;
     }
     
+    // Vérifier la limite de nombre de cours
+    if (this.isCourseLimitReached && !this.isSelected(course)) {
+      return `Limite de cours atteinte (${this.selectedCourses.length}/${this.maxCourses})`;
+    }
+
     // Vérifier les restrictions du module et de l'exclusivité
     const canSelect = this.courseStateService.canSearchCourseBeSelected(
       course.sigle,
@@ -162,7 +176,7 @@ export class CourseSearch implements OnInit {
       return canSelect.reason;
     }
     
-    if (this.selectedCredits + course.credits > this.maxCredits) {
+    if (this.maxCredits > 0 && this.selectedCredits + course.credits > this.maxCredits) {
       return `Dépasserait la limite de crédits de la section (${this.selectedCredits + course.credits}/${this.maxCredits})`;
     }
     

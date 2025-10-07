@@ -45,10 +45,11 @@
     <app-course-search
       [allCourses]="allCourses"
       [maxCredits]="sectionRule?.requiredCredits || 0"
+      [maxCourses]="isDirectorApprovalSingleSection ? 1 : 999"
       [currentModuleTitle]="currentModuleTitle"
       [currentSubmoduleTitle]="currentSubmoduleTitle"
       [currentSectionDescription]="section.description"
       (courseSelectionChange)="onSearchCourseSelectionChange($event)">
     </app-course-search>
-  </div>
+</div>
 </div>

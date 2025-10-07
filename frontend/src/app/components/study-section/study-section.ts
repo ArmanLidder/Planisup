@@ -64,8 +64,12 @@ export class StudySection {
     return this.sectionRule?.type === 'credits_choice';
   }
 
+  get isDirectorApprovalSingleSection(): boolean {
+    return this.sectionRule?.type === 'director_approval_single';
+  }
+
   get isDirectorApprovalSection(): boolean {
-    return this.sectionRule?.type === 'director_approval';
+    return this.sectionRule?.type === 'director_approval' || this.sectionRule?.type === 'director_approval_single';
   }
 
   get isMinimumRuleSection(): boolean {

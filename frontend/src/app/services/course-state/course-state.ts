@@ -11,7 +11,7 @@ export interface CourseState {
 }
 
 export interface SectionRule {
-  type: 'credits_choice' | 'director_approval' | 'credits_minimum' | 'none';
+  type: 'credits_choice' | 'director_approval' | 'credits_minimum' | 'director_approval_single' | 'none';
   requiredCredits?: number;
   isMinimum?: boolean;
   description: string;
@@ -22,8 +22,8 @@ export interface SectionRule {
 
 export interface ExclusiveSubModuleRule {
   moduleTitle: string;
-  subModulePrefixes: string[]; // Ex: ['B1', 'B2', 'B3']
-  subModuleTitles: string[];   // Titres complets des sous-modules
+  subModulePrefixes: string[];
+  subModuleTitles: string[]; 
 }
 
 @Injectable({
@@ -187,6 +187,17 @@ export class CourseStateService {
       };
     }
 
+    const singleCourseApprovalRegex = /Ou\s+un\s+cours\s+au\s+choix\s+avec\s+l['']?approbation\s+du\s+directeur/i;
+    const singleCourseMatch = description.match(singleCourseApprovalRegex);
+    
+    if (singleCourseMatch) {
+      return {
+        type: 'director_approval_single',
+        requiredCredits: 0,
+        description
+      };
+    }
+
     const directorApprovalRegex = /Et\s+jusqu['']?à\s+(\d+)\s*crédits?\s+au\s+choix\s+avec\s+l['']?approbation\s/i;
     const directorApprovalMatch = description.match(directorApprovalRegex);
     
@@ -289,6 +300,16 @@ export class CourseStateService {
       
       // Vérifier les règles de la section
       const rule = this.getSectionRule(moduleTitle, submoduleTitle, sectionDescription);
+
+      // Gérer la règle "un cours au choix"
+      if (rule && rule.type === 'director_approval_single') {
+        // Vérifier qu'aucun autre cours n'est déjà sélectionné dans cette section
+        const alreadySelectedInSection = this.getSelectedCoursesInSection(moduleTitle, submoduleTitle, sectionDescription);
+        if (alreadySelectedInSection.length >= 1) {
+          return false; // Déjà un cours sélectionné
+        }
+      }
+
       if (rule && (rule.type === 'credits_choice' || rule.type === 'director_approval')) {
         const currentCredits = this.getSectionSelectedCredits(moduleTitle, submoduleTitle, sectionDescription);
         const courseCredits = this.getCourseCredits(courseSigle);
@@ -705,5 +726,19 @@ export class CourseStateService {
       requiredCredits: rule?.requiredCredits || 0,
       selectedCourses
     };
+  }
+
+  // Nouvelle méthode helper
+  private getSelectedCoursesInSection(moduleTitle: string, subModuleTitle: string | null, sectionDescription: string): string[] {
+    const selectedCourses: string[] = [];
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && 
+          state.selectedInModule === moduleTitle &&
+          state.selectedInSubmodule === subModuleTitle &&
+          state.selectedInSection === sectionDescription) {
+        selectedCourses.push(courseSigle);
+      }
+    });
+    return selectedCourses;
   }
 }

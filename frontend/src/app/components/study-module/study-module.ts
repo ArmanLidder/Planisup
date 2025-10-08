@@ -25,7 +25,7 @@ export class StudyModule implements OnInit {
   title: string = '';
   credits: number = 0;
   selectedCredits: number = 0;
-  isExpanded: boolean = true;
+  isExpanded: boolean = false;
   expandedSubModules: Map<string, boolean> = new Map();
   
   constructor(private courseStateService: CourseStateService) {}
@@ -35,7 +35,7 @@ export class StudyModule implements OnInit {
     this.calculateSelectedCredits();
     if (this.module.subModules) {
       this.module.subModules.forEach(subModule => {
-        this.expandedSubModules.set(subModule.title, true);
+        this.expandedSubModules.set(subModule.title, false);
       });
     }
   }

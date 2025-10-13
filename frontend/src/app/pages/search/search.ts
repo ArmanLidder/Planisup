@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { GsupInput } from '@app/components/gsup-input/gsup-input';
 import { CourseService } from '@app/services/course/course-service';
 import { ExtendedInfoCourse } from '@common/program';
 import { MatInputModule } from '@angular/material/input';

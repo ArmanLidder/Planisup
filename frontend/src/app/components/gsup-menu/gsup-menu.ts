@@ -42,12 +42,9 @@ export class GsupMenu {
   }
 
   public searchCourses(): void {
+    this.isMenuOpen = false;
     this.dialog.open(Search, {
-      width: '80vw',
-      height: '80vh',
       maxWidth: '90vw',
-      maxHeight: '90vh',
-      panelClass: 'transparent-dialog'
     });
   }
 

@@ -71,3 +71,35 @@ mat-table,
 .cdk-header-cell {
   background: transparent !important;
 }
+
+/* c la barre de glissement jai mit ici comme ca tt les bhay aterial qui utilise cette barre sera similaire */
+.cdk-overlay-pane ::-webkit-scrollbar,
+.mat-mdc-dialog-surface ::-webkit-scrollbar,
+.search-container ::-webkit-scrollbar {
+  width: 15px;
+}
+
+.cdk-overlay-pane ::-webkit-scrollbar-thumb,
+.mat-mdc-dialog-surface ::-webkit-scrollbar-thumb,
+.search-container ::-webkit-scrollbar-thumb {
+  background: rgba(7, 7, 7, 0.5);
+  border-radius: 10px;
+}
+
+.cdk-overlay-pane ::-webkit-scrollbar-thumb:hover,
+.mat-mdc-dialog-surface ::-webkit-scrollbar-thumb:hover,
+.search-container ::-webkit-scrollbar-thumb:hover {
+  background: rgba(7, 7, 7, 0.6);
+}
+
+.cdk-overlay-pane ::-webkit-scrollbar-thumb:active,
+.mat-mdc-dialog-surface ::-webkit-scrollbar-thumb:active,
+.search-container ::-webkit-scrollbar-thumb:active {
+  background: rgba(7, 7, 7, 0.7);
+}
+
+.cdk-overlay-pane ::-webkit-scrollbar-track,
+.mat-mdc-dialog-surface ::-webkit-scrollbar-track,
+.search-container ::-webkit-scrollbar-track {
+  background: rgba(211, 211, 211, 0);
+}

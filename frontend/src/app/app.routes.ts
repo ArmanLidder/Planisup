@@ -12,7 +12,6 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'accueil', component: Home, canActivate: [AuthGuard] },
   { path: 'admin', component: Admin, canActivate: [AuthGuard] },
-  { path: 'rechercher-cours', component: Search, canActivate: [AuthGuard] },
   { path: 'study-plan', component: StudyPlan },
   { path: 'view-plan', component: ViewPlan },
   { path: ':type', component: Program },

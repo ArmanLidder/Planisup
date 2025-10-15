@@ -1,14 +1,13 @@
-<div class="admin-container">
-  <nav class="admin-nav">
-    <button mat-button [class.active]="currentSection === 'users'" (click)="showSection('users')">
-      <mat-icon>group</mat-icon>
-      Gestion des Utilisateurs
-    </button>
-  </nav>
-
-  <div class="admin-content">
-    @if (currentSection === 'users') {
-      <app-user-management></app-user-management>
-    }
+<div class="program-container" *ngIf="!this.selectedSection">
+  <div class="container-box" (click)="navigateToSection('users')">
+    <img [src]="'./../../../assets/image_users.png'" alt="" />
+    <h1>Gestion des utilisateurs</h1>
+  </div>
+  <div class="container-box" (click)="navigateToSection('programs')">
+    <img [src]="'./../../../assets/image_programs.png'" alt="" />
+    <h1>Gestion des programmes</h1>
   </div>
 </div>
+
+<app-user-management *ngIf="selectedSection === 'users'"></app-user-management>
+<app-program-management *ngIf="selectedSection === 'programs'"></app-program-management>

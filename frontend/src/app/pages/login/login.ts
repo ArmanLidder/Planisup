@@ -42,12 +42,12 @@ export class Login {
     private authentificationService: AuthentificationService,
     private router: Router,
     private readonly sPS: StudyPlanService,
-    private coursesService: CourseService,
+    private coursesService: CourseService
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]]
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
     });
     this.isLoading$ = this.sPS.loading$;
     this.coursesService.getAllCourses();
@@ -75,7 +75,9 @@ export class Login {
 
             // Show role assignment message for new users
             if (user.role === UserRole.Employe) {
-              console.log('Connecté en tant qu\'employé. Un administrateur peut vous assigner un rôle spécifique.');
+              console.log(
+                "Connecté en tant qu'employé. Un administrateur peut vous assigner un rôle spécifique."
+              );
             }
 
             console.log('Connecté en tant que', response);
@@ -86,7 +88,7 @@ export class Login {
             // else if (user.role !== UserRole.Etudiant) {
             //   this.router.navigate(['/staff']);
             // }
-             else {
+            else {
               if (response.user.currentPlan) {
                 this.sPS.loadStudyPlan(response.user.currentPlan, user.role === UserRole.Etudiant);
               } else {
@@ -147,6 +149,6 @@ export class Login {
 
   bypassLogin(): void {
     this.authentificationService.bypassLogin();
-    this.router.navigate(['/accueil']);
+    this.router.navigate(['/admin']);
   }
 }

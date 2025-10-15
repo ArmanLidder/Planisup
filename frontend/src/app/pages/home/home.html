@@ -54,24 +54,30 @@
   </div>
 </div>
 
-<!-- Employee Role Message -->
 <div *ngIf="this.auth.currentUser?.role === UserRole.Employe" class="employee-message-container">
   <div class="employee-message-card">
     <mat-icon class="employee-icon">person</mat-icon>
     <h2>Attente d'assignation de rôle</h2>
     <p>
-      Vous êtes actuellement identifié comme <strong>Employé</strong>.
-      Pour accéder aux fonctionnalités du système, vous devez être assigné à un rôle spécifique
-      (Directeur, Agent administratif, ou Coordonnateur).
+      Vous êtes actuellement identifié comme <strong>Employé</strong>. Pour accéder aux
+      fonctionnalités du système, vous devez être assigné à un rôle spécifique (Directeur, Agent
+      administratif, ou Coordonnateur).
     </p>
     <p>
-      Veuillez contacter un administrateur pour qu'il vous assigne le rôle approprié. Ensuite, reconnectez vous
+      Veuillez contacter un administrateur pour qu'il vous assigne le rôle approprié. Ensuite,
+      reconnectez vous
     </p>
     <p>
-      Après l'assignation de votre rôle, vous devrez vous
-      reconnecter pour que les changements prennent effet.
+      Après l'assignation de votre rôle, vous devrez vous reconnecter pour que les changements
+      prennent effet.
     </p>
   </div>
 </div>
 
-<app-verify-plans *ngIf="this.auth.currentUser?.role !== role[0] && this.auth.currentUser?.role !== UserRole.Employe"></app-verify-plans>
+<app-verify-plans
+  *ngIf="
+    this.auth.currentUser?.role !== role[0] &&
+    this.auth.currentUser?.role !== UserRole.Employe &&
+    this.auth.currentUser?.role !== UserRole.Administrateur
+  "
+></app-verify-plans>

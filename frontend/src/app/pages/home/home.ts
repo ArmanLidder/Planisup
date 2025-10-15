@@ -8,37 +8,31 @@ import { VerifyPlans } from '@app/components/verify-plans/verify-plans';
 import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
 import { CourseService } from '@app/services/course/course-service';
-import { MatIconModule } from '@angular/material/icon'; // Add this import
-import { StudyPlanStatus } from '@common/study-plan';
+import { MatIconModule } from '@angular/material/icon';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    CommonModule,
-    GsupButton,
-    VerifyPlans,
-    MatIconModule // Add this to imports
-  ],
+  imports: [CommonModule, GsupButton, VerifyPlans, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
   protected degree = Object.values(Degree);
   protected role = Object.values(UserRole);
+  protected readonly UserRole = UserRole;
 
   constructor(
-    private router: Router,
-    private pS: ProgramService,
-    private sPS: StudyPlanService,
-    private courseService: CourseService,
+    private readonly router: Router,
+    private readonly pS: ProgramService,
+    private readonly sPS: StudyPlanService,
+    private readonly courseService: CourseService,
     public auth: AuthentificationService
   ) {}
 
   ngOnInit(): void {
     this.courseService.getCourses();
-    console.log("Ng Onit")
     this.pS.reset();
     this.sPS.resetPlan();
   }
@@ -46,6 +40,4 @@ export class Home implements OnInit {
   navigateTo(degree: string): void {
     this.router.navigate([`/${degree.toLowerCase()}`]);
   }
-
-  protected readonly UserRole = UserRole;
 }

@@ -3,7 +3,7 @@ import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
-import { User, UserRole } from '@common/user';
+import { User } from '@common/user';
 import { Search } from '@app/pages/search/search';
 
 @Component({
@@ -33,9 +33,6 @@ export class GsupMenu {
     this.navigateTo('login');
   }
 
-  public isAdmin(): boolean {
-    return this.currentUser?.role === UserRole.Administrateur;
-  }
   public navigateTo(page: string) {
     this.isMenuOpen = false;
     this.router.navigate([`/${page}`]);

@@ -18,8 +18,8 @@ export class GsupHeader implements OnInit {
   etudiantRole = UserRole.Etudiant;
 
   constructor(
-    private authentificationService: AuthentificationService,
-    private programService: ProgramService,
+    private readonly authentificationService: AuthentificationService,
+    private readonly programService: ProgramService,
     public router: Router
   ) {}
 
@@ -30,8 +30,16 @@ export class GsupHeader implements OnInit {
   }
 
   goBack(): void {
-    if (this.currentUser?.role !== UserRole.Etudiant) this.router.navigate(['/accueil']);
-    else this.programService.goBack();
+    if (
+      this.currentUser?.role !== UserRole.Etudiant &&
+      this.currentUser?.role !== UserRole.Administrateur
+    ) {
+      this.router.navigate(['/accueil']);
+    } else if (this.currentUser?.role === UserRole.Administrateur) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.programService.goBack();
+    }
   }
 
   isStudentWithActiveStudy(): boolean {

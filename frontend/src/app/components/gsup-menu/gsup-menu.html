@@ -1,16 +1,16 @@
 <div class="menu-container">
-  <img class="image" src="./../../../assets/more.png" (click)="openMenu()" />
+  <img class="image" src="./../../../assets/more.png" (click)="openMenu()" alt="" />
   <div class="container-dropdown" *ngIf="isMenuOpen">
-    <div class="dropdown-option" (click)="navigateTo('accueil')">
-      <img src="./../../../assets/home.png" />
+    <div class="dropdown-option" (click)="navigateTo('accueil')" *ngIf="!this.isAdmin()">
+      <img src="./../../../assets/home.png" alt="" />
       <p class="text">Accueil</p>
     </div>
     <div class="dropdown-option" (click)="searchCourses()">
-      <img src="./../../../assets/search.png" />
+      <img src="./../../../assets/search.png" alt="" />
       <p class="text">Rechercher des cours</p>
     </div>
     <div class="dropdown-option" (click)="logout()">
-      <img src="./../../../assets/logout.png" />
+      <img src="./../../../assets/logout.png" alt="" />
       <p class="text">Déconnexion</p>
     </div>
   </div>

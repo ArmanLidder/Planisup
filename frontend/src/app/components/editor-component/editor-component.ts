@@ -46,7 +46,9 @@ export class EditorComponent implements OnInit, OnDestroy, ControlValueAccessor 
     console.log(this.html);
   }
 
-  ngOnDestroy(): void {
-    this.editor.destroy();
+  ngOnDestroy() {
+    if (this.editor) {
+      this.editor.destroy();
+    }
   }
 }

@@ -7,7 +7,7 @@
   <div
     class="container-box"
     *ngFor="let dept of departements$ | async; let i = index"
-    (click)="pS.chooseDepartement(dept)"
+    (click)="programService.chooseDepartement(dept)"
   >
     <img [src]="departementImages[dept]" />
     <h1>{{ dept }}</h1>
@@ -21,7 +21,7 @@
   <div
     class="container-box"
     *ngFor="let degree of degrees$ | async; let i = index"
-    (click)="pS.chooseDegree(degree)"
+    (click)="programService.chooseDegree(degree)"
   >
     <img [src]="'./../../../assets/program&option.png'" />
     <h1>{{ degree }}</h1>
@@ -35,7 +35,7 @@
   <div
     class="container-box"
     *ngFor="let opt of options$ | async; let i = index"
-    (click)="pS.chooseOption(i)"
+    (click)="programService.chooseOption(i)"
   >
     <img [src]="'./../../../assets/program&option.png'" />
     <h1>{{ opt }}</h1>

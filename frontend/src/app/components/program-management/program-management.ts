@@ -5,13 +5,12 @@ import { BehaviorSubject } from 'rxjs';
 import { Program, ReducedProgram } from '@common/program';
 import { ApiService } from '@app/services/api/api-service';
 import { ProgramService } from '@app/services/program/program-service';
-import { MatLabel, MatFormField } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-program-management',
   standalone: true,
-  imports: [StudyPlan, CommonModule, MatInputModule, MatLabel, MatFormField],
+  imports: [StudyPlan, CommonModule, MatInputModule],
   templateUrl: './program-management.html',
   styleUrl: './program-management.scss',
 })

@@ -39,6 +39,12 @@ export class ApiService {
     );
   }
 
+  getAllPrograms(): Observable<ReducedProgram[]> {
+    return this.http.get<ReducedProgram[]>(
+      `${environment.serverUrl}/program`
+    );
+  }
+
   getProgram(id: string): Observable<Program> {
     return this.http.get<Program>(`${environment.serverUrl}/program/${id}`);
   }

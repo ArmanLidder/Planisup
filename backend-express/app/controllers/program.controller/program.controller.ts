@@ -75,5 +75,15 @@ export class ProgramController {
         return res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    this.router.get("/", async (req, res) => {
+      try {
+        const programs = await ProgramModel.find().exec();
+        return res.status(200).json(programs);
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
   }
 }

@@ -1,1 +1,27 @@
-<p>program-management works!</p>
+<div class="programs-container">
+  <div class="container-left">
+    <div class="left-header">
+      <div class="header-search-program"></div>
+      <div class="header-add-program"></div>
+      <div class="programs-list">
+        <div 
+          *ngFor="let option of (allPrograms$ | async) | keyvalue" 
+          class="program-item" 
+          [class.selected]="selectedProgramId === option.key"
+          (click)="selectProgram(option.key)">
+          {{ option.value }}
+        </div>
+      </div>
+    </div>
+    <div class="left-list-program">
+
+    </div>
+  </div>
+  <div class="container-right">
+    <div *ngIf="!selectedProgramId" class="no-program-selected">
+      <h3>Aucun programme sélectionné</h3>
+      <p>Veuillez sélectionner un programme dans la liste pour voir le plan d'études.</p>
+    </div>
+    <app-study-plan *ngIf="selectedProgramId && pS.program"></app-study-plan>
+  </div>
+</div>

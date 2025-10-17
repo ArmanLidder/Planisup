@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from "@app/services/program/program-service";
@@ -9,6 +9,7 @@ import { StudyPlan as StudyPlanInterface, StudyPlanStatus, StudyPlanStep, StepVa
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { ApiService } from '@app/services/api/api-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-study-plan',
@@ -18,13 +19,14 @@ import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
   styleUrls: ['./study-plan.scss']
 })
 
-export class StudyPlan implements OnInit {
+export class StudyPlan implements OnInit, OnDestroy {
   totalCredits: number = 0;
   selectedCredits: number = 0;
   program!: Program;
   modules: Module[] = [];
   allCourses: Course[] = []; // Tous les cours disponibles pour la recherche
   currentPlan: StudyPlanInterface | null = null;
+  private programSubscription: Subscription | null = null;
 
   constructor(
     private programService: ProgramService,
@@ -36,8 +38,31 @@ export class StudyPlan implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.program = this.programService.program!;
+    // Subscribe to program changes
+    this.programSubscription = this.programService.program$.subscribe(program => {
+      if (program) {
+        this.initializeWithProgram(program);
+      }
+    });
+
+    // Initialize if program is already available
+    if (this.programService.program) {
+      this.initializeWithProgram(this.programService.program);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.programSubscription) {
+      this.programSubscription.unsubscribe();
+    }
+  }
+
+  private initializeWithProgram(program: Program) {
+    this.program = program;
     this.modules = this.program.modules;
+    this.totalCredits = 0;
+    this.selectedCredits = 0;
+
     for (const module of this.program.modules) {
       this.totalCredits += this.extractCreditsFromTitle(module.title)
     }

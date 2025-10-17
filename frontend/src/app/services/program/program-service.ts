@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from '@app/services/api/api-service';
 import { Program, ReducedProgram } from '@common/program';
 
@@ -26,7 +26,21 @@ export class ProgramService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
 
-  public program: Program | null = null;
+  private _program: Program | null = null;
+  private programSubject = new BehaviorSubject<Program | null>(null);
+
+  get program(): Program | null {
+    return this._program;
+  }
+
+  set program(value: Program | null) {
+    this._program = value;
+    this.programSubject.next(value);
+  }
+
+  get program$(): Observable<Program | null> {
+    return this.programSubject.asObservable();
+  }
 
   public type: string | null = null;
   private departement: string | null = null;

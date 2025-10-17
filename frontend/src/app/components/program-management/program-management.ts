@@ -5,26 +5,25 @@ import { BehaviorSubject } from 'rxjs';
 import { Program, ReducedProgram } from '@common/program';
 import { ApiService } from '@app/services/api/api-service';
 import { ProgramService } from '@app/services/program/program-service';
+import { MatLabel, MatFormField } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-program-management',
   standalone: true,
-  imports: [StudyPlan, CommonModule],
+  imports: [StudyPlan, CommonModule, MatInputModule, MatLabel, MatFormField],
   templateUrl: './program-management.html',
   styleUrl: './program-management.scss',
 })
 export class ProgramManagement implements OnInit {
-  private programsSubject = new BehaviorSubject<Map<string, ReducedProgram[]>>(new Map());
+  private readonly programsSubject = new BehaviorSubject<Map<string, ReducedProgram[]>>(new Map());
   programs$ = this.programsSubject.asObservable();
-  private allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
+  private readonly allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
   allPrograms$ = this.allPrograms.asObservable();
-  
+
   selectedProgramId: string | null = null;
-  
-  constructor(
-    private apiService: ApiService,
-    protected pS: ProgramService,
-  ) {};
+
+  constructor(private readonly apiService: ApiService, protected pS: ProgramService) {}
 
   async ngOnInit(): Promise<void> {
     await this.initialization();
@@ -45,12 +44,14 @@ export class ProgramManagement implements OnInit {
           resolve();
         },
         error: (err) => {
-          console.error("Error fetching programs", err);
+          console.error('Error fetching programs', err);
           reject(err);
         },
       });
     });
   }
+
+  onSearch(event: string): void {}
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
     const map = new Map<string, ReducedProgram[]>();
@@ -65,17 +66,16 @@ export class ProgramManagement implements OnInit {
     const optionsSet = new Map<string, string>();
     programs.forEach((program) => {
       if (program.option) {
-        if (program.degree){
-          optionsSet.set(program._id!, program.degree + " - " + program.option);
-        }
-        else{
+        if (program.degree) {
+          optionsSet.set(program._id!, program.degree + ' - ' + program.option);
+        } else {
           optionsSet.set(program._id!, program.option);
         }
-      }
-      else if (program.degree) { 
+      } else if (program.degree) {
         optionsSet.set(program._id!, program.degree);
+      } else {
+        console.warn('Program without option or degree:', program);
       }
-      else{ console.warn("Program without option or degree:", program); }
     });
     this.allPrograms.next(optionsSet);
   }
@@ -84,9 +84,8 @@ export class ProgramManagement implements OnInit {
     this.selectedProgramId = programId;
     this.apiService.getProgram(this.selectedProgramId).subscribe({
       next: (program: Program) => {
-        this.pS.program =  program;
+        this.pS.program = program;
       },
     });
   }
 }
-

@@ -1,26 +1,31 @@
 <div class="programs-container">
   <div class="container-left">
     <div class="left-header">
-      <div class="header-search-program"></div>
-      <div class="header-add-program"></div>
-      <div class="programs-list">
-        <div 
-          *ngFor="let option of (allPrograms$ | async) | keyvalue" 
-          class="program-item" 
-          [class.selected]="selectedProgramId === option.key"
-          (click)="selectProgram(option.key)">
-          {{ option.value }}
-        </div>
+      <div class="header-search-program">
+        <!--<mat-form-field appearance="outline" class="search-bar">
+          <mat-label>Rerchercher un programme...</mat-label>
+          <input matInput type="text" (input)="onSearch($event.target.value)" />
+        </mat-form-field>-->
+      </div>
+      <div class="header-add-program">
+        <!--<img src="./../../../assets/image_add.png" alt="" />-->
       </div>
     </div>
-    <div class="left-list-program">
-
+    <div class="programs-list">
+      <div
+        *ngFor="let option of allPrograms$ | async | keyvalue"
+        class="program-item"
+        [class.selected]="selectedProgramId === option.key"
+        (click)="selectProgram(option.key)"
+      >
+        {{ option.value }}
+      </div>
     </div>
   </div>
   <div class="container-right">
     <div *ngIf="!selectedProgramId" class="no-program-selected">
-      <h3>Aucun programme sélectionné</h3>
-      <p>Veuillez sélectionner un programme dans la liste pour voir le plan d'études.</p>
+      <img src="./../../../assets/image_select.png" alt="" />
+      <h3>Veuillez sélectionner un programme dans la liste pour intéragir avec un plan d'étude.</h3>
     </div>
     <app-study-plan *ngIf="selectedProgramId && pS.program"></app-study-plan>
   </div>

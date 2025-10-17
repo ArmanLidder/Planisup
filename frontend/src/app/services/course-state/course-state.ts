@@ -123,6 +123,7 @@ export class CourseStateService {
         const newRule: SectionRule = {
           type: parsedRule.type,
           requiredCredits: parsedRule.requiredCredits,
+          isMinimum: parsedRule.isMinimum,
           description: parsedRule.description,
           moduleTitle,
           subModuleTitle,

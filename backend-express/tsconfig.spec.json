@@ -1,4 +1,15 @@
 {
     "extends": "./tsconfig.json",
-    "include": ["app/**/*.ts", "test/*"]
+    "compilerOptions": {
+        "outDir": "./out-tsc/spec",
+        "types": ["node", "mocha", "chai", "sinon"]
+    },
+    "include": [
+        "app/**/*.spec.ts",
+        "app/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "out"
+    ]
 }

@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
-import { getStepOrderForProgram, ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
+import { getStepOrderForProgram as originalGetStepOrder, ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { StudyPlan, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { User, UserRole } from '@common/user';
 import { Loading } from "@app/components/loading/loading";
+import { ProgramType } from '@common/program';
 
 @Component({
   selector: 'app-view-plan',
@@ -67,9 +68,14 @@ export class ViewPlan {
     return labels[validation] || validation;
   }
 
-   private getCurrentStepOrder(): StudyPlanStep[] {
+  protected getStepOrderForProgram(programType: ProgramType): StudyPlanStep[] {
+    return originalGetStepOrder(programType);
+  }
+
+
+  private getCurrentStepOrder(): StudyPlanStep[] {
     const studyPlan = this.studyPlan;
-    return getStepOrderForProgram(studyPlan!.programType);
+    return this.getStepOrderForProgram(studyPlan!.programType);
   }
 
   getProgressSteps(): ProgressStepModel[] {

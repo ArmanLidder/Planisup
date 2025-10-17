@@ -38,11 +38,11 @@ export class Login {
   isLoading$: typeof this.sPS.loading$;
 
   constructor(
-    private fb: FormBuilder,
-    private authentificationService: AuthentificationService,
-    private router: Router,
+    private readonly fb: FormBuilder,
+    private readonly authentificationService: AuthentificationService,
+    private readonly router: Router,
     private readonly sPS: StudyPlanService,
-    private coursesService: CourseService
+    private readonly coursesService: CourseService
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],

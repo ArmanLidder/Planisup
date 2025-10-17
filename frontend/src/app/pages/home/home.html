@@ -1,9 +1,9 @@
-<div class="home-container" *ngIf="this.auth.currentUser?.role === role[0]">
+<div class="home-container" *ngIf="this.authentificationService.currentUser?.role === role[0]">
   <div class="container-left">
     <div class="container-content">
       <img src="./../../../assets/image_diplomees.png" />
       <h1>Gestionnaire de plan d'études des cycles supérieurs</h1>
-      <p *ngIf="auth.currentUser$ | async as user; else notLoggedIn">
+      <p *ngIf="authentificationService.currentUser$ | async as user; else notLoggedIn">
         Bienvenue {{ user.firstName }} {{ user.lastName }}!
       </p>
       <ng-template #notLoggedIn>
@@ -54,7 +54,10 @@
   </div>
 </div>
 
-<div *ngIf="this.auth.currentUser?.role === UserRole.Employe" class="employee-message-container">
+<div
+  *ngIf="this.authentificationService.currentUser?.role === UserRole.Employe"
+  class="employee-message-container"
+>
   <div class="employee-message-card">
     <mat-icon class="employee-icon">person</mat-icon>
     <h2>Attente d'assignation de rôle</h2>
@@ -76,8 +79,8 @@
 
 <app-verify-plans
   *ngIf="
-    this.auth.currentUser?.role !== role[0] &&
-    this.auth.currentUser?.role !== UserRole.Employe &&
-    this.auth.currentUser?.role !== UserRole.Administrateur
+    this.authentificationService.currentUser?.role !== role[0] &&
+    this.authentificationService.currentUser?.role !== UserRole.Employe &&
+    this.authentificationService.currentUser?.role !== UserRole.Administrateur
   "
 ></app-verify-plans>

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DepartementImages } from '@app/shared/records/image';
 import { ProgramService } from '@app/services/program/program-service';
-import { Loading } from "@app/components/loading/loading";
+import { Loading } from '@app/components/loading/loading';
 
 @Component({
   selector: 'app-program',
@@ -13,32 +13,30 @@ import { Loading } from "@app/components/loading/loading";
   templateUrl: './program.html',
   styleUrl: './program.scss',
 })
-
 export class Program implements OnInit {
-  step$: typeof this.pS.step$;
-  departements$: typeof this.pS.departements$;
-  degrees$: typeof this.pS.degrees$;
-  options$: typeof this.pS.options$;
-  isLoading$: typeof this.pS.loading$;
+  step$: typeof this.programService.step$;
+  departements$: typeof this.programService.departements$;
+  degrees$: typeof this.programService.degrees$;
+  options$: typeof this.programService.options$;
+  isLoading$: typeof this.programService.loading$;
 
   protected departementImages = DepartementImages;
 
   constructor(
-    private route: ActivatedRoute,
-    protected pS: ProgramService,
+    private readonly activatedRoute: ActivatedRoute,
+    protected programService: ProgramService
   ) {
-    this.step$ = this.pS.step$;
-    this.departements$ = this.pS.departements$;
-    this.degrees$ = this.pS.degrees$;
-    this.options$ = this.pS.options$;
-    this.isLoading$ = this.pS.loading$;
+    this.step$ = this.programService.step$;
+    this.departements$ = this.programService.departements$;
+    this.degrees$ = this.programService.degrees$;
+    this.options$ = this.programService.options$;
+    this.isLoading$ = this.programService.loading$;
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.activatedRoute.paramMap.subscribe((params) => {
       const type = params.get('type');
-      if (type) this.pS.loadDepartements(type);
+      if (type) this.programService.loadDepartements(type);
     });
   }
 }
-

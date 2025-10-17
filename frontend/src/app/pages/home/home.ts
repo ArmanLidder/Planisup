@@ -25,16 +25,16 @@ export class Home implements OnInit {
 
   constructor(
     private readonly router: Router,
-    private readonly pS: ProgramService,
-    private readonly sPS: StudyPlanService,
+    private readonly programService: ProgramService,
+    private readonly studyPlanService: StudyPlanService,
     private readonly courseService: CourseService,
-    public auth: AuthentificationService
+    public authentificationService: AuthentificationService
   ) {}
 
   ngOnInit(): void {
     this.courseService.getCourses();
-    this.pS.reset();
-    this.sPS.resetPlan();
+    this.programService.reset();
+    this.studyPlanService.resetPlan();
   }
 
   navigateTo(degree: string): void {

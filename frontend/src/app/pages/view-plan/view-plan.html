@@ -81,6 +81,9 @@
     <div *ngIf="this.isStudent()" class="action-buttons">
       <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">Soumettre</button>
       <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
+      <ng-container *ngIf="studyPlan$ | async as studyPlan">
+        <button *ngIf="getStatusLabel(studyPlan.status) === 'Validé'" class="btn-action btn-validate" (click)="exportPDF()">Exporter en PDF</button>
+      </ng-container>
     </div>
     <app-chat></app-chat>
   </div>

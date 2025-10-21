@@ -9,6 +9,7 @@ import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { User, UserRole } from '@common/user';
 import { Loading } from "@app/components/loading/loading";
 import { ProgramType } from '@common/program';
+import { PdfService } from '@app/services/pdf-service/pdf-service';
 
 @Component({
   selector: 'app-view-plan',
@@ -26,6 +27,7 @@ export class ViewPlan {
   constructor(
     private readonly auth: AuthentificationService,
     private readonly sPS: StudyPlanService,
+    private readonly pdfService: PdfService,
   ) {
     this.currentUser = this.auth.currentUser;
     this.studyPlan = this.sPS.studyPlan;
@@ -130,5 +132,11 @@ export class ViewPlan {
 
   protected onSubmit() {
     this.sPS.updateStudyPlan();
+  }
+
+  protected exportPDF() {
+    if (this.sPS.studyPlan && this.auth.currentUser) {
+      this.pdfService.generateAndDownloadPdf(this.sPS.studyPlan, this.auth.currentUser);
+    }
   }
 }

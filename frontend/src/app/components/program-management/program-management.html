@@ -2,13 +2,14 @@
   <div class="container-left">
     <div class="left-header">
       <div class="header-search-program">
-        <!--<mat-form-field appearance="outline" class="search-bar">
-          <mat-label>Rerchercher un programme...</mat-label>
-          <input matInput type="text" (input)="onSearch($event.target.value)" />
-        </mat-form-field>-->
+        <input
+          type="text"
+          placeholder="Rechercher un programme..."
+          (input)="onSearch($event.target.value)"
+        />
       </div>
       <div class="header-add-program">
-        <!--<img src="./../../../assets/image_add.png" alt="" />-->
+        <img src="./../../../assets/image_add.png" alt="" />
       </div>
     </div>
     <div class="programs-list">
@@ -25,7 +26,12 @@
   <div class="container-right">
     <div *ngIf="!selectedProgramId" class="no-program-selected">
       <img src="./../../../assets/image_select.png" alt="" />
-      <h3>Veuillez sélectionner un programme dans la liste pour intéragir avec un plan d'étude.</h3>
+      <h3>
+        Selectionnez un programme dans la liste affichée afin d'intéragir avec un plan d'étude.
+      </h3>
+      <h3>
+        Cliquez sur le bouton situé à droite de la barre de recherche pour ajouter un programme.
+      </h3>
     </div>
     <app-study-plan *ngIf="selectedProgramId && programService.program"></app-study-plan>
   </div>

@@ -1,3 +1,6 @@
+@if (loadingService.isLoading$ | async) {
+<app-loading></app-loading>
+}
 <div class="program-container" *ngIf="!this.selectedSection">
   <div class="container-box" (click)="navigateToSection('users')">
     <img [src]="'./../../../assets/image_users.png'" alt="" />

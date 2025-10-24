@@ -1,24 +1,30 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
-import { ProgramService } from "@app/services/program/program-service";
+import { ProgramService } from '@app/services/program/program-service';
 import { Program, Module, Course, ProgramType } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
-import { StudyPlan as StudyPlanInterface, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
+import {
+  StudyPlan as StudyPlanInterface,
+  StudyPlanStatus,
+  StudyPlanStep,
+  StepValidationStatus,
+} from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { ApiService } from '@app/services/api/api-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import slugify from 'slugify';
 
 @Component({
   selector: 'app-study-plan',
   standalone: true,
   imports: [CommonModule, StudyModule],
   templateUrl: './study-plan.html',
-  styleUrls: ['./study-plan.scss']
+  styleUrls: ['./study-plan.scss'],
 })
-
 export class StudyPlan implements OnInit, OnDestroy {
   totalCredits: number = 0;
   selectedCredits: number = 0;
@@ -35,11 +41,12 @@ export class StudyPlan implements OnInit, OnDestroy {
     private authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
+    protected router: Router
   ) {}
 
   ngOnInit() {
     // Subscribe to program changes
-    this.programSubscription = this.programService.program$.subscribe(program => {
+    this.programSubscription = this.programService.program$.subscribe((program) => {
       if (program) {
         this.initializeWithProgram(program);
       }
@@ -64,7 +71,7 @@ export class StudyPlan implements OnInit, OnDestroy {
     this.selectedCredits = 0;
 
     for (const module of this.program.modules) {
-      this.totalCredits += this.extractCreditsFromTitle(module.title)
+      this.totalCredits += this.extractCreditsFromTitle(module.title);
     }
 
     // Initialiser le service avec les modules
@@ -89,17 +96,17 @@ export class StudyPlan implements OnInit, OnDestroy {
   extractCoursesFromProgram(): Course[] {
     const courses: Course[] = [];
 
-    this.modules.forEach(module => {
+    this.modules.forEach((module) => {
       if (module.courses) {
-        module.courses.forEach(section => {
+        module.courses.forEach((section) => {
           courses.push(...section.courses);
         });
       }
 
       if (module.subModules) {
-        module.subModules.forEach(subModule => {
+        module.subModules.forEach((subModule) => {
           if (subModule.courses) {
-            subModule.courses.forEach(section => {
+            subModule.courses.forEach((section) => {
               courses.push(...section.courses);
             });
           }
@@ -108,21 +115,21 @@ export class StudyPlan implements OnInit, OnDestroy {
     });
 
     // Supprimer les doublons basés sur le sigle
-    const uniqueCourses = courses.filter((course, index, self) =>
-      index === self.findIndex(c => c.sigle === course.sigle)
+    const uniqueCourses = courses.filter(
+      (course, index, self) => index === self.findIndex((c) => c.sigle === course.sigle)
     );
 
     return uniqueCourses;
   }
 
   onCourseSelectionChange(event: {
-    courseSigle: string,
-    moduleTitle: string,
-    submoduleTitle: string | null,
-    selected: boolean,
-    selectedSection: string
+    courseSigle: string;
+    moduleTitle: string;
+    submoduleTitle: string | null;
+    selected: boolean;
+    selectedSection: string;
   }) {
-    const module = this.modules.find(m => m.title === event.moduleTitle);
+    const module = this.modules.find((m) => m.title === event.moduleTitle);
     if (!module) return;
 
     const result = this.courseStateService.setCourseSelected(
@@ -143,10 +150,11 @@ export class StudyPlan implements OnInit, OnDestroy {
   }
 
   getProgressStyle(): any {
-    const percentage = this.totalCredits > 0 ? Math.min((this.selectedCredits / this.totalCredits) * 100, 100) : 0;
+    const percentage =
+      this.totalCredits > 0 ? Math.min((this.selectedCredits / this.totalCredits) * 100, 100) : 0;
     return {
-      'width': `${percentage}%`,
-      'background-color': percentage >= 100 ? '#4caf50' : '#2196f3'
+      width: `${percentage}%`,
+      'background-color': percentage >= 100 ? '#4caf50' : '#2196f3',
     };
   }
 
@@ -169,16 +177,18 @@ export class StudyPlan implements OnInit, OnDestroy {
     }
 
     // Validation de la règle d'exclusivité des sous-modules
-    this.courseStateService.exclusiveSubModuleRules.forEach(rule => {
+    this.courseStateService.exclusiveSubModuleRules.forEach((rule) => {
       let selectedSubModulesInGroup: string[] = [];
-      
+
       // Trouver tous les sous-modules de ce groupe qui ont des cours sélectionnés
-      rule.subModuleTitles.forEach(subModuleTitle => {
+      rule.subModuleTitles.forEach((subModuleTitle) => {
         let hasSelection = false;
         this.courseStateService.courseStates.forEach((state) => {
-          if (state.selected && 
-              state.selectedInModule === rule.moduleTitle &&
-              state.selectedInSubmodule === subModuleTitle) {
+          if (
+            state.selected &&
+            state.selectedInModule === rule.moduleTitle &&
+            state.selectedInSubmodule === subModuleTitle
+          ) {
             hasSelection = true;
           }
         });
@@ -186,21 +196,23 @@ export class StudyPlan implements OnInit, OnDestroy {
           selectedSubModulesInGroup.push(subModuleTitle);
         }
       });
-      
+
       // Valider qu'un seul sous-module a été choisi
       if (selectedSubModulesInGroup.length === 0) {
         const prefixes = rule.subModulePrefixes.join(', ');
         errors.push(`Vous devez choisir un module parmi: ${prefixes}`);
       } else if (selectedSubModulesInGroup.length > 1) {
         const prefixes = selectedSubModulesInGroup
-          .map(title => this.extractSubModulePrefix(title))
+          .map((title) => this.extractSubModulePrefix(title))
           .join(', ');
-        errors.push(`Vous ne pouvez choisir qu'un seul module parmi le groupe d'exclusivité. Actuellement sélectionnés: ${prefixes}`);
+        errors.push(
+          `Vous ne pouvez choisir qu'un seul module parmi le groupe d'exclusivité. Actuellement sélectionnés: ${prefixes}`
+        );
       }
     });
 
     // Validation des modules
-    this.modules.forEach(module => {
+    this.modules.forEach((module) => {
       let moduleCredits = 0;
 
       // Calculer les crédits du module directement depuis courseStates
@@ -213,7 +225,11 @@ export class StudyPlan implements OnInit, OnDestroy {
       const requiredCredits = this.extractCreditsFromTitle(module.title);
 
       if (requiredCredits > 0 && moduleCredits < requiredCredits) {
-        errors.push(`Le module ${this.getModuleTitleWithoutCredits(module.title)} nécessite au moins ${requiredCredits} crédits (actuellement: ${moduleCredits}).`);
+        errors.push(
+          `Le module ${this.getModuleTitleWithoutCredits(
+            module.title
+          )} nécessite au moins ${requiredCredits} crédits (actuellement: ${moduleCredits}).`
+        );
       }
     });
 
@@ -225,7 +241,7 @@ export class StudyPlan implements OnInit, OnDestroy {
       alert('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
-    
+
     // Tout ça devra être effacé et mis dans un beau service
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
@@ -237,26 +253,43 @@ export class StudyPlan implements OnInit, OnDestroy {
       studyPlanStep: StudyPlanStep.STUDENT,
       stepValidation: StepValidationStatus.IN_PROGRESS,
       coursesSelection: {
-        modules: this.courseStateService.getSelectedCoursesByModule()
-      }
+        modules: this.courseStateService.getSelectedCoursesByModule(),
+      },
     };
 
-    console.log('Plan d\'études validé:', this.currentPlan);
+    console.log("Plan d'études validé:", this.currentPlan);
     if (this.sPS.studyPlan) {
-      alert('Plan d\'études déjà soumis!');
+      alert("Plan d'études déjà soumis!");
     } else {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
-          console.log('Plan d\'études soumis avec succès:', response);
-          this.sPS.loadStudyPlan(response._id, true)
-          alert('Plan d\'études soumis avec succès!');
+          console.log("Plan d'études soumis avec succès:", response);
+          this.sPS.loadStudyPlan(response._id, true);
+          alert("Plan d'études soumis avec succès!");
         },
         error: (error) => {
-          console.error('Erreur lors de la soumission du plan d\'études:', error);
-          alert('Erreur lors de la soumission du plan d\'études.');
-        }
+          console.error("Erreur lors de la soumission du plan d'études:", error);
+          alert("Erreur lors de la soumission du plan d'études.");
+        },
       });
     }
+  }
+
+  modifyPlan(): void {
+    /*if (!this.program) return;
+
+    const name = this.program.option
+      ? `${this.program.degree} - ${this.program.option}`
+      : this.program.degree;
+
+    const slug = slugify(name, {
+      lower: true,
+      strict: true,
+      locale: 'fr',
+      trim: true,
+    });
+
+    this.router.navigate([`/admin/programs/${slug}`]);*/
   }
 
   // Ajouter cette méthode helper

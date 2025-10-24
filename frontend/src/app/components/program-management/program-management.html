@@ -27,6 +27,6 @@
       <img src="./../../../assets/image_select.png" alt="" />
       <h3>Veuillez sélectionner un programme dans la liste pour intéragir avec un plan d'étude.</h3>
     </div>
-    <app-study-plan *ngIf="selectedProgramId && pS.program"></app-study-plan>
+    <app-study-plan *ngIf="selectedProgramId && programService.program"></app-study-plan>
   </div>
 </div>

@@ -2,34 +2,41 @@
   <header>
     <h1>Plan d'Études - Planetude</h1>
     <div class="total-credits">
-      <span class="credits-count">{{ selectedCredits }} / {{ totalCredits }}</span> 
+      <span class="credits-count">{{ selectedCredits }} / {{ totalCredits }}</span>
       <span class="credits-label">Crédits sélectionnés</span>
     </div>
   </header>
-  
+
   <div class="module-info">
     <h2>{{ program.degree }}</h2>
     <h3 *ngIf="program.option">{{ program.option }}</h3>
     <p class="description">{{ program.description }}</p>
-    
+
     <div class="conditions" *ngIf="program.modules.length > 0">
       <p *ngFor="let module of program.modules">
-        <strong>{{ extractCreditsFromTitle(module.title) }} crédits</strong> - {{ getModuleTitleWithoutCredits(module.title) }}
+        <strong>{{ extractCreditsFromTitle(module.title) }} crédits</strong> -
+        {{ getModuleTitleWithoutCredits(module.title) }}
       </p>
     </div>
   </div>
 
   <div class="modules-container">
-    <app-study-module 
-      *ngFor="let module of modules" 
+    <app-study-module
+      *ngFor="let module of modules"
       [module]="module"
       [allCourses]="allCourses"
       [progressStyle]="getProgressStyle()"
-      (courseSelectionChange)="onCourseSelectionChange($event)">
+      (courseSelectionChange)="onCourseSelectionChange($event)"
+    >
     </app-study-module>
   </div>
 
   <div class="actions">
-    <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
+    <button *ngIf="router.url !== '/admin/programs'" (click)="validatePlan()" class="btn-primary">
+      Valider le plan d'études
+    </button>
+    <button *ngIf="router.url === '/admin/programs'" (click)="modifyPlan()" class="btn-primary">
+      Modifier le plan d'études
+    </button>
   </div>
 </div>

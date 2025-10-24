@@ -148,8 +148,8 @@ export class ProgramService {
 
   private returnFromStudyPlan(step: number): void {
     this.router.navigate([`/${this.type}`]);
-    const noOption = this.optionsSubject.getValue().length === 0
-    const decrement = noOption ? 2 : 1
+    const noOption = this.optionsSubject.getValue().length === 0;
+    const decrement = noOption ? 2 : 1;
     this.stepSubject.next(step - decrement);
   }
 }

@@ -6,6 +6,7 @@ import { Program, ReducedProgram } from '@common/program';
 import { ApiService } from '@app/services/api/api-service';
 import { ProgramService } from '@app/services/program/program-service';
 import { MatInputModule } from '@angular/material/input';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-program-management',
@@ -17,37 +18,24 @@ import { MatInputModule } from '@angular/material/input';
 export class ProgramManagement implements OnInit {
   private readonly programsSubject = new BehaviorSubject<Map<string, ReducedProgram[]>>(new Map());
   programs$ = this.programsSubject.asObservable();
+
   private readonly allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
   allPrograms$ = this.allPrograms.asObservable();
 
   selectedProgramId: string | null = null;
 
-  constructor(private readonly apiService: ApiService, protected pS: ProgramService) {}
+  constructor(
+    private readonly apiService: ApiService,
+    private readonly activatedRoute: ActivatedRoute,
+    protected programService: ProgramService
+  ) {}
 
-  async ngOnInit(): Promise<void> {
-    await this.initialization();
-  }
-
-  private async initialization() {
-    await this.getPrograms();
-    const allPrograms = Array.from(this.programsSubject.getValue().values()).flat();
+  ngOnInit(): void {
+    const programs = this.activatedRoute.snapshot.data['programs'];
+    const map = this.populateProgramMap(programs);
+    this.programsSubject.next(map);
+    const allPrograms = Array.from(map.values()).flat();
     this.populateOptionsList(allPrograms);
-  }
-
-  getPrograms(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.apiService.getAllPrograms().subscribe({
-        next: (programs) => {
-          const map = this.populateProgramMap(programs);
-          this.programsSubject.next(map);
-          resolve();
-        },
-        error: (err) => {
-          console.error('Error fetching programs', err);
-          reject(err);
-        },
-      });
-    });
   }
 
   onSearch(event: string): void {}
@@ -83,7 +71,7 @@ export class ProgramManagement implements OnInit {
     this.selectedProgramId = programId;
     this.apiService.getProgram(this.selectedProgramId).subscribe({
       next: (program: Program) => {
-        this.pS.program = program;
+        this.programService.program = program;
       },
     });
   }

@@ -44,6 +44,9 @@ input {
   height: 100%;
   border-radius: 10px;
   border: 2px solid black;
+  padding: 0.5rem 0.5rem;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .header-add-program {
@@ -68,7 +71,7 @@ input {
 
 .programs-list {
   width: 90%;
-  max-height: 55vh;
+  height: 55vh;
   overflow-y: auto;
   padding: 1rem;
   background: white;
@@ -84,21 +87,30 @@ input {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: clamp(8px, 1vw, 12px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 3px rgba(0, 0, 0, 0.25);
 
   &:hover {
     background: #e3f2fd;
-    border-color: #2196f3;
+    border-color: #3498db;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
   }
 
   &.selected {
-    background: #2196f3;
+    background: #3498db;
     color: white;
-    border-color: #1976d2;
+    border-color: #3498db;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
   }
+}
+
+.no-program-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: black;
+  font-weight: bold;
 }
 
 .no-program-selected {

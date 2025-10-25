@@ -7,6 +7,7 @@ import { ApiService } from '@app/services/api/api-service';
 import { ProgramService } from '@app/services/program/program-service';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
+import removeAccents from 'remove-accents';
 
 @Component({
   selector: 'app-program-management',
@@ -19,9 +20,10 @@ export class ProgramManagement implements OnInit {
   private readonly programsSubject = new BehaviorSubject<Map<string, ReducedProgram[]>>(new Map());
   programs$ = this.programsSubject.asObservable();
 
-  private readonly allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
+  protected readonly allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
   allPrograms$ = this.allPrograms.asObservable();
 
+  private allProgramsOriginal = new Map<string, string>();
   selectedProgramId: string | null = null;
 
   constructor(
@@ -38,7 +40,28 @@ export class ProgramManagement implements OnInit {
     this.populateOptionsList(allPrograms);
   }
 
-  onSearch(event: string): void {}
+  onSearch(event: string): void {
+    const search = removeAccents(event.trim().toLowerCase());
+    if (!search) {
+      this.allPrograms.next(new Map(this.allProgramsOriginal));
+      return;
+    }
+    const filteredPrograms = new Map(
+      [...this.allProgramsOriginal].filter(([_, program]) =>
+        removeAccents(program.toLowerCase()).includes(search)
+      )
+    );
+    this.allPrograms.next(filteredPrograms);
+  }
+
+  selectProgram(programId: string): void {
+    this.selectedProgramId = programId;
+    this.apiService.getProgram(this.selectedProgramId).subscribe({
+      next: (program: Program) => {
+        this.programService.program = program;
+      },
+    });
+  }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
     const map = new Map<string, ReducedProgram[]>();
@@ -52,27 +75,15 @@ export class ProgramManagement implements OnInit {
   private populateOptionsList(programs: ReducedProgram[]): void {
     const optionsSet = new Map<string, string>();
     programs.forEach((program) => {
-      if (program.option) {
-        if (program.degree) {
-          optionsSet.set(program._id!, program.degree + ' - ' + program.option);
-        } else {
-          optionsSet.set(program._id!, program.option);
-        }
-      } else if (program.degree) {
-        optionsSet.set(program._id!, program.degree);
-      } else {
-        console.warn('Program without option or degree:', program);
-      }
+      const name = program.option
+        ? program.degree
+          ? `${program.degree} - ${program.option}`
+          : program.option
+        : program.degree ?? '';
+      optionsSet.set(program._id!, name);
     });
-    this.allPrograms.next(optionsSet);
-  }
 
-  selectProgram(programId: string): void {
-    this.selectedProgramId = programId;
-    this.apiService.getProgram(this.selectedProgramId).subscribe({
-      next: (program: Program) => {
-        this.programService.program = program;
-      },
-    });
+    this.allProgramsOriginal = new Map(optionsSet);
+    this.allPrograms.next(optionsSet);
   }
 }

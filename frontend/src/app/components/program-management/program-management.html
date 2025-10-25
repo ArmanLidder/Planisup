@@ -21,6 +21,9 @@
       >
         {{ option.value }}
       </div>
+      <p class="no-program-message" *ngIf="allPrograms.getValue().size === 0">
+        Aucun programme trouvé
+      </p>
     </div>
   </div>
   <div class="container-right">

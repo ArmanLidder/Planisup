@@ -21,7 +21,6 @@ export class CourseService {
 
   public getCourses(): void {
     if (this.courses.length === 0) {
-      console.log("liste de cours prise")
       this.apiService.getCourses().subscribe((listCourses) => {
         this.courses = listCourses;
       });

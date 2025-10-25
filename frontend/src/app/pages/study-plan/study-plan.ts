@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
@@ -26,6 +26,9 @@ import slugify from 'slugify';
   styleUrls: ['./study-plan.scss'],
 })
 export class StudyPlan implements OnInit, OnDestroy {
+  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' =
+    'modifyStudent';
+
   totalCredits: number = 0;
   selectedCredits: number = 0;
   program!: Program;

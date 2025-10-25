@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Grade, ProgramType } from "@common/program";
-import { StudyPlanStep, StudyPlanStatus, StepValidationStatus, SelectedModule } from "@common/study-plan";
+import { StudyPlanStep, StudyPlanStatus, StepValidationStatus, SelectedModule, SerializedCourseState } from "@common/study-plan";
 
 /**
  * Ce commentaire peut être effacer quand tout le monde aura compris
@@ -29,6 +29,7 @@ export interface IStudyPlan extends Document {
     programType: ProgramType // DESS, Master and PHD for easy step modification in frontend
     studyPlanStep: StudyPlanStep,
     stepValidation: StepValidationStatus,
+    courseState: { [courseSigle: string]: SerializedCourseState },
     coursesSelection: {
         modules: SelectedModule[]
     }
@@ -57,6 +58,14 @@ const SelectedModuleSchema: Schema = new mongoose.Schema({
     courses: [CourseSchema]
 }, { _id: false});
 
+const SerializedCourseStateSchema: Schema = new mongoose.Schema({
+    selected: { type: Boolean, required: true },
+    selectedInModule: { type: String, default: null },
+    selectedInSubmodule: { type: String, default: null },
+    selectedInSection: { type: String, default: null },
+    credits: { type: Number, required: true }
+}, { _id: false });
+
 const StudyPlanSchema: Schema = new mongoose.Schema(
   {
     status: { type: String, enum: Object.values(StudyPlanStatus), required: true },
@@ -67,6 +76,11 @@ const StudyPlanSchema: Schema = new mongoose.Schema(
     programType: { type: String, enum: Object.values(ProgramType), required: true },
     studyPlanStep: { type: String, enum: Object.values(StudyPlanStep), required: true },
     stepValidation: { type: String, enum: Object.values(StepValidationStatus), required: true },
+    courseState: {
+      type: Map,
+      of: SerializedCourseStateSchema,
+      default: {}
+    },
     coursesSelection: {
       modules: [SelectedModuleSchema],
     },
@@ -100,6 +114,7 @@ export const convertToStudyPLan = (studyPlan: IStudyPlan) => {
         programType: studyPlan.programType,
         studyPlanStep: studyPlan.studyPlanStep,
         stepValidation: studyPlan.stepValidation,
+        courseState: studyPlan.courseState,
         coursesSelection: studyPlan.coursesSelection,
         chatId: studyPlan.chatId,
         createdDate: studyPlan.createdDate,

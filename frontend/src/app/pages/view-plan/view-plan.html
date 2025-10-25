@@ -1,3 +1,4 @@
+
 @if (isLoading$ | async) {
 <app-loading></app-loading>
 }
@@ -8,70 +9,14 @@
     </app-progress>
   </div>
   <div class="container-middle">
-
-    <!-- Study Plan Content -->
-    <div class="study-plan-content" *ngIf="studyPlan$ | async as studyPlan">
-      <div class="study-plan-header">
-        <h2>Plan d'étude</h2>
-        <div class="status-badge" [class]="'status-' + studyPlan.status">
-          {{ getStatusLabel(studyPlan.status) }}
-        </div>
+    <!-- Afficher le composant study-plan au lieu du contenu statique -->
+    @if (isStudyPlanLoaded && (studyPlan$ | async)) {
+      <app-study-plan [isViewMode]="true"></app-study-plan>
+    } @else if (!isStudyPlanLoaded) {
+      <div class="loading-message">
+        <p>Chargement du plan d'études...</p>
       </div>
-      <div class="study-plan-info">
-        <div class="info-row">
-          <span class="label">Type de programme:</span>
-          <span class="value">{{ studyPlan.programType }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Étape actuelle:</span>
-          <span class="value">{{ getStepLabel(studyPlan.studyPlanStep) }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Statut de validation:</span>
-          <span class="value" [class]="'validation-' + studyPlan.stepValidation">
-            {{ getValidationLabel(studyPlan.stepValidation) }}
-          </span>
-        </div>
-        <div class="info-row" *ngIf="studyPlan.createdDate">
-          <span class="label">Date de création:</span>
-          <span class="value">{{ studyPlan.createdDate | date:'dd/MM/yyyy' }}</span>
-        </div>
-        <div class="info-row" *ngIf="studyPlan.modifiedDate">
-          <span class="label">Dernière modification:</span>
-          <span class="value">{{ studyPlan.modifiedDate | date:'dd/MM/yyyy HH:mm' }}</span>
-        </div>
-      </div>
-      <div class="courses-selection" *ngIf="studyPlan.coursesSelection && studyPlan.coursesSelection.modules && studyPlan.coursesSelection.modules.length > 0">
-        <h3>Sélection de cours</h3>
-        <div class="modules-container">
-          <div class="module" *ngFor="let module of studyPlan.coursesSelection.modules">
-            <div class="module-header">
-              <h4>{{ module.title }}</h4>
-              <span class="course-count">{{ (module.courses && module.courses.length) || 0 }} cours</span>
-            </div>
-            <div class="courses-list" *ngIf="module.courses && module.courses.length > 0">
-              <div class="course-item" *ngFor="let course of module.courses">
-                <div class="course-info">
-                  <span class="course-sigle">{{ course.sigle }}</span>
-                  <span class="course-name">{{ course.name }}</span>
-                  <span class="course-credits">{{ course.credits }} crédits</span>
-                </div>
-                <div class="course-details">
-                  <span class="course-trimester" *ngIf="course.trimester && typeof course.trimester === 'object' && 'term' in course.trimester">
-                    {{ course.trimester.term }} {{ course.trimester.year }}
-                  </span>
-                  <span class="already-done" *ngIf="course.alreadyDone">✓ Déjà complété</span>
-                  <span class="course-grade" *ngIf="course.grade">Note: {{ course.grade }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="empty-courses" *ngIf="!studyPlan.coursesSelection || !studyPlan.coursesSelection.modules || studyPlan.coursesSelection.modules.length === 0">
-        <p>Aucun cours sélectionné pour le moment.</p>
-      </div>
-    </div>
+    }
   </div>
   <div class="container-right">
     <div *ngIf="!this.isStudent()" class="action-buttons">

@@ -15,8 +15,6 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { ApiService } from '@app/services/api/api-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
-import slugify from 'slugify';
 
 @Component({
   selector: 'app-study-plan',
@@ -26,9 +24,7 @@ import slugify from 'slugify';
   styleUrls: ['./study-plan.scss'],
 })
 export class StudyPlan implements OnInit, OnDestroy {
-  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' =
-    'modifyStudent';
-
+  @Input() isViewMode: boolean = false;
   totalCredits: number = 0;
   selectedCredits: number = 0;
   program!: Program;
@@ -44,7 +40,6 @@ export class StudyPlan implements OnInit, OnDestroy {
     private authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
-    protected router: Router
   ) {}
 
   ngOnInit() {
@@ -78,7 +73,9 @@ export class StudyPlan implements OnInit, OnDestroy {
     }
 
     // Initialiser le service avec les modules
-    this.courseStateService.initializeCourseStates(this.modules);
+    if (!this.isViewMode) {
+      this.courseStateService.initializeCourseStates(this.modules);
+    }
 
     // Charger tous les cours depuis le backend
     this.loadAllCourses();
@@ -132,6 +129,8 @@ export class StudyPlan implements OnInit, OnDestroy {
     selected: boolean;
     selectedSection: string;
   }) {
+    if (this.isViewMode) return;
+
     const module = this.modules.find((m) => m.title === event.moduleTitle);
     if (!module) return;
 
@@ -171,6 +170,8 @@ export class StudyPlan implements OnInit, OnDestroy {
   }
 
   validatePlan() {
+    if (this.isViewMode) return;
+
     const errors: string[] = [];
 
     // Validation des groupes de règles (incluant les nouvelles règles d'approbation directeur)
@@ -255,6 +256,7 @@ export class StudyPlan implements OnInit, OnDestroy {
       programType: this.programService.type as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,
       stepValidation: StepValidationStatus.IN_PROGRESS,
+      courseState: this.courseStateService.serializeCourseState(),
       coursesSelection: {
         modules: this.courseStateService.getSelectedCoursesByModule(),
       },
@@ -278,24 +280,6 @@ export class StudyPlan implements OnInit, OnDestroy {
     }
   }
 
-  modifyPlan(): void {
-    /*if (!this.program) return;
-
-    const name = this.program.option
-      ? `${this.program.degree} - ${this.program.option}`
-      : this.program.degree;
-
-    const slug = slugify(name, {
-      lower: true,
-      strict: true,
-      locale: 'fr',
-      trim: true,
-    });
-
-    this.router.navigate([`/admin/programs/${slug}`]);*/
-  }
-
-  // Ajouter cette méthode helper
   extractSubModulePrefix(subModuleTitle: string): string {
     const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
     return match ? match[1] : subModuleTitle;

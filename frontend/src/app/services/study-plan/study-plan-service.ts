@@ -4,6 +4,7 @@ import { StudyPlan } from '@common/study-plan';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
+import { CourseStateService } from '../course-state/course-state';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class StudyPlanService {
     private apiService: ApiService,
     private auth: AuthentificationService,
     private router: Router,
+    private courseStateService: CourseStateService,
   ) {}
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -85,6 +87,13 @@ export class StudyPlanService {
   updateStudyPlan() {
     this.loadingSubject.next(true);
     if (this.studyPlan) {
+      const updatedPlan = {
+        ...this.studyPlan,
+        courseState: this.courseStateService.serializeCourseState(),
+        coursesSelection: {
+          modules: this.courseStateService.getSelectedCoursesByModule(),
+        }
+      };
       this.apiService.submitStudyPlan(this.studyPlan).subscribe({
         next: (plan: StudyPlan) => {
           this.studyPlanSubject.next(plan);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Progress } from "@app/components/gsup-progress-bar/progress";
 import { getStepOrderForProgram as originalGetStepOrder, ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
@@ -10,24 +10,35 @@ import { User, UserRole } from '@common/user';
 import { Loading } from "@app/components/loading/loading";
 import { ProgramType } from '@common/program';
 import { PdfService } from '@app/services/pdf-service/pdf-service';
+import { StudyPlan as StudyPlanComponent } from '@app/pages/study-plan/study-plan';
+import { ProgramService } from '@app/services/program/program-service';
+import { CourseStateService } from '@app/services/course-state/course-state';
+import { ApiService } from '@app/services/api/api-service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-view-plan',
   standalone: true,
-  imports: [Progress, ChatComponent, CommonModule, Loading],
+  imports: [Progress, ChatComponent, CommonModule, Loading, StudyPlanComponent],
   templateUrl: './view-plan.html',
   styleUrl: './view-plan.scss',
 })
-export class ViewPlan {
+export class ViewPlan implements OnInit, OnDestroy {
   studyPlan: StudyPlan | null = null;
   currentUser: User | null;
   isLoading$: typeof this.sPS.loading$;
   studyPlan$: typeof this.sPS.studyPlan$;
+  editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
+  isStudyPlanLoaded = false;
+  private studyPlanSubscription: Subscription | null = null;
 
   constructor(
     private readonly auth: AuthentificationService,
     private readonly sPS: StudyPlanService,
     private readonly pdfService: PdfService,
+    private readonly programService: ProgramService,
+    private readonly courseStateService: CourseStateService,
+    private readonly apiService: ApiService,
   ) {
     this.currentUser = this.auth.currentUser;
     this.studyPlan = this.sPS.studyPlan;
@@ -35,7 +46,51 @@ export class ViewPlan {
     this.studyPlan$ = this.sPS.studyPlan$;
   }
 
-  editorContent: string = '<p>Veuillez écrire votre feedback ici...</p>';
+  ngOnInit() {
+    // S'abonner aux changements du study plan
+    this.studyPlanSubscription = this.studyPlan$.subscribe((plan) => {
+      if (plan && plan.programId) {
+        this.studyPlan = plan;
+        this.loadProgramAndRestoreState(plan);
+      }
+    });
+
+    // Charger immédiatement si le plan existe déjà
+    if (this.sPS.studyPlan && this.sPS.studyPlan.programId) {
+      this.loadProgramAndRestoreState(this.sPS.studyPlan);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.studyPlanSubscription) {
+      this.studyPlanSubscription.unsubscribe();
+    }
+  }
+
+  private loadProgramAndRestoreState(plan: StudyPlan) {
+    // Charger le programme associé
+    this.apiService.getProgram(plan.programId).subscribe({
+      next: (program) => {
+        // Définir le programme dans le service
+        this.programService.program = program;
+        this.programService.type = plan.programType;
+        
+        // Initialiser le courseStateService avec les modules du programme
+        this.courseStateService.initializeCourseStates(program.modules);
+        
+        // Restaurer le courseState depuis le plan d'études
+        if (plan.courseState) {
+          this.courseStateService.restoreCourseState(plan.courseState);
+        }
+        
+        // Indiquer que le plan est chargé
+        this.isStudyPlanLoaded = true;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du programme:', error);
+      }
+    });
+  }
 
   get progressSteps(): ProgressStepModel[] {
     return this.getProgressSteps();

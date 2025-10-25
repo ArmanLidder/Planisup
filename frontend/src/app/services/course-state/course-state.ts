@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Course, Module, Section, SubModule } from '@common/program';
-import { SelectedModule } from '@common/study-plan';
+import { SelectedModule, SerializedCourseState } from '@common/study-plan';
 
 export interface CourseState {
   selected: boolean;
@@ -34,6 +34,41 @@ export class CourseStateService {
   public sectionRules: SectionRule[] = [];
   public exclusiveSubModuleRules: ExclusiveSubModuleRule[] = [];
   private modules: Module[] = [];
+
+  /**
+   * Sérialise le courseState en objet simple pour l'envoi au serveur
+   */
+  serializeCourseState(): { [courseSigle: string]: SerializedCourseState } {
+    const serialized: { [courseSigle: string]: SerializedCourseState } = {};
+    this.courseStates.forEach((state, sigle) => {
+      serialized[sigle] = {
+        selected: state.selected,
+        selectedInModule: state.selectedInModule,
+        selectedInSubmodule: state.selectedInSubmodule,
+        selectedInSection: state.selectedInSection,
+        credits: state.credits
+      };
+    });
+    console.log(serialized)
+    return serialized;
+  }
+
+  /**
+   * Restaure le courseState depuis un objet sérialisé
+   */
+  restoreCourseState(serializedState: { [courseSigle: string]: SerializedCourseState }) {
+    console.log("je suis la pr voir se que tu fais");
+    console.log(serializedState)
+    Object.entries(serializedState).forEach(([sigle, state]) => {
+      this.courseStates.set(sigle, {
+        selected: state.selected,
+        selectedInModule: state.selectedInModule,
+        selectedInSubmodule: state.selectedInSubmodule,
+        selectedInSection: state.selectedInSection,
+        credits: state.credits
+      });
+    });
+  }
 
   initializeCourseStates(modules: any[]) {
     this.courseStates.clear();

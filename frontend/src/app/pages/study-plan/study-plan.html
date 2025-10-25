@@ -31,12 +31,7 @@
     </app-study-module>
   </div>
 
-  <div class="actions">
-    <button *ngIf="router.url !== '/admin/programs'" (click)="validatePlan()" class="btn-primary">
-      Valider le plan d'études
-    </button>
-    <button *ngIf="router.url === '/admin/programs'" (click)="modifyPlan()" class="btn-primary">
-      Modifier le plan d'études
-    </button>
+  <div class="actions" *ngIf="!isViewMode">
+    <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
   </div>
 </div>

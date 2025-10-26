@@ -19,7 +19,7 @@
 }
 
 .title {
-  font-size: clamp(8px, 2vw, 16px);
+  font-size: 18px;
   font-weight: bold;
   color: black;
   white-space: nowrap;
@@ -28,13 +28,16 @@
 }
 
 .logo {
-  width: clamp(50px, 10vw, 140px);
+  width: 130px;
+  overflow: hidden;
+  border-radius: 10px;
   height: auto;
 }
 
 .arrow {
-  width: clamp(15px, 5vw, 40px);
+  width: 40px;
   height: auto;
+  object-fit: contain;
   cursor: pointer;
 }
 

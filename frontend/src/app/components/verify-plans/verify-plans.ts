@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ApiService } from '@app/services/api/api-service';
@@ -6,7 +6,7 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { StudyPlanEntry } from '@common/study-plan';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Loading } from '@app/components/loading/loading';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { User } from '@common/user';
 
@@ -16,8 +16,9 @@ import { User } from '@common/user';
   imports: [MatTableModule, MatSortModule, Loading, CommonModule, RouterModule],
   templateUrl: './verify-plans.html',
   styleUrl: './verify-plans.scss',
+  providers: [DatePipe],
 })
-export class VerifyPlans {
+export class VerifyPlans implements OnInit, OnDestroy, AfterViewInit {
   //@Input() role ou user on sait pas: string = 'default';
   displayedColumns: string[] = ['Prénom', 'Nom', 'Diplôme', 'Date'];
   currentUser: User | null;
@@ -28,22 +29,41 @@ export class VerifyPlans {
 
   @ViewChild(MatSort) sort!: MatSort;
 
+  currentTime: string = '';
+  interval: number = 0;
+
   constructor(
     private readonly apiService: ApiService,
-    private readonly auth: AuthentificationService,
-    private readonly sPS: StudyPlanService
+    protected readonly auth: AuthentificationService,
+    private readonly sPS: StudyPlanService,
+    protected readonly datePipe: DatePipe
   ) {
     this.isLoading$ = this.sPS.loading$;
     this.currentUser = this.auth.currentUser;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const id = this.auth.currentUser?._id;
     if (id) {
       this.apiService.getStudyPlans(id).subscribe((plans) => {
         this.dataSource.data = plans;
       });
     }
+    this.updateTime();
+    this.interval = setInterval(() => this.updateTime(), 1000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.interval);
+  }
+
+  updateTime(): void {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString('fr-CA', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
   }
 
   formatDate(date: string): string {
@@ -60,7 +80,7 @@ export class VerifyPlans {
     });
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
 

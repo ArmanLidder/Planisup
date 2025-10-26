@@ -2,35 +2,71 @@
 <app-loading></app-loading>
 }
 
-<div class="full-width-table-container">
-  <mat-table [dataSource]="dataSource" matSort>
-    <ng-container matColumnDef="Prénom">
-      <mat-header-cell *matHeaderCellDef> Prénom </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{ row.firstName }} </mat-cell>
-    </ng-container>
+<div class="verify-plans-container">
+  <div class="left-container">
+    <mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="Prénom">
+        <mat-header-cell *matHeaderCellDef> Prénom </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.firstName }} </mat-cell>
+      </ng-container>
 
-    <ng-container matColumnDef="Nom">
-      <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{ row.lastName }} </mat-cell>
-    </ng-container>
+      <ng-container matColumnDef="Nom">
+        <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.lastName }} </mat-cell>
+      </ng-container>
 
-    <ng-container matColumnDef="Diplôme">
-      <mat-header-cell *matHeaderCellDef> Diplôme </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{ row.degree }} </mat-cell>
-    </ng-container>
+      <ng-container matColumnDef="Diplôme">
+        <mat-header-cell *matHeaderCellDef> Diplôme </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ row.degree }} </mat-cell>
+      </ng-container>
 
-    <ng-container matColumnDef="Date">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
-      <mat-cell *matCellDef="let row"> {{ formatDate(row.date) }} </mat-cell>
-    </ng-container>
+      <ng-container matColumnDef="Date">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{ formatDate(row.date) }} </mat-cell>
+      </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
+      <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
 
-    <mat-row
-      *matRowDef="let row; columns: displayedColumns"
-      class="clickable-row"
-      (click)="onRowClick(row)"
-      [class.selected]="selectedRow?.studyPlanId === row.studyPlanId"
-    ></mat-row>
-  </mat-table>
+      <div class="list-cells">
+        <mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="clickable-row"
+          (click)="onRowClick(row)"
+          [class.selected]="selectedRow?.studyPlanId === row.studyPlanId"
+        ></mat-row>
+      </div>
+    </mat-table>
+  </div>
+  <div class="right-container">
+    <div class="up-right">
+      <div class="up-right-first-row">
+        <div class="up-right-first-row-first">
+          <img src="./../../../assets/image_user.png" alt="" />
+          <div class="up-right-first-row-first-infos">
+            <p>{{ auth.currentUser?.firstName }} {{ auth.currentUser?.lastName }}</p>
+            <p>{{ auth.currentUser?.role }}</p>
+          </div>
+        </div>
+        <div class="up-right-first-row-second">
+          <img src="./../../../assets/image_clock.png" alt="" />
+          <p>{{ currentTime }}</p>
+        </div>
+      </div>
+      <div class="up-right-second-row">
+        <div class="up-right-second-row-center">
+          <div class="up-right-second-row-center-content">
+            <p>Plan d'études à vérifier : {{ dataSource.data.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="down-right">
+      <div class="down-right-image">
+        <img src="./../../../assets/image_diplomees.png" alt="" />
+      </div>
+      <div class="down-right-content">
+        <h3>Gestionnaire de plan d'études des cycles supérieurs</h3>
+      </div>
+    </div>
+  </div>
 </div>

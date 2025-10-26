@@ -8,22 +8,41 @@ export interface Program {
   modules: Module[];
 }
 
+export type RuleType =
+    | 'credits_exact'
+    | 'credits_minimum'
+    | 'credits_maximum'
+    | 'director_approval'
+    | 'exclusive_submodules';
+
+export interface RuleDefinition {
+    type: RuleType;
+    value?: number;
+    text?: string;
+    enforced?: boolean;
+    appliesToSubModules?: string[];
+}
+
+
 export interface Module {
   title: string;
   description: string[];
   courses?: Section[];
   subModules?: SubModule[];
+  rules?: RuleDefinition[];
 }
 
 export interface SubModule {
   title: string;
   description: string[];
   courses: Section[];
+  rules?: RuleDefinition[];
 }
 
 export interface Section {
   description: string;
   courses: Course[];
+  rules?: RuleDefinition[];
 }
 
 export interface Course {

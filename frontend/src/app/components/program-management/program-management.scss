@@ -156,6 +156,61 @@ input {
   scrollbar-gutter: stable;
 }
 
+/* Editor placeholder matches preview container visuals for readability on image bg */
+.programs-container .editor-placeholder {
+  height: 75vh;
+  width: 60vw;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 20px 20px rgba(0, 0, 0, 0.5);
+  padding: 1.25rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.editor-placeholder h2 {
+  color: #2c3e50;
+  margin: 0 0 0.25rem 0;
+}
+
+.editor-placeholder p {
+  color: #495057;
+  margin: 0.25rem 0;
+}
+
+.editor-placeholder .hint {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #6c757d;
+}
+
+.editor-actions {
+  margin-top: 0.5rem;
+}
+
+.editor-actions .btn-primary {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.editor-actions .btn-primary:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.editor-actions .btn-primary:active {
+  transform: translateY(0);
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(7, 7, 7, 0.5);
   border-radius: 10px;

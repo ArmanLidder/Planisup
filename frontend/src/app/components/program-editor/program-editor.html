@@ -1,0 +1,81 @@
+<div class="editor-root">
+  <h2>Editeur de programme</h2>
+  <p class="subtitle">
+    Edition de:
+    <strong>
+      {{ program.degree }}<span *ngIf="program.option"> - {{ program.option }}</span>
+    </strong>
+  </p>
+
+  <!-- Metadata view/edit wrapper -->
+  <div class="metadata-card" *ngIf="!metadataEditing">
+    <div class="card-header">
+      <h3>Informations du programme</h3>
+      <button type="button" class="icon-button" (click)="enterMetadataEdit()" title="Editer">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div class="view-rows">
+      <div class="vrow">
+        <div class="vlabel">Diplome</div>
+        <div class="vvalue">{{ program.degree }}</div>
+      </div>
+      <div class="vrow">
+        <div class="vlabel">Option</div>
+        <div class="vvalue">{{ program.option || '-' }}</div>
+      </div>
+      <div class="vrow">
+        <div class="vlabel">Type</div>
+        <div class="vvalue">{{ program.type }}</div>
+      </div>
+      <div class="vrow">
+        <div class="vlabel">Departement</div>
+        <div class="vvalue">{{ program.department }}</div>
+      </div>
+      <div class="vrow">
+        <div class="vlabel">Description</div>
+        <div class="vvalue text-wrap scroll-4">{{ program.description }}</div>
+      </div>
+    </div>
+  </div>
+
+  <form *ngIf="metadataEditing" [formGroup]="form" class="editor-form">
+    <div class="form-row">
+      <label for="degree">Diplome</label>
+      <input id="degree" type="text" formControlName="degree" />
+    </div>
+
+    <div class="form-row">
+      <label for="option">Option</label>
+      <input id="option" type="text" formControlName="option" />
+    </div>
+
+    <div class="form-row">
+      <label for="type">Type</label>
+      <select id="type" formControlName="type">
+        <option *ngFor="let t of allowedTypes" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="department">Departement</label>
+      <input id="department" type="text" formControlName="department" />
+    </div>
+
+    <div class="form-row">
+      <label for="description">Description</label>
+      <textarea id="description" rows="4" formControlName="description"></textarea>
+    </div>
+
+    <div class="editor-actions">
+      <button type="button" class="btn-secondary" (click)="cancelMetadata()">Annuler</button>
+      <button type="button" class="btn-primary" (click)="saveMetadata()">Enregistrer</button>
+      <button type="button" class="btn-link" (click)="exitEdit()">Quitter l'edition</button>
+    </div>
+  </form>
+
+  <app-program-modules-editor
+    [modules]="program.modules"
+    (modulesChange)="onModulesChange($event)"
+  ></app-program-modules-editor>
+</div>

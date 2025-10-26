@@ -279,20 +279,11 @@ export class StudyPlan implements OnInit, OnDestroy {
   }
 
   modifyPlan(): void {
-    /*if (!this.program) return;
-
-    const name = this.program.option
-      ? `${this.program.degree} - ${this.program.option}`
-      : this.program.degree;
-
-    const slug = slugify(name, {
-      lower: true,
-      strict: true,
-      locale: 'fr',
-      trim: true,
+    // Enter admin edit mode for the currently selected program
+    this.router.navigate(['/admin/programs'], {
+      queryParams: { edit: '1' },
+      queryParamsHandling: 'merge',
     });
-
-    this.router.navigate([`/admin/programs/${slug}`]);*/
   }
 
   // Ajouter cette méthode helper

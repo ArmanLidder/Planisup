@@ -1,0 +1,251 @@
+<div class="modules-editor">
+  <div class="editor-header">
+    <h3>Modules</h3>
+    <div class="header-actions">
+      <button type="button" class="btn-primary" (click)="addModule()">Ajouter un module</button>
+    </div>
+  </div>
+
+  <div class="module-card" *ngFor="let m of draftModules; let i = index">
+    <div class="module-toolbar">
+      <div class="title-line">
+        <span class="index">#{{ i + 1 }}</span>
+        <h4 class="module-title">{{ m.title }}</h4>
+        <button type="button" class="icon-button" (click)="startEdit(i)" title="Editer">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+      <div class="tools">
+        <button type="button" class="icon-button" (click)="moveUp(i)" [disabled]="i===0" title="Monter"><mat-icon>arrow_upward</mat-icon></button>
+        <button type="button" class="icon-button" (click)="moveDown(i)" [disabled]="i===draftModules.length-1" title="Descendre"><mat-icon>arrow_downward</mat-icon></button>
+        <button type="button" class="btn-danger" (click)="removeModule(i)">Supprimer</button>
+      </div>
+    </div>
+
+    <!-- View mode -->
+    <div *ngIf="editingIndex !== i" class="module-view">
+      <div class="vrow"><div class="vlabel">Description</div><div class="vvalue scroll-3">{{ (m.description || []).join('\n') }}</div></div>
+      <div class="vrow"><div class="vlabel subtle">Structure</div><div class="vvalue subtle">{{ hasSections(m) ? 'Sections' : (hasSubModules(m) ? 'Sous-modules' : '-') }}</div></div>
+      <ng-container *ngIf="m.courses && m.courses.length > 0">
+        <div class="vrow">
+          <div class="vlabel">Synthèse</div>
+          <div class="vvalue">Sections: {{ m.courses.length }} — Cours: {{ moduleCoursesCount(m) }}</div>
+        </div>
+        <div class="vrow" *ngFor="let s of m.courses | slice:0:2">
+          <div class="vlabel">• {{ s.description }}</div>
+          <div class="vvalue small">{{ sectionCourseCount(s) }} cours — {{ formatRules(s.rules) }}</div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Edit mode -->
+    <div *ngIf="editingIndex === i" class="module-edit">
+      <div class="form-row">
+        <label>Titre du module</label>
+        <input type="text" [ngModel]="editTemp?.title" (ngModelChange)="onTitleChange(i, $event)" />
+      </div>
+      <div class="form-row">
+        <label>Description (une par ligne)</label>
+        <textarea rows="3" [ngModel]="(editTemp?.description || []).join('\n')" (ngModelChange)="onDescriptionChange(i, $event)"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Structure</label>
+        <div class="toggle subtle-options">
+          <label class="option"><input type="radio" name="structure{{i}}" [checked]="editTemp && isStructureSections()" (change)="setStructure(i, 'sections')"/> Sections</label>
+          <label class="option"><input type="radio" name="structure{{i}}" [checked]="editTemp && !isStructureSections()" (change)="setStructure(i, 'submodules')"/> Sous-modules</label>
+        </div>
+      </div>
+      <!-- Submodules editor when structure is 'Sous-modules' -->
+      <div class="form-row">
+        <label>Regles</label>
+        <div class="rules-list">
+          <div class="rule-item" *ngFor="let r of (editTemp?.rules || []); let ri = index">
+            <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
+            <div class="rule-fields" *ngIf="r.type === 'credits_exact'">
+              <input type="number" [(ngModel)]="r.value" />
+            </div>
+            <button type="button" class="btn-danger" (click)="removeRule(ri)">Supprimer</button>
+          </div>
+        </div>
+        <div class="rule-actions">
+          <select #ruleSel>
+            <option value="credits_exact" [disabled]="hasRule('credits_exact')">Credits exacts</option>
+            <option value="exclusive_submodules" [disabled]="hasRule('exclusive_submodules')">Sous-modules exclusifs</option>
+          </select>
+          <button type="button" class="btn-secondary" (click)="onAddRule(ruleSel)">Ajouter</button>
+        </div>
+      </div>
+      <!-- Sections editor when structure is 'Sections' -->
+      <div class="sections" *ngIf="editTemp && isStructureSections()">
+        <div class="sections-header">
+          <h3>Sections</h3>
+          <button type="button" class="btn-secondary" (click)="addSection()">Ajouter une section</button>
+        </div>
+        <div class="section-card" *ngFor="let s of (editTemp?.courses || []); let k = index">
+          <div class="section-toolbar">
+            <div class="title-line">
+              <span class="index">{{ (k + 1) }}</span>
+              <strong class="section-title">{{ s.description }}</strong>
+              <button type="button" class="icon-button" (click)="startSecEdit(k)" title="Editer"><mat-icon>edit</mat-icon></button>
+            </div>
+            <div class="tools">
+              <button type="button" class="btn-danger" (click)="removeSection(k)">Supprimer</button>
+            </div>
+          </div>
+          <!-- View mode -->
+          <div *ngIf="secEditingIndex !== k" class="section-view">
+            <div class="vrow" *ngIf="(s.rules || []).length > 0">
+              <div class="vlabel">Regles</div>
+              <div class="vvalue">{{ formatRules(s.rules) }}</div>
+            </div>
+            <div class="vrow" *ngIf="(s.courses || []).length > 0">
+              <div class="vlabel">Cours</div>
+              <div class="chips">
+                <div class="chip" *ngFor="let c of (s.courses || [])">
+                  <span class="code">{{ c.sigle }}</span>
+                  <span class="name">{{ c.name }}</span>
+                  <span class="credits">{{ c.credits }} cr.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Edit mode -->
+          <div *ngIf="secEditingIndex === k" class="section-edit">
+            <div class="form-row">
+              <label>Description</label>
+              <input type="text" [ngModel]="secEditTemp?.description" (ngModelChange)="secOnDescriptionChange($event)" />
+            </div>
+            <div class="form-row">
+              <label>Regles</label>
+              <div class="rules-list">
+                <div class="rule-item" *ngFor="let r of (secEditTemp?.rules || []); let sri = index">
+                  <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
+                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'director_approval'">
+                    <label>Valeur</label>
+                    <input type="number" [(ngModel)]="r.value" />
+                  </div>
+                  <button type="button" class="btn-danger" (click)="secRemoveRule(sri)">Supprimer</button>
+                </div>
+              </div>
+              <div class="rule-actions">
+                <select #secRuleSel>
+                  <option value="credits_exact" [disabled]="secHasRule('credits_exact')">Credits exacts</option>
+                  <option value="credits_minimum" [disabled]="secHasRule('credits_minimum')">Credits minimum</option>
+                  <option value="director_approval" [disabled]="secHasRule('director_approval')">Approbation du directeur</option>
+                </select>
+                <button type="button" class="btn-secondary" (click)="secOnAddRule(secRuleSel)">Ajouter</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Cours de la section</label>
+              <div class="chips">
+                <div class="chip" *ngFor="let c of (secEditTemp?.courses || [])">
+                  <span class="code">{{ c.sigle }}</span>
+                  <span class="name">{{ c.name }}</span>
+                  <span class="credits">{{ c.credits }} cr.</span>
+                  <button type="button" class="chip-remove" (click)="removeCourseFromModuleSection(c.sigle)">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <app-course-search
+                [allCourses]="availableCourses"
+                [maxCredits]="15"
+                [maxCourses]="999"
+                [currentModuleTitle]="editTemp?.title || ''"
+                [currentSubmoduleTitle]="null"
+                [currentSectionDescription]="secEditTemp?.description || ''"
+                [pickMode]="true"
+                [showSelectedList]="false"
+                [showCheckboxes]="false"
+                (courseSelectionChange)="onModuleSectionCourseChange($event)"
+              ></app-course-search>
+            </div>
+            <div class="edit-actions">
+              <button type="button" class="btn-secondary" (click)="cancelSecEdit()">Annuler</button>
+              <button type="button" class="btn-primary" (click)="saveSecEdit()">Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="submodules" *ngIf="editTemp && !isStructureSections()">
+        <div class="submodules-header">
+          <h3>Sous-modules</h3>
+          <button type="button" class="btn-secondary" (click)="addSubModule()">Ajouter un sous-module</button>
+        </div>
+        <div class="submodule-card" *ngFor="let sm of (editTemp?.subModules || []); let j = index">
+          <div class="submodule-toolbar">
+            <div class="title-line">
+              <span class="index">{{ (j + 1) }}</span>
+              <strong class="submodule-title">{{ sm.title }}</strong>
+              <button type="button" class="icon-button" (click)="startSubEdit(j)" title="Editer"><mat-icon>edit</mat-icon></button>
+            </div>
+            <div class="tools">
+              <button type="button" class="icon-button" (click)="moveSubModuleUp(j)" [disabled]="j===0" title="Monter"><mat-icon>arrow_upward</mat-icon></button>
+              <button type="button" class="icon-button" (click)="moveSubModuleDown(j)" [disabled]="isLastSubModule(j)" title="Descendre"><mat-icon>arrow_downward</mat-icon></button>
+              <button type="button" class="btn-danger" (click)="removeSubModule(j)">Supprimer</button>
+            </div>
+          </div>
+
+          <!-- View mode -->
+          <div *ngIf="subEditingIndex !== j" class="submodule-view">
+            <div class="vrow"><div class="vlabel">Description</div><div class="vvalue scroll-3">{{ (sm.description || []).join('\n') }}</div></div>
+            <div class="vrow" *ngIf="(sm.rules || []).length > 0">
+              <div class="vlabel">Regles</div>
+              <div class="vvalue">{{ formatRules(sm.rules) }}</div>
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <div *ngIf="subEditingIndex === j" class="submodule-edit">
+            <div class="form-row">
+              <label>Titre du sous-module</label>
+              <input type="text" [ngModel]="subEditTemp?.title" (ngModelChange)="subOnTitleChange($event)" />
+            </div>
+            <div class="form-row">
+              <label>Description (une par ligne)</label>
+              <textarea rows="3" [ngModel]="(subEditTemp?.description || []).join('\n')" (ngModelChange)="subOnDescriptionChange($event)"></textarea>
+            </div>
+            <div class="form-row">
+              <label>Regles</label>
+              <div class="rules-list">
+                <div class="rule-item" *ngFor="let r of (subEditTemp?.rules || []); let sri = index">
+                  <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
+                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'director_approval'">
+                    <label>Valeur</label>
+                    <input type="number" [(ngModel)]="r.value" />
+                  </div>
+                  <button type="button" class="btn-danger" (click)="subRemoveRule(sri)">Supprimer</button>
+                </div>
+              </div>
+              <div class="rule-actions">
+                <select #subRuleSel>
+                  <option value="credits_exact" [disabled]="subHasRule('credits_exact')">Credits exacts</option>
+                  <option value="credits_minimum" [disabled]="subHasRule('credits_minimum')">Credits minimum</option>
+                  <option value="director_approval" [disabled]="subHasRule('director_approval')">Approbation du directeur</option>
+                </select>
+                <button type="button" class="btn-secondary" (click)="subOnAddRule(subRuleSel)">Ajouter</button>
+              </div>
+            </div>
+            <div class="edit-actions">
+              <button type="button" class="btn-secondary" (click)="cancelSubEdit()">Annuler</button>
+              <button type="button" class="btn-primary" (click)="saveSubEdit()">Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">Annuler</button>
+        <button type="button" class="btn-primary" (click)="saveEdit()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky footer actions appear only when changes exist -->
+  <div class="editor-footer" *ngIf="hasChanges">
+    <div class="footer-actions">
+      <button type="button" class="btn-secondary" (click)="cancelAll()">Annuler tout</button>
+      <button type="button" class="btn-primary" (click)="saveAll()">Enregistrer tout</button>
+    </div>
+  </div>
+</div>

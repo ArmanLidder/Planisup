@@ -37,6 +37,15 @@
         programme.
       </h3>
     </div>
-    <app-study-plan *ngIf="selectedProgramId && programService.program"></app-study-plan>
+    <!-- Editor placeholder when in edit mode -->
+    <app-program-editor
+      *ngIf="selectedProgramId && programService.program && isEditing"
+      [program]="programService.program!"
+      (exit)="exitEdit()"
+      (programChange)="onProgramChange($event)"
+    ></app-program-editor>
+
+    <!-- Default preview when not editing -->
+    <app-study-plan *ngIf="selectedProgramId && programService.program && !isEditing"></app-study-plan>
   </div>
 </div>

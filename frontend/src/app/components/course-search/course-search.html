@@ -40,16 +40,16 @@
         <div class="results-list">
           <div class="course-item" 
                *ngFor="let course of paginatedCourses"
-               [class.selected]="isSelected(course)"
-               [class.disabled]="!canSelectCourse(course)"
+               [class.selected]="!pickMode && isSelected(course)"
+               [class.disabled]="!pickMode && !canSelectCourse(course)"
                [class.already-selected-elsewhere]="isSelectedElsewhere(course)"
                (click)="toggleCourse(course)">
             <div class="course-checkbox">
-              <input type="checkbox" 
+              <input *ngIf="showCheckboxes" type="checkbox" 
                      [checked]="isSelected(course)"
                      [disabled]="!canSelectCourse(course)"
                      (click)="$event.stopPropagation()">
-              <span class="checkmark" [class.disabled]="!canSelectCourse(course)"></span>
+              <span *ngIf="showCheckboxes" class="checkmark" [class.disabled]="!canSelectCourse(course)"></span>
             </div>
             <div class="course-info">
               <div class="course-header">
@@ -57,7 +57,7 @@
                 <span class="course-credits">{{ course.credits }} crédits</span>
               </div>
               <div class="course-name">{{ course.name }}</div>
-              <div class="course-status" *ngIf="!canSelectCourse(course)">
+              <div class="course-status" *ngIf="!pickMode && !canSelectCourse(course)">
                 {{ getStatusMessage(course) }}
               </div>
             </div>
@@ -79,7 +79,7 @@
       </div>
     </div>
     
-    <div class="selected-courses" *ngIf="selectedCourses.length > 0">
+    <div class="selected-courses" *ngIf="showSelectedList && selectedCourses.length > 0">
       <h5>Cours sélectionnés :</h5>
       <div class="selected-list">
         <div class="selected-item" *ngFor="let course of selectedCourses">

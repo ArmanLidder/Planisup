@@ -17,6 +17,9 @@ export class CourseSearch implements OnInit {
   @Input() currentSubmoduleTitle: string | null = null;
   @Input() currentSectionDescription!: string;
   @Input() maxCourses: number = 999;
+  @Input() pickMode: boolean = false;
+  @Input() showSelectedList: boolean = true;
+  @Input() showCheckboxes: boolean = true;
   
   @Output() courseSelectionChange = new EventEmitter<{
     course: Course;
@@ -184,6 +187,10 @@ export class CourseSearch implements OnInit {
   }
 
   toggleCourse(course: Course) {
+    if (this.pickMode) {
+      this.courseSelectionChange.emit({ course, selected: true });
+      return;
+    }
     if (!this.canSelectCourse(course) && !this.isSelected(course)) {
       return;
     }
@@ -199,6 +206,10 @@ export class CourseSearch implements OnInit {
 
   addCourse(course: Course) {
     if (!this.canSelectCourse(course)) return;
+    if (this.pickMode) {
+      this.courseSelectionChange.emit({ course, selected: true });
+      return;
+    }
     
     // Ajouter le cours aux états si pas déjà présent
     this.courseStateService.addCourseToStates(course);

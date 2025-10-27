@@ -16,6 +16,7 @@ export interface User {
     role: UserRole;
     currentPlan: string;
     plans: [string];
+    departement?: string;
 }
 export interface LoginRequest {
     usercode: string;

@@ -102,8 +102,8 @@ export class ApiService {
     return this.http.delete<any>(`${environment.serverUrl}/study-plan/cancel/${id}`);
   }
 
-  approveStudyPlan(id: string): Observable<any> {
-    return this.http.patch<any>(`${environment.serverUrl}/study-plan/approuved/${id}`, {});
+  approveStudyPlan(id: string, employeeId: string): Observable<any> {
+    return this.http.patch<any>(`${environment.serverUrl}/study-plan/approuved/${id}/${employeeId}`, {});
   }
 
   refuseStudyPlan(id: string): Observable<any> {

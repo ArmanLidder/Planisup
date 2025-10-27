@@ -62,8 +62,8 @@ export class StudyPlanService {
 
   approveStudyPlan() {
     this.loadingSubject.next(true);
-    if (this.studyPlan?._id) {
-      this.apiService.approveStudyPlan(this.studyPlan._id).subscribe({
+    if (this.studyPlan?._id && this.auth.currentUser?._id) {
+      this.apiService.approveStudyPlan(this.studyPlan._id, this.auth.currentUser?._id).subscribe({
         complete: () => {
           this.loadingSubject.next(false);
           this.router.navigate(['/accueil']);

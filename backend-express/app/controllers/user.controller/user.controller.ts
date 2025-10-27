@@ -96,7 +96,7 @@ export class UserController {
   private async updateUserRole(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { newRole } = req.body;
+      const { newRole, departement } = req.body;
 
       if (!Object.values(UserRole).includes(newRole)) {
         res.status(400).json({
@@ -106,13 +106,16 @@ export class UserController {
         return;
       }
 
-      const updatedUser = await this.userService.updateUserRole(id, newRole);
-      this.logger.info(`User ${id} role updated to ${newRole}`);
+      const updatedUser = await this.userService.updateUserRole(id, newRole, departement);
+
+      if (departement) this.logger.info(`User ${id} role updated to ${newRole} with department ${departement}`);
+      else this.logger.info(`User ${id} role updated to ${newRole} with no department`);
 
       res.status(200).json({
         success: true,
         user: updatedUser,
-        message: `User role updated to ${newRole}`
+        message: departement ? `User role updated to ${newRole} with department ${departement}` 
+                : `User role updated to ${newRole} with no department`
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

@@ -45,6 +45,7 @@
           <div class="up-right-first-row-first-infos">
             <p>{{ auth.currentUser?.firstName }} {{ auth.currentUser?.lastName }}</p>
             <p>{{ auth.currentUser?.role }}</p>
+            <p *ngIf="auth.currentUser?.departement">{{ auth.currentUser?.departement }}</p>
           </div>
         </div>
         <div class="up-right-first-row-second">

@@ -40,6 +40,17 @@ export class ProgramController {
       }
     });
 
+    this.router.get("/departements", async (req: Request, res: Response) => {
+      try {
+        this.logger.info(`Fetching all departments`);
+        const departments = await ProgramModel.distinct('department');
+        return res.status(200).json(departments);
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500);
+      }
+    });
+
     this.router.get("/query/:type/:department", async (req, res) => {
       try {
         const { type, department } = req.params;

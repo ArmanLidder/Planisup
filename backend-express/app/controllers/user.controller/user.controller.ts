@@ -25,6 +25,7 @@ export class UserController {
     this.router.get('/:id', this.getUserById.bind(this));
     this.router.patch('/:id/role', this.updateUserRole.bind(this));
     this.router.delete('/:id', this.deleteUser.bind(this));
+    this.router.get('/employees/directors-coordinators', this.getDirectorsAndCoordonnateurs.bind(this));
   }
 
   // private requireAdmin(req: Request, res: Response, next: Function): void {
@@ -72,7 +73,6 @@ export class UserController {
       });
     }
   }
-
 
   private async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
@@ -139,6 +139,23 @@ export class UserController {
       res.status(500).json({
         success: false,
         message: 'Failed to delete user'
+      });
+    }
+  }
+
+  private async getDirectorsAndCoordonnateurs(req: Request, res: Response): Promise<void> {
+      try {
+        this.logger.info(`Fetching directors and coordinators list`);
+        const employees = await this.userService.getEmployees([UserRole.Directeur, UserRole.Coordonnateur]);
+        const directors = employees.filter(emp => emp.role === UserRole.Directeur);
+        const coordinators = employees.filter(emp => emp.role === UserRole.Coordonnateur);
+        this.logger.info(`Found ${directors.length} directors and ${coordinators.length} coordinators`);
+        res.status(200).json({ directors, coordinators });
+    } catch (error) {
+      this.logger.error(`Get directors and coordinators failed: ${error}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch directors and coordinators'
       });
     }
   }

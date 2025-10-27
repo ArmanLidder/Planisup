@@ -22,6 +22,16 @@ export class UserService {
     }
   }
 
+  async getEmployees(userRoles: UserRole[]): Promise<User[]> {
+    try {
+      const users = await UserModel.find({ role: { $in: userRoles } }).select('-__v').lean<IUser[]>();
+      return users.map(user => convertUserInterface(user));
+    } catch (error) {
+      this.logger.error(`Error fetching all ${userRoles.join(', ')} users: ${error}`);
+      throw new Error(`Failed to fetch ${userRoles.join(', ')} users`);
+    }
+  }
+
   async updateUserRole(userId: string, newRole: UserRole): Promise<User> {
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(

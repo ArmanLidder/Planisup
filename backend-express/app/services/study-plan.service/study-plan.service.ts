@@ -48,12 +48,9 @@ export class StudyPlanService {
                 return { plan, program };
               })
             );
-            
             const filteredPlans = plansWithProgram
               .filter(({ program }) => program && program.department === user.department)
               .map(({ plan }) => plan);
-
-            console.log("FFFIILLLLLLTERRRREDDDD", filteredPlans)
             return this.convertToStudyPlanEntries(filteredPlans)
         } catch(e) {
             this.logger.error(e)

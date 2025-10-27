@@ -34,13 +34,14 @@ export class StudyPlanService {
         }
     }
 
-    async getStudyPlans(id: string) {
+    async getStudyPlans(id: string, isArchive: boolean = false) {
         try {
             const user = await UserModel.findById(id)
             const userId = user._id;
             const role: UserRole = user.role;
-            const query: any = this.generateQuery(role, userId);
+            const query: any = isArchive ? this.generateArchiveQuery(role, userId) : this.generateQuery(role, userId);
             const studyPlans: IStudyPlan[] = await StudyPlanModel.find(query).exec()
+            if (isArchive) return this.convertToStudyPlanEntries(studyPlans);
             if (role !== UserRole.Agent && role !== UserRole.Registrar) return this.convertToStudyPlanEntries(studyPlans)
             const plansWithProgram = await Promise.all(
               studyPlans.map(async (plan) => {
@@ -161,6 +162,23 @@ export class StudyPlanService {
             query['stepValidation'] = StepValidationStatus.IN_PROGRESS;
         }
         return query
+    }
+
+    private generateArchiveQuery(role: UserRole, userId: string) {
+      const query: any = {};
+      query['status'] = { $in: [StudyPlanStatus.LIVE, StudyPlanStatus.VALIDATED] };
+      if (role === UserRole.Directeur) {
+        query['directorId'] = userId;
+        query['directorValidationDate'] = { $exists: true, $ne: null }; 
+      } else if (role === UserRole.Coordonnateur) {
+        query['coordonatorId'] = userId;
+        query['coordonatorValidationDate'] = { $exists: true, $ne: null };
+      } else if (role === UserRole.Agent) {
+        query['agentId'] = userId;
+      } else if (role === UserRole.Registrar) {
+        query['registrarId'] = userId;
+      }
+      return query;
     }
 
     private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {

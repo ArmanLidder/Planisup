@@ -41,7 +41,8 @@ export class StudyPlanController {
     this.router.get("/archive/:id", async (req: Request, res: Response) => {
         const id = req.params.id;
         try {
-            const entries = await this.sPS.getStudyPlans(id);
+            const isArchive = true;
+            const entries = await this.sPS.getStudyPlans(id, isArchive);
             return entries ? res.status(201).json(entries) : res.sendStatus(500);
         } catch(e) {
             return res.status(500).json(e)

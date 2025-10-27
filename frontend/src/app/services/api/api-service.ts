@@ -33,6 +33,10 @@ export class ApiService {
     return this.http.get<string[]>(`${environment.serverUrl}/program/query/${type}`);
   }
 
+  getAllDepartements(): Observable<string[]> {
+    return this.http.get<string[]>(`${environment.serverUrl}/program/departements`);
+  }
+
   getPrograms(type: string, departement: string): Observable<ReducedProgram[]> {
     return this.http.get<ReducedProgram[]>(
       `${environment.serverUrl}/program/query/${type}/${departement}`
@@ -72,11 +76,12 @@ export class ApiService {
 
   updateUserRole(
     userId: string,
-    newRole: UserRole
+    newRole: UserRole,
+    departement?: string,
   ): Observable<{ success: boolean; user: User; message: string }> {
     return this.http.patch<{ success: boolean; user: User; message: string }>(
       `${environment.serverUrl}/users/${userId}/role`,
-      { newRole },
+      { newRole, departement },
       { headers: this.getAuthHeaders() }
     );
   }

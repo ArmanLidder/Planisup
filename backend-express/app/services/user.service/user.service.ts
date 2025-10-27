@@ -32,12 +32,13 @@ export class UserService {
     }
   }
 
-  async updateUserRole(userId: string, newRole: UserRole): Promise<User> {
+  async updateUserRole(userId: string, newRole: UserRole, departement?: string[]): Promise<User> {
     try {
+      const query = departement ? { role: newRole, department: departement } : { role: newRole, department: "" };
       const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
-        { role: newRole },
-        { new: true, runValidators: true }
+        query,
+        { new: true }
       );
 
       if (!updatedUser) {

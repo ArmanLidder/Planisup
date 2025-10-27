@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Logger } from '@app/services/logger.service/logger.service';
 import { UserModel, IUser } from '@app/models/user.model/user.model';
-import { ProgramModel } from '@app/models/program.model/program.model';
+import { ProgramModel, IProgram } from '@app/models/program.model/program.model';
 import { ChatModel, IChat } from '@app/models/chat.model/chat.model';
 import { StudyPlanModel, IStudyPlan } from  '@app/models/study-plan.model/study-plan.model';
 import { StudyPlan, StepValidationStatus, StudyPlanStep, StudyPlanStatus, StudyPlanEntry } from '@common/study-plan';
@@ -41,7 +41,20 @@ export class StudyPlanService {
             const role: UserRole = user.role;
             const query: any = this.generateQuery(role, userId);
             const studyPlans: IStudyPlan[] = await StudyPlanModel.find(query).exec()
-            return this.convertToStudyPlanEntries(studyPlans)
+            if (role !== UserRole.Agent && role !== UserRole.Registrar) return this.convertToStudyPlanEntries(studyPlans)
+            const plansWithProgram = await Promise.all(
+              studyPlans.map(async (plan) => {
+                const program = await ProgramModel.findById(plan.programId) as IProgram;
+                return { plan, program };
+              })
+            );
+            
+            const filteredPlans = plansWithProgram
+              .filter(({ program }) => program && program.department === user.department)
+              .map(({ plan }) => plan);
+
+            console.log("FFFIILLLLLLTERRRREDDDD", filteredPlans)
+            return this.convertToStudyPlanEntries(filteredPlans)
         } catch(e) {
             this.logger.error(e)
             return []

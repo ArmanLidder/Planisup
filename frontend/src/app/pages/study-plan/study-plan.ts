@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
 import { Program, Module, Course, ProgramType } from '@common/program';
@@ -15,11 +16,12 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { ApiService } from '@app/services/api/api-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Subscription } from 'rxjs';
+import { User } from '@common/user';
 
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule],
+  imports: [CommonModule, StudyModule,FormsModule],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -30,6 +32,13 @@ export class StudyPlan implements OnInit, OnDestroy {
   program!: Program;
   modules: Module[] = [];
   allCourses: Course[] = []; // Tous les cours disponibles pour la recherche
+
+  // Selection des directeur et coordonateurs
+  directors: User[] = [];
+  coordinators: User[] = [];
+  @Input() directorId: string = '';
+  @Input() coordonatorId: string = '';
+
   currentPlan: StudyPlanInterface | null = null;
   private programSubscription: Subscription | null = null;
 
@@ -54,6 +63,16 @@ export class StudyPlan implements OnInit, OnDestroy {
     if (this.programService.program) {
       this.initializeWithProgram(this.programService.program);
     }
+
+    this.apiService.getDirectorsAndCoordinators().subscribe({
+      next: (response) => {
+        this.directors = response.directors;
+        this.coordinators = response.coordinators;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des directeurs et coordonnateurs:', error);
+      },
+    });
   }
 
   ngOnDestroy() {
@@ -67,6 +86,7 @@ export class StudyPlan implements OnInit, OnDestroy {
     this.modules = this.program.modules;
     this.totalCredits = 0;
     this.selectedCredits = 0;
+
 
     for (const module of this.program.modules) {
       this.totalCredits += this.extractCreditsFromTitle(module.title);
@@ -250,8 +270,8 @@ export class StudyPlan implements OnInit, OnDestroy {
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
-      directorId: '68e6f70ebd37fe063c5278b9',
-      coordonatorId: '68e6f724bd37fe063c5278bf',
+      directorId: this.directorId,
+      coordonatorId: this.coordonatorId,
       programId: this.program._id!,
       programType: this.programService.type as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,
@@ -283,5 +303,15 @@ export class StudyPlan implements OnInit, OnDestroy {
   extractSubModulePrefix(subModuleTitle: string): string {
     const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
     return match ? match[1] : subModuleTitle;
+  }
+
+  getDirectorName(id: string): string | null {
+    const d = this.directors.find(dir => dir._id === id);
+    return d ? `${d.firstName} ${d.lastName}` : null;
+  }
+
+  getCoordinatorName(id: string): string | null {
+    const c = this.coordinators.find(co => co._id === id);
+    return c ? `${c.firstName} ${c.lastName}` : null;
   }
 }

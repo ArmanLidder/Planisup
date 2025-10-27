@@ -10,10 +10,16 @@
     <app-progress [itemProgressList]="progressSteps"> </app-progress>
   </div>
   <div class="container-middle">
-    @if (isStudyPlanLoaded && (studyPlan$ | async)) {
-    <app-study-plan [isViewMode]="true"></app-study-plan>
+    @if (studyPlan$ | async; as studyPlan) {
+      @if (isStudyPlanLoaded && studyPlan) {
+        <app-study-plan
+          [isViewMode]="true"
+          [directorId]="studyPlan.directorId"
+          [coordonatorId]="studyPlan.coordonatorId">
+        </app-study-plan>
+      }
     } @else if (!isStudyPlanLoaded) {
-    <div class="loading-message">
+      <div class="loading-message">
       <p>Chargement du plan d'études...</p>
     </div>
     }

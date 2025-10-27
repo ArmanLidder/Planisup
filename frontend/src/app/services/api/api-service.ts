@@ -56,6 +56,13 @@ export class ApiService {
     );
   }
 
+  getDirectorsAndCoordinators(): Observable<{ directors: User[]; coordinators: User[] }> {
+    return this.http.get<{ directors: User[]; coordinators: User[] }>(
+      `${environment.serverUrl}/users/employees/directors-coordinators`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
   getUserById(userId: string): Observable<{ success: boolean; user: User }> {
     return this.http.get<{ success: boolean; user: User }>(
       `${environment.serverUrl}/users/${userId}`,

@@ -72,10 +72,24 @@ export class StudyPlanService {
         }
     }
 
-    async validateStudyPlan(id: string) {
+    async validateStudyPlan(id: string, employeeId: string) {
         this.logger.info("Validate study plan");
          try {
             const studyPlan =  await StudyPlanModel.findById(id);
+                        
+            // Assign Employee Ids
+            if (studyPlan.studyPlanStep === StudyPlanStep.DIRECTOR) {
+                studyPlan.directorValidationDate = new Date();
+            } else if (studyPlan.studyPlanStep === StudyPlanStep.COORDONATOR) {
+                studyPlan.coordonatorValidationDate = new Date();
+            } else if (studyPlan.studyPlanStep === StudyPlanStep.ADMIN_AGENT) {
+                studyPlan.agentValidationDate = new Date();
+                studyPlan.agentId = employeeId;
+            } else if (studyPlan.studyPlanStep === StudyPlanStep.REGISTRAR) {
+                studyPlan.registrarValidationDate = new Date();
+                studyPlan.registrarId = employeeId;
+            }
+
             const originalStep = studyPlan.studyPlanStep;
             // Increment Step Eventually distinguish between master research and master professional
             if (studyPlan.programType !== ProgramType.DESS) {

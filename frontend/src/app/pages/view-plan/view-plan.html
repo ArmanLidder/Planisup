@@ -1,21 +1,21 @@
-
 @if (isLoading$ | async) {
 <app-loading></app-loading>
 }
-<div class="view-plan-container" [class.one-button]="isStudent() && !needsCorrection()" [class.correction]="needsCorrection()">
+<div
+  class="view-plan-container"
+  [class.one-button]="isStudent() && !needsCorrection()"
+  [class.correction]="needsCorrection()"
+>
   <div class="container-left">
-    <app-progress
-      [itemProgressList]="progressSteps">
-    </app-progress>
+    <app-progress [itemProgressList]="progressSteps"> </app-progress>
   </div>
   <div class="container-middle">
-    <!-- Afficher le composant study-plan au lieu du contenu statique -->
     @if (isStudyPlanLoaded && (studyPlan$ | async)) {
-      <app-study-plan [isViewMode]="true"></app-study-plan>
+    <app-study-plan [isViewMode]="true"></app-study-plan>
     } @else if (!isStudyPlanLoaded) {
-      <div class="loading-message">
-        <p>Chargement du plan d'études...</p>
-      </div>
+    <div class="loading-message">
+      <p>Chargement du plan d'études...</p>
+    </div>
     }
   </div>
   <div class="container-right">
@@ -24,10 +24,18 @@
       <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
     </div>
     <div *ngIf="this.isStudent()" class="action-buttons">
-      <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">Soumettre</button>
+      <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">
+        Soumettre
+      </button>
       <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
       <ng-container *ngIf="studyPlan$ | async as studyPlan">
-        <button *ngIf="getStatusLabel(studyPlan.status) === 'Validé'" class="btn-action btn-validate" (click)="exportPDF()">Exporter en PDF</button>
+        <button
+          *ngIf="getStatusLabel(studyPlan.status) === 'Validé'"
+          class="btn-action btn-validate"
+          (click)="exportPDF()"
+        >
+          Exporter en PDF
+        </button>
       </ng-container>
     </div>
     <app-chat></app-chat>

@@ -108,7 +108,7 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
     padding: 4px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
     margin: -30px 8px -28px 7px;
-}
+  }
 
   button {
     background: transparent;
@@ -339,7 +339,9 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
           margin: 0 0 12px 0;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
           margin: 16px 0 8px 0;
         }
       }
@@ -375,7 +377,9 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
   }
 }
 
-.NgxEditor__Menu, .ngx-editor-menu, .ngx-editor-tooltip {
+.NgxEditor__Menu,
+.ngx-editor-menu,
+.ngx-editor-tooltip {
   z-index: 10000 !important;
   position: absolute !important;
   transform: none !important;
@@ -397,7 +401,7 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
   font-weight: 600;
   z-index: 10;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: pulse 1.5s infinite;
 
   &:hover {
@@ -406,8 +410,13 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* ============================
@@ -438,8 +447,13 @@ $color-bg-button-link-hover: color.scale($color-bg-button, $lightness: -10%);
 }
 
 @keyframes pulseError {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* ============================

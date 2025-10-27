@@ -120,6 +120,11 @@ export class UserManagement implements OnInit {
   }
 
   confirmRoleAssignment(employee: User, newRole: UserRole): void {
+    const oldRole = employee.role;
+    employee.role = newRole;
+    if (newRole === UserRole.Agent || newRole === UserRole.Registrar) {
+      return;
+    }
     const roleDisplayName = this.getRoleDisplayName(newRole);
     const message = `Assigner le rôle "${roleDisplayName}" à ${employee.firstName} ${employee.lastName} (${employee.usercode}) ?\n\nCette action retirera l'employé de la liste des utilisateurs non assignés.`;
 
@@ -135,9 +140,13 @@ export class UserManagement implements OnInit {
   }
 
   confirmRoleChange(user: User, newRole: UserRole): void {
+    const oldRole = user.role;
+    user.role = newRole;
+    if (newRole === UserRole.Agent || newRole === UserRole.Registrar) {
+      return;
+    }
     const roleDisplayName = this.getRoleDisplayName(newRole);
-    const currentRoleDisplayName = this.getRoleDisplayName(user.role);
-
+    const currentRoleDisplayName = this.getRoleDisplayName(oldRole);
     const dialogRef = this.dialog.open(GsupDialog, {
       data: {
         message: `Êtes-vous sûr de vouloir changer le rôle de ${user.firstName} ${user.lastName} de "${currentRoleDisplayName}" vers "${roleDisplayName}" ?`,
@@ -149,6 +158,8 @@ export class UserManagement implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.updateUserRole(user, newRole);
+      } else {
+        user.role = oldRole;
       }
     });
   }
@@ -230,7 +241,7 @@ export class UserManagement implements OnInit {
   }
 
   onDepartmentChange(user: User, department: string): void {
-    const message = `Assigner ${user.firstName} ${user.lastName} au(x) département(s) "${department}" ?`;
+    const message = `Assigner ${user.firstName} ${user.lastName} comme ${user.role} au département "${department}" ?`;
 
     const dialogRef = this.dialog.open(GsupDialog, {
       data: { message, firstButton: 'Annuler', secondButton: 'Confirmer' },

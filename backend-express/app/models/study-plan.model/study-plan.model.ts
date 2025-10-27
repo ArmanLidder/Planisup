@@ -36,6 +36,12 @@ export interface IStudyPlan extends Document {
     chatId: string,
     createdDate?: Date,
     modifiedDate?: Date,
+    directorValidationDate?: Date,
+    coordonatorValidationDate?: Date,
+    agentValidationDate?: Date,
+    agentId?: string,
+    registrarValidationDate?: Date,
+    registrarId?: string, 
 }
 
 const TrimesterSchema: Schema = new mongoose.Schema({
@@ -88,6 +94,12 @@ const StudyPlanSchema: Schema = new mongoose.Schema(
     chatId: { type: String, ref: "Chat" },
     createdDate: { type: Date, default: Date.now },
     modifiedDate: { type: Date, default: Date.now },
+    directorValidationDate: { type: Date },
+    coordonatorValidationDate: { type: Date },
+    agentValidationDate: { type: Date },
+    agentId: { type: String, ref: "User" },
+    registrarValidationDate: { type: Date },
+    registrarId: { type: String, ref: "User" },
   },
   { collection: "StudyPlan" }
 );
@@ -120,5 +132,11 @@ export const convertToStudyPLan = (studyPlan: IStudyPlan) => {
         chatId: studyPlan.chatId,
         createdDate: studyPlan.createdDate,
         modifiedDate: studyPlan.modifiedDate,
+        directorValidationDate: studyPlan.directorValidationDate,
+        coordonatorValidationDate: studyPlan.coordonatorValidationDate,
+        agentValidationDate: studyPlan.agentValidationDate,
+        agentId: studyPlan.agentId,
+        registrarValidationDate: studyPlan.registrarValidationDate,
+        registrarId: studyPlan.registrarId,
     };
 }

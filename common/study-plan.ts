@@ -51,6 +51,12 @@ export interface StudyPlan {
     chatId?: string,
     createdDate?: Date,
     modifiedDate?: Date,
+    directorValidationDate?: Date,
+    coordonatorValidationDate?: Date,
+    agentValidationDate?: Date,
+    agentId?: string,
+    registrarValidationDate?: Date,
+    registrarId?: string,
 }
 
 export interface StudyPlanEntry {

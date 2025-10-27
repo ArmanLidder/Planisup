@@ -37,7 +37,7 @@ export const convertUserInterface = (user: IUser) => {
         role: user.role,
         currentPlan: user.currentPlan,
         plans: user.plans,
-        department: user.department,
+        departement: user.department,
     }
 }
 

@@ -38,6 +38,16 @@ export class StudyPlanController {
         }
     });
 
+    this.router.get("/archive/:id", async (req: Request, res: Response) => {
+        const id = req.params.id;
+        try {
+            const entries = await this.sPS.getStudyPlans(id);
+            return entries ? res.status(201).json(entries) : res.sendStatus(500);
+        } catch(e) {
+            return res.status(500).json(e)
+        }
+    });
+
     this.router.post("/student", async (req: Request, res: Response) => {
         this.logger.info("Handle student study plan submission")
         const data = req.body as Partial<StudyPlan>;
@@ -60,11 +70,12 @@ export class StudyPlanController {
         }
     });
 
-    this.router.patch("/approuved/:id", async (req: Request, res: Response) => {
+    this.router.patch("/approuved/:id/:employeeId", async (req: Request, res: Response) => {
         this.logger.info("Handle student study plan approbation")
         const id = req.params.id;
-         try {
-            await this.sPS.validateStudyPlan(id);
+        const employeeId = req.params.employeeId;
+        try {
+            await this.sPS.validateStudyPlan(id, employeeId);
             return res.status(200).json();
         } catch(e) {
             return res.status(500).json(e)

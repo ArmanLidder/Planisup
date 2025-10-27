@@ -14,6 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ApiService } from '../../services/api/api-service';
 import { User, UserRole } from '../../../../../common/user';
 import { GsupDialog } from '../gsup-dialog/gsup-dialog';
+import { error } from 'pdf-lib';
 
 @Component({
   selector: 'app-user-management',
@@ -47,6 +48,7 @@ export class UserManagement implements OnInit {
   currentAdminId = '';
   searchTerm = '';
   selectedTabIndex = 0;
+  departements : string[] = [];
 
   constructor(private readonly apiService: ApiService, private readonly dialog: MatDialog) {}
 
@@ -54,6 +56,9 @@ export class UserManagement implements OnInit {
     this.getCurrentAdminId();
     this.setAvailableRoles();
     this.loadUsers();
+    this.apiService.getAllDepartements().subscribe({
+      next: (response) => this.departements = response,
+    });
   }
 
   private getCurrentAdminId(): void {
@@ -148,8 +153,8 @@ export class UserManagement implements OnInit {
     });
   }
 
-  private updateUserRole(user: User, newRole: UserRole): void {
-    this.apiService.updateUserRole(user._id, newRole).subscribe({
+  private updateUserRole(user: User, newRole: UserRole, department?: string): void {
+    this.apiService.updateUserRole(user._id, newRole, department).subscribe({
       next: (response) => {
         if (response.success) {
           const userIndex = this.users.findIndex((u) => u._id === user._id);
@@ -191,9 +196,6 @@ export class UserManagement implements OnInit {
           this.filterUsers();
         }
       },
-      error: (error) => {
-        // Handle error
-      },
     });
   }
 
@@ -225,6 +227,20 @@ export class UserManagement implements OnInit {
 
   onTabChange(index: number): void {
     this.selectedTabIndex = index;
+  }
+
+  onDepartmentChange(user: User, department: string): void {
+    const message = `Assigner ${user.firstName} ${user.lastName} au(x) département(s) "${department}" ?`;
+
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: { message, firstButton: 'Annuler', secondButton: 'Confirmer' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.updateUserRole(user, user.role, department);
+      }
+    });
   }
 
   protected readonly UserRole = UserRole;

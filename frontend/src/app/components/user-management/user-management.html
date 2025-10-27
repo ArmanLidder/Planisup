@@ -72,6 +72,20 @@
                           </div>
 
                           <div class="action-section">
+
+                            <!-- Department (Registraire / Agent Administratif) -->
+                            @if (employee.role === UserRole.Registrar || employee.role === UserRole.Agent) {
+                              <mat-form-field appearance="outline" class="dept-field">
+                                <mat-label>Département</mat-label>
+                                <mat-select [value]="employee.departement" (selectionChange)="onDepartmentChange(employee, $event.value)">
+                                  @for (dept of departements; track dept) {
+                                    <mat-option [value]="dept">{{ dept }}</mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                            }
+
+                            <!-- Assign Role -->
                             <mat-form-field appearance="outline" class="role-field">
                               <mat-label>Assigner un rôle</mat-label>
                               <mat-select (selectionChange)="confirmRoleAssignment(employee, $event.value)">
@@ -85,6 +99,7 @@
                               </mat-select>
                             </mat-form-field>
 
+                            <!-- Delete -->
                             <button mat-stroked-button color="warn" (click)="confirmDeleteUser(employee)" class="action-btn">
                               <mat-icon>delete</mat-icon>
                               Supprimer
@@ -161,6 +176,20 @@
                           </div>
 
                           <div class="action-section">
+
+                            <!-- Department (Registraire / Agent Administratif) -->
+                            @if (user.role === UserRole.Registrar || user.role === UserRole.Agent) {
+                              <mat-form-field appearance="outline" class="dept-field">
+                                <mat-label>Département</mat-label>
+                                <mat-select [value]="user.departement" (selectionChange)="onDepartmentChange(user, $event.value)">
+                                  @for (dept of departements; track dept) {
+                                    <mat-option [value]="dept">{{ dept }}</mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                            }
+                            
+                            <!-- Change Role -->
                             <mat-form-field appearance="outline" class="role-field">
                               <mat-label>Changer le rôle</mat-label>
                               <mat-select [value]="user.role" (selectionChange)="confirmRoleChange(user, $event.value)">
@@ -174,6 +203,7 @@
                               </mat-select>
                             </mat-form-field>
 
+                            <!-- Delete -->
                             <button mat-stroked-button color="warn" (click)="confirmDeleteUser(user)" class="action-btn">
                               <mat-icon>delete</mat-icon>
                               Supprimer
@@ -192,3 +222,4 @@
     </div>
   }
 </div>
+

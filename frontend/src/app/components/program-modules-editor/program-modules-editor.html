@@ -11,7 +11,7 @@
       <div class="title-line">
         <span class="index">#{{ i + 1 }}</span>
         <h4 class="module-title">{{ m.title }}</h4>
-        <button type="button" class="icon-button" (click)="startEdit(i)" title="Editer">
+        <button type="button" class="icon-button" (click)="startEdit(i)" title="Éditer">
           <mat-icon>edit</mat-icon>
         </button>
       </div>
@@ -29,11 +29,11 @@
       <ng-container *ngIf="m.courses && m.courses.length > 0">
         <div class="vrow">
           <div class="vlabel">Synthèse</div>
-          <div class="vvalue">Sections: {{ m.courses.length }} — Cours: {{ moduleCoursesCount(m) }}</div>
+          <div class="vvalue">Sections: {{ m.courses.length }} - Cours: {{ moduleCoursesCount(m) }}</div>
         </div>
         <div class="vrow" *ngFor="let s of m.courses | slice:0:2">
-          <div class="vlabel">• {{ s.description }}</div>
-          <div class="vvalue small">{{ sectionCourseCount(s) }} cours — {{ formatRules(s.rules) }}</div>
+          <div class="vlabel">- {{ s.description }}</div>
+          <div class="vvalue small">{{ sectionCourseCount(s) }} cours - {{ formatRules(s.rules) }}</div>
         </div>
       </ng-container>
     </div>
@@ -57,7 +57,7 @@
       </div>
       <!-- Submodules editor when structure is 'Sous-modules' -->
       <div class="form-row">
-        <label>Regles</label>
+        <label>Règles</label>
         <div class="rules-list">
           <div class="rule-item" *ngFor="let r of (editTemp?.rules || []); let ri = index">
             <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
@@ -69,7 +69,7 @@
         </div>
         <div class="rule-actions">
           <select #ruleSel>
-            <option value="credits_exact" [disabled]="hasRule('credits_exact')">Credits exacts</option>
+            <option value="credits_exact" [disabled]="hasRule('credits_exact')">Crédits exacts</option>
             <option value="exclusive_submodules" [disabled]="hasRule('exclusive_submodules')">Sous-modules exclusifs</option>
           </select>
           <button type="button" class="btn-secondary" (click)="onAddRule(ruleSel)">Ajouter</button>
@@ -86,7 +86,7 @@
             <div class="title-line">
               <span class="index">{{ (k + 1) }}</span>
               <strong class="section-title">{{ s.description }}</strong>
-              <button type="button" class="icon-button" (click)="startSecEdit(k)" title="Editer"><mat-icon>edit</mat-icon></button>
+              <button type="button" class="icon-button" (click)="startSecEdit(k)" title="Éditer"><mat-icon>edit</mat-icon></button>
             </div>
             <div class="tools">
               <button type="button" class="btn-danger" (click)="removeSection(k)">Supprimer</button>
@@ -95,7 +95,7 @@
           <!-- View mode -->
           <div *ngIf="secEditingIndex !== k" class="section-view">
             <div class="vrow" *ngIf="(s.rules || []).length > 0">
-              <div class="vlabel">Regles</div>
+              <div class="vlabel">Règles</div>
               <div class="vvalue">{{ formatRules(s.rules) }}</div>
             </div>
             <div class="vrow" *ngIf="(s.courses || []).length > 0">
@@ -116,7 +116,7 @@
               <input type="text" [ngModel]="secEditTemp?.description" (ngModelChange)="secOnDescriptionChange($event)" />
             </div>
             <div class="form-row">
-              <label>Regles</label>
+              <label>Règles</label>
               <div class="rules-list">
                 <div class="rule-item" *ngFor="let r of (secEditTemp?.rules || []); let sri = index">
                   <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
@@ -129,8 +129,8 @@
               </div>
               <div class="rule-actions">
                 <select #secRuleSel>
-                  <option value="credits_exact" [disabled]="secHasRule('credits_exact')">Credits exacts</option>
-                  <option value="credits_minimum" [disabled]="secHasRule('credits_minimum')">Credits minimum</option>
+                  <option value="credits_exact" [disabled]="secHasRule('credits_exact')">Crédits exacts</option>
+                  <option value="credits_minimum" [disabled]="secHasRule('credits_minimum')">Crédits minimum</option>
                   <option value="director_approval" [disabled]="secHasRule('director_approval')">Approbation du directeur</option>
                 </select>
                 <button type="button" class="btn-secondary" (click)="secOnAddRule(secRuleSel)">Ajouter</button>
@@ -178,7 +178,7 @@
             <div class="title-line">
               <span class="index">{{ (j + 1) }}</span>
               <strong class="submodule-title">{{ sm.title }}</strong>
-              <button type="button" class="icon-button" (click)="startSubEdit(j)" title="Editer"><mat-icon>edit</mat-icon></button>
+              <button type="button" class="icon-button" (click)="startSubEdit(j)" title="Éditer"><mat-icon>edit</mat-icon></button>
             </div>
             <div class="tools">
               <button type="button" class="icon-button" (click)="moveSubModuleUp(j)" [disabled]="j===0" title="Monter"><mat-icon>arrow_upward</mat-icon></button>
@@ -191,7 +191,7 @@
           <div *ngIf="subEditingIndex !== j" class="submodule-view">
             <div class="vrow"><div class="vlabel">Description</div><div class="vvalue scroll-3">{{ (sm.description || []).join('\n') }}</div></div>
             <div class="vrow" *ngIf="(sm.rules || []).length > 0">
-              <div class="vlabel">Regles</div>
+              <div class="vlabel">Règles</div>
               <div class="vvalue">{{ formatRules(sm.rules) }}</div>
             </div>
           </div>
@@ -207,7 +207,7 @@
               <textarea rows="3" [ngModel]="(subEditTemp?.description || []).join('\n')" (ngModelChange)="subOnDescriptionChange($event)"></textarea>
             </div>
             <div class="form-row">
-              <label>Regles</label>
+              <label>Règles</label>
               <div class="rules-list">
                 <div class="rule-item" *ngFor="let r of (subEditTemp?.rules || []); let sri = index">
                   <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
@@ -220,8 +220,8 @@
               </div>
               <div class="rule-actions">
                 <select #subRuleSel>
-                  <option value="credits_exact" [disabled]="subHasRule('credits_exact')">Credits exacts</option>
-                  <option value="credits_minimum" [disabled]="subHasRule('credits_minimum')">Credits minimum</option>
+                  <option value="credits_exact" [disabled]="subHasRule('credits_exact')">Crédits exacts</option>
+                  <option value="credits_minimum" [disabled]="subHasRule('credits_minimum')">Crédits minimum</option>
                   <option value="director_approval" [disabled]="subHasRule('director_approval')">Approbation du directeur</option>
                 </select>
                 <button type="button" class="btn-secondary" (click)="subOnAddRule(subRuleSel)">Ajouter</button>

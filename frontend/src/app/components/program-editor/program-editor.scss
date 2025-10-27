@@ -12,6 +12,19 @@
   overflow-y: auto;
 }
 
+.editor-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.editor-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .editor-root h2 {
   color: #2c3e50;
   margin: 0 0 0.25rem 0;
@@ -176,4 +189,14 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+}
+
+.exit-edit-btn {
+  align-self: flex-start;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.exit-edit-btn:hover {
+  text-decoration: underline;
 }

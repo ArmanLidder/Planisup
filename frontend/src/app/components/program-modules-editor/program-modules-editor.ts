@@ -30,9 +30,9 @@ export class ProgramModulesEditor implements OnChanges {
   subSecEditingIndex: number | null = null;
   subSecEditTemp: Section | null = null;
   ruleLabels: Record<RuleType, string> = {
-    credits_exact: 'Credits exacts',
-    credits_minimum: 'Credits minimum',
-    credits_maximum: 'Credits maximum',
+    credits_exact: 'Crédits exacts',
+    credits_minimum: 'Crédits minimum',
+    credits_maximum: 'Crédits maximum',
     director_approval: 'Approbation du directeur',
     exclusive_submodules: 'Sous-modules exclusifs',
   };

@@ -1,23 +1,28 @@
 <div class="editor-root">
-  <h2>Editeur de programme</h2>
-  <p class="subtitle">
-    Edition de:
-    <strong>
-      {{ program.degree }}<span *ngIf="program.option"> - {{ program.option }}</span>
-    </strong>
-  </p>
+  <div class="editor-topbar">
+    <div class="editor-heading">
+      <h2>Éditeur de programme</h2>
+      <p class="subtitle">
+        Édition de:
+        <strong>
+          {{ program.degree }}<span *ngIf="program.option"> - {{ program.option }}</span>
+        </strong>
+      </p>
+    </div>
+    <button type="button" class="btn-link exit-edit-btn" (click)="exitEdit()">Quitter l'édition</button>
+  </div>
 
   <!-- Metadata view/edit wrapper -->
   <div class="metadata-card" *ngIf="!metadataEditing">
     <div class="card-header">
       <h3>Informations du programme</h3>
-      <button type="button" class="icon-button" (click)="enterMetadataEdit()" title="Editer">
+      <button type="button" class="icon-button" (click)="enterMetadataEdit()" title="Éditer">
         <mat-icon>edit</mat-icon>
       </button>
     </div>
     <div class="view-rows">
       <div class="vrow">
-        <div class="vlabel">Diplome</div>
+        <div class="vlabel">Diplôme</div>
         <div class="vvalue">{{ program.degree }}</div>
       </div>
       <div class="vrow">
@@ -29,7 +34,7 @@
         <div class="vvalue">{{ program.type }}</div>
       </div>
       <div class="vrow">
-        <div class="vlabel">Departement</div>
+        <div class="vlabel">Département</div>
         <div class="vvalue">{{ program.department }}</div>
       </div>
       <div class="vrow">
@@ -41,7 +46,7 @@
 
   <form *ngIf="metadataEditing" [formGroup]="form" class="editor-form">
     <div class="form-row">
-      <label for="degree">Diplome</label>
+      <label for="degree">Diplôme</label>
       <input id="degree" type="text" formControlName="degree" />
     </div>
 
@@ -58,7 +63,7 @@
     </div>
 
     <div class="form-row">
-      <label for="department">Departement</label>
+      <label for="department">Département</label>
       <input id="department" type="text" formControlName="department" />
     </div>
 
@@ -70,7 +75,6 @@
     <div class="editor-actions">
       <button type="button" class="btn-secondary" (click)="cancelMetadata()">Annuler</button>
       <button type="button" class="btn-primary" (click)="saveMetadata()">Enregistrer</button>
-      <button type="button" class="btn-link" (click)="exitEdit()">Quitter l'edition</button>
     </div>
   </form>
 

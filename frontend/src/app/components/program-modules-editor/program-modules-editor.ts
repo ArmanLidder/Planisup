@@ -553,6 +553,37 @@ export class ProgramModulesEditor implements OnChanges {
     return parts.join(', ');
   }
 
+  ruleSymbol(rule: RuleDefinition): string {
+    switch (rule.type) {
+      case 'credits_exact':
+        return '=';
+      case 'credits_minimum':
+        return '≥';
+      case 'credits_maximum':
+        return '≤';
+      default:
+        return '';
+    }
+  }
+
+  ruleValue(rule: RuleDefinition): string | null {
+    if (rule.type === 'credits_exact' || rule.type === 'credits_minimum' || rule.type === 'credits_maximum') {
+      return rule.value != null ? `${rule.value} cr` : null;
+    }
+    if (rule.type === 'exclusive_submodules' && rule.appliesToSubModules?.length) {
+      return rule.appliesToSubModules.join(', ');
+    }
+    return null;
+  }
+
+  requiresRuleValue(type: RuleType): boolean {
+    return type === 'credits_exact' || type === 'credits_minimum' || type === 'credits_maximum';
+  }
+
+  ruleTooltip(rule: RuleDefinition): string {
+    return this.formatRules([rule]);
+  }
+
   subOnAddRule(selectEl: HTMLSelectElement): void {
     const val = (selectEl.value || 'credits_exact') as RuleType;
     this.subAddRule(val);
@@ -639,7 +670,6 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   onSubSectionCourseChange(ev: { course: Course; selected: boolean }): void {
-    console.log("On Sub Section Course Change", ev.course);
     if (!this.subSecEditTemp) return;
     const list = [...(this.subSecEditTemp.courses || [])];
     const idx = list.findIndex(c => c.sigle === ev.course.sigle);

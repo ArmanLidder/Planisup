@@ -45,7 +45,7 @@
         <input type="text" [ngModel]="editTemp?.title" (ngModelChange)="onTitleChange(i, $event)" />
       </div>
       <div class="form-row">
-        <label>Description (une par ligne)</label>
+        <label>Description</label>
         <textarea rows="3" [ngModel]="(editTemp?.description || []).join('\n')" (ngModelChange)="onDescriptionChange(i, $event)"></textarea>
       </div>
       <div class="form-row">
@@ -58,13 +58,30 @@
       <!-- Submodules editor when structure is 'Sous-modules' -->
       <div class="form-row">
         <label>Règles</label>
-        <div class="rules-list">
-          <div class="rule-item" *ngFor="let r of (editTemp?.rules || []); let ri = index">
-            <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-            <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
-              <input type="number" [(ngModel)]="r.value" />
-            </div>
-            <button type="button" class="btn-danger" (click)="removeRule(ri)">Supprimer</button>
+        <div class="rules-chips">
+          <div
+            class="rule-chip"
+            *ngFor="let r of (editTemp?.rules || []); let ri = index"
+            [attr.title]="ruleTooltip(r)"
+          >
+            <span class="rule-symbol" *ngIf="ruleSymbol(r)">{{ ruleSymbol(r) }}</span>
+            <span class="rule-label">{{ ruleLabels[r.type] || r.type }}</span>
+            <input
+              *ngIf="requiresRuleValue(r.type)"
+              type="number"
+              min="0"
+              step="0.5"
+              [(ngModel)]="r.value"
+              class="rule-input"
+              aria-label="Valeur de la règle"
+            />
+            <span class="rule-value" *ngIf="!requiresRuleValue(r.type) && ruleValue(r)">{{ ruleValue(r) }}</span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="removeRule(ri)"
+              aria-label="Retirer la règle"
+            >✕</button>
           </div>
         </div>
         <div class="rule-actions">
@@ -119,14 +136,30 @@
             </div>
             <div class="form-row">
               <label>Règles</label>
-              <div class="rules-list">
-                <div class="rule-item" *ngFor="let r of (secEditTemp?.rules || []); let sri = index">
-                  <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
-                    <label>Valeur</label>
-                    <input type="number" [(ngModel)]="r.value" />
-                  </div>
-                  <button type="button" class="btn-danger" (click)="secRemoveRule(sri)">Supprimer</button>
+              <div class="rules-chips">
+                <div
+                  class="rule-chip"
+                  *ngFor="let r of (secEditTemp?.rules || []); let sri = index"
+                  [attr.title]="ruleTooltip(r)"
+                >
+                  <span class="rule-symbol" *ngIf="ruleSymbol(r)">{{ ruleSymbol(r) }}</span>
+                  <span class="rule-label">{{ ruleLabels[r.type] || r.type }}</span>
+                  <input
+                    *ngIf="requiresRuleValue(r.type)"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    [(ngModel)]="r.value"
+                    class="rule-input"
+                    aria-label="Valeur de la règle"
+                  />
+                  <span class="rule-value" *ngIf="!requiresRuleValue(r.type) && ruleValue(r)">{{ ruleValue(r) }}</span>
+                  <button
+                    type="button"
+                    class="chip-remove"
+                    (click)="secRemoveRule(sri)"
+                    aria-label="Retirer la règle"
+                  >✕</button>
                 </div>
               </div>
               <div class="rule-actions">
@@ -233,19 +266,35 @@
               <input type="text" [ngModel]="subEditTemp?.title" (ngModelChange)="subOnTitleChange($event)" />
             </div>
             <div class="form-row">
-              <label>Description (une par ligne)</label>
+              <label>Description</label>
               <textarea rows="3" [ngModel]="(subEditTemp?.description || []).join('\n')" (ngModelChange)="subOnDescriptionChange($event)"></textarea>
             </div>
             <div class="form-row">
               <label>Règles</label>
-              <div class="rules-list">
-                <div class="rule-item" *ngFor="let r of (subEditTemp?.rules || []); let sri = index">
-                  <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
-                    <label>Valeur</label>
-                    <input type="number" [(ngModel)]="r.value" />
-                  </div>
-                  <button type="button" class="btn-danger" (click)="subRemoveRule(sri)">Supprimer</button>
+              <div class="rules-chips">
+                <div
+                  class="rule-chip"
+                  *ngFor="let r of (subEditTemp?.rules || []); let sri = index"
+                  [attr.title]="ruleTooltip(r)"
+                >
+                  <span class="rule-symbol" *ngIf="ruleSymbol(r)">{{ ruleSymbol(r) }}</span>
+                  <span class="rule-label">{{ ruleLabels[r.type] || r.type }}</span>
+                  <input
+                    *ngIf="requiresRuleValue(r.type)"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    [(ngModel)]="r.value"
+                    class="rule-input"
+                    aria-label="Valeur de la règle"
+                  />
+                  <span class="rule-value" *ngIf="!requiresRuleValue(r.type) && ruleValue(r)">{{ ruleValue(r) }}</span>
+                  <button
+                    type="button"
+                    class="chip-remove"
+                    (click)="subRemoveRule(sri)"
+                    aria-label="Retirer la règle"
+                  >✕</button>
                 </div>
               </div>
               <div class="rule-actions">
@@ -300,14 +349,30 @@
                   </div>
                   <div class="form-row">
                     <label>Règles</label>
-                    <div class="rules-list">
-                      <div class="rule-item" *ngFor="let r of (subSecEditTemp?.rules || []); let sri = index">
-                        <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-                        <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
-                          <label>Valeur</label>
-                          <input type="number" [(ngModel)]="r.value" />
-                        </div>
-                        <button type="button" class="btn-danger" (click)="subSecRemoveRule(sri)">Supprimer</button>
+                    <div class="rules-chips">
+                      <div
+                        class="rule-chip"
+                        *ngFor="let r of (subSecEditTemp?.rules || []); let sri = index"
+                        [attr.title]="ruleTooltip(r)"
+                      >
+                        <span class="rule-symbol" *ngIf="ruleSymbol(r)">{{ ruleSymbol(r) }}</span>
+                        <span class="rule-label">{{ ruleLabels[r.type] || r.type }}</span>
+                        <input
+                          *ngIf="requiresRuleValue(r.type)"
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          [(ngModel)]="r.value"
+                          class="rule-input"
+                          aria-label="Valeur de la règle"
+                        />
+                        <span class="rule-value" *ngIf="!requiresRuleValue(r.type) && ruleValue(r)">{{ ruleValue(r) }}</span>
+                        <button
+                          type="button"
+                          class="chip-remove"
+                          (click)="subSecRemoveRule(sri)"
+                          aria-label="Retirer la règle"
+                        >✕</button>
                       </div>
                     </div>
                     <div class="rule-actions">

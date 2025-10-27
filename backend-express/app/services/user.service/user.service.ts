@@ -34,7 +34,7 @@ export class UserService {
 
   async updateUserRole(userId: string, newRole: UserRole, departement?: string[]): Promise<User> {
     try {
-      const query = departement ? { role: newRole, department: departement } : { role: newRole };
+      const query = departement ? { role: newRole, department: departement } : { role: newRole, department: "" };
       const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
         query,

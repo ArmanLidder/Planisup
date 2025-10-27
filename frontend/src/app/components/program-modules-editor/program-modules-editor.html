@@ -61,7 +61,7 @@
         <div class="rules-list">
           <div class="rule-item" *ngFor="let r of (editTemp?.rules || []); let ri = index">
             <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-            <div class="rule-fields" *ngIf="r.type === 'credits_exact'">
+            <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
               <input type="number" [(ngModel)]="r.value" />
             </div>
             <button type="button" class="btn-danger" (click)="removeRule(ri)">Supprimer</button>
@@ -70,6 +70,8 @@
         <div class="rule-actions">
           <select #ruleSel>
             <option value="credits_exact" [disabled]="hasRule('credits_exact')">Crédits exacts</option>
+            <option value="credits_minimum" [disabled]="hasRule('credits_minimum')">Crédits minimum</option>
+            <option value="credits_maximum" [disabled]="hasRule('credits_maximum')">Crédits maximum</option>
             <option value="exclusive_submodules" [disabled]="hasRule('exclusive_submodules')">Sous-modules exclusifs</option>
           </select>
           <button type="button" class="btn-secondary" (click)="onAddRule(ruleSel)">Ajouter</button>
@@ -120,7 +122,7 @@
               <div class="rules-list">
                 <div class="rule-item" *ngFor="let r of (secEditTemp?.rules || []); let sri = index">
                   <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'director_approval'">
+                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
                     <label>Valeur</label>
                     <input type="number" [(ngModel)]="r.value" />
                   </div>
@@ -131,6 +133,7 @@
                 <select #secRuleSel>
                   <option value="credits_exact" [disabled]="secHasRule('credits_exact')">Crédits exacts</option>
                   <option value="credits_minimum" [disabled]="secHasRule('credits_minimum')">Crédits minimum</option>
+                  <option value="credits_maximum" [disabled]="secHasRule('credits_maximum')">Crédits maximum</option>
                   <option value="director_approval" [disabled]="secHasRule('director_approval')">Approbation du directeur</option>
                 </select>
                 <button type="button" class="btn-secondary" (click)="secOnAddRule(secRuleSel)">Ajouter</button>
@@ -147,14 +150,41 @@
                 </div>
               </div>
             </div>
+            <div class="manual-course">
+              <span class="manual-course-title">Ajouter un cours manuellement</span>
+              <div class="manual-fields">
+                <input
+                  type="text"
+                  placeholder="Sigle (ex. ABC1234)"
+                  [(ngModel)]="manualCourseSigle"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <input
+                  type="text"
+                  placeholder="Titre du cours"
+                  [(ngModel)]="manualCourseName"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  placeholder="Crédits"
+                  [(ngModel)]="manualCourseCredits"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <button type="button" class="btn-secondary manual-add" (click)="addManualCourseToSection()">Ajouter</button>
+              </div>
+              <div class="manual-error" *ngIf="manualCourseError">{{ manualCourseError }}</div>
+            </div>
             <div class="form-row">
               <app-course-search
                 [allCourses]="availableCourses"
                 [maxCredits]="15"
                 [maxCourses]="999"
-                [currentModuleTitle]="editTemp?.title || ''"
+                [currentModuleTitle]="editTemp.title"
                 [currentSubmoduleTitle]="null"
-                [currentSectionDescription]="secEditTemp?.description || ''"
+                [currentSectionDescription]="(secEditTemp?.description ?? '')"
                 [pickMode]="true"
                 [showSelectedList]="false"
                 [showCheckboxes]="false"
@@ -211,7 +241,7 @@
               <div class="rules-list">
                 <div class="rule-item" *ngFor="let r of (subEditTemp?.rules || []); let sri = index">
                   <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
-                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'director_approval'">
+                  <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
                     <label>Valeur</label>
                     <input type="number" [(ngModel)]="r.value" />
                   </div>
@@ -222,11 +252,134 @@
                 <select #subRuleSel>
                   <option value="credits_exact" [disabled]="subHasRule('credits_exact')">Crédits exacts</option>
                   <option value="credits_minimum" [disabled]="subHasRule('credits_minimum')">Crédits minimum</option>
+                  <option value="credits_maximum" [disabled]="subHasRule('credits_maximum')">Crédits maximum</option>
                   <option value="director_approval" [disabled]="subHasRule('director_approval')">Approbation du directeur</option>
                 </select>
                 <button type="button" class="btn-secondary" (click)="subOnAddRule(subRuleSel)">Ajouter</button>
               </div>
             </div>
+
+            <div class="sections" *ngIf="subEditTemp">
+              <div class="sections-header">
+                <h3>Sections</h3>
+                <button type="button" class="btn-secondary" (click)="subAddSection()">Ajouter une section</button>
+              </div>
+              <div class="section-card" *ngFor="let s of (subEditTemp?.courses || []); let k = index">
+                <div class="section-toolbar">
+                  <div class="title-line">
+                    <span class="index">{{ (k + 1) }}</span>
+                    <strong class="section-title">{{ s.description }}</strong>
+                    <button type="button" class="icon-button" (click)="subStartSecEdit(k)" title="Éditer"><mat-icon>edit</mat-icon></button>
+                  </div>
+                  <div class="tools">
+                    <button type="button" class="btn-danger" (click)="subRemoveSection(k)">Supprimer</button>
+                  </div>
+                </div>
+
+                <div *ngIf="subSecEditingIndex !== k" class="section-view">
+                  <div class="vrow" *ngIf="(s.rules || []).length > 0">
+                    <div class="vlabel">Règles</div>
+                    <div class="vvalue">{{ formatRules(s.rules) }}</div>
+                  </div>
+                  <div class="vrow" *ngIf="(s.courses || []).length > 0">
+                    <div class="vlabel">Cours</div>
+                    <div class="chips">
+                      <div class="chip" *ngFor="let c of (s.courses || [])">
+                        <span class="code">{{ c.sigle }}</span>
+                        <span class="name">{{ c.name }}</span>
+                        <span class="credits">{{ c.credits }} cr.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="subSecEditingIndex === k" class="section-edit">
+                  <div class="form-row">
+                    <label>Description</label>
+                    <input type="text" [ngModel]="subSecEditTemp?.description" (ngModelChange)="subSecOnDescriptionChange($event)" />
+                  </div>
+                  <div class="form-row">
+                    <label>Règles</label>
+                    <div class="rules-list">
+                      <div class="rule-item" *ngFor="let r of (subSecEditTemp?.rules || []); let sri = index">
+                        <span class="rule-type">{{ ruleLabels[r.type] || r.type }}</span>
+                        <div class="rule-fields" *ngIf="r.type === 'credits_exact' || r.type === 'credits_minimum' || r.type === 'credits_maximum'">
+                          <label>Valeur</label>
+                          <input type="number" [(ngModel)]="r.value" />
+                        </div>
+                        <button type="button" class="btn-danger" (click)="subSecRemoveRule(sri)">Supprimer</button>
+                      </div>
+                    </div>
+                    <div class="rule-actions">
+                      <select #subSecRuleSel>
+                        <option value="credits_exact" [disabled]="subSecHasRule('credits_exact')">Crédits exacts</option>
+                        <option value="credits_minimum" [disabled]="subSecHasRule('credits_minimum')">Crédits minimum</option>
+                        <option value="credits_maximum" [disabled]="subSecHasRule('credits_maximum')">Crédits maximum</option>
+                        <option value="director_approval" [disabled]="subSecHasRule('director_approval')">Approbation du directeur</option>
+                      </select>
+                      <button type="button" class="btn-secondary" (click)="subSecOnAddRule(subSecRuleSel)">Ajouter</button>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <label>Cours de la section</label>
+                    <div class="chips">
+                      <div class="chip" *ngFor="let c of (subSecEditTemp?.courses || [])">
+                        <span class="code">{{ c.sigle }}</span>
+                        <span class="name">{{ c.name }}</span>
+                        <span class="credits">{{ c.credits }} cr.</span>
+                        <button type="button" class="chip-remove" (click)="removeCourseFromSubSection(c.sigle)">✕</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="manual-course">
+                    <span class="manual-course-title">Ajouter un cours manuellement</span>
+                    <div class="manual-fields">
+                      <input
+                        type="text"
+                        placeholder="Sigle (ex. ABC1234)"
+                        [(ngModel)]="subManualCourseSigle"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Titre du cours"
+                        [(ngModel)]="subManualCourseName"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        placeholder="Crédits"
+                        [(ngModel)]="subManualCourseCredits"
+                        [ngModelOptions]="{ standalone: true }"
+                      />
+                      <button type="button" class="btn-secondary manual-add" (click)="addManualCourseToSubSection()">Ajouter</button>
+                    </div>
+                    <div class="manual-error" *ngIf="subManualCourseError">{{ subManualCourseError }}</div>
+                  </div>
+                  <div class="form-row">
+                    <app-course-search
+                      [allCourses]="availableCourses"
+                      [maxCredits]="15"
+                      [maxCourses]="999"
+                      [currentModuleTitle]="editTemp.title"
+                      [currentSubmoduleTitle]="subEditTemp?.title || ''"
+                      [currentSectionDescription]="subSecEditTemp?.description || ''"
+                      [pickMode]="true"
+                      [showSelectedList]="false"
+                      [showCheckboxes]="false"
+                      (courseSelectionChange)="onSubSectionCourseChange($event)"
+                    ></app-course-search>
+                  </div>
+                  <div class="edit-actions">
+                    <button type="button" class="btn-secondary" (click)="subCancelSecEdit()">Annuler</button>
+                    <button type="button" class="btn-primary" (click)="subSaveSecEdit()">Enregistrer</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="edit-actions">
               <button type="button" class="btn-secondary" (click)="cancelSubEdit()">Annuler</button>
               <button type="button" class="btn-primary" (click)="saveSubEdit()">Enregistrer</button>

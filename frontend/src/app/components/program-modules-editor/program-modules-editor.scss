@@ -53,7 +53,7 @@
 }
 
 .form-row label {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #2c3e50;
   font-weight: 600;
 }
@@ -135,7 +135,7 @@
 .submodule-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .submodule-title { margin: 0; font-size: 0.95rem; color: #2c3e50; }
 .submodule-view .vrow { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
-.submodule-view .vlabel { color: #6c757d; font-weight: 600; font-size: 0.85rem; }
+.submodule-view .vlabel { color: #6c757d; font-weight: 600; font-size: 0.9rem; }
 .submodule-view .vvalue { color: #2c3e50; font-size: 0.9rem; }
 
 /* Sections styling */
@@ -145,7 +145,7 @@
 .section-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .section-title { margin: 0; font-size: 0.95rem; color: #2c3e50; }
 .section-view .vrow { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
-.section-view .vlabel { color: #6c757d; font-weight: 600; font-size: 0.85rem; }
+.section-view .vlabel { color: #6c757d; font-weight: 600; font-size: 0.9rem; }
 .section-view .vvalue { color: #2c3e50; font-size: 0.9rem; }
 
 /* Course chips */
@@ -168,6 +168,44 @@
   color: #e74c3c;
   cursor: pointer;
   font-weight: 700;
+}
+
+.manual-course {
+  margin-top: 10px;
+  background: #f1f3f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.manual-course-title {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.manual-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.manual-fields input {
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+.manual-course .manual-add {
+  flex: 0 0 auto;
+}
+
+.manual-error {
+  color: #c0392b;
+  font-size: 0.85rem;
 }
 
 .btn-primary,

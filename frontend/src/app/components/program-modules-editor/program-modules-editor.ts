@@ -37,6 +37,16 @@ export class ProgramModulesEditor implements OnChanges {
     exclusive_submodules: 'Sous-modules exclusifs',
   };
 
+  manualCourseSigle = '';
+  manualCourseName = '';
+  manualCourseCredits: number | null = null;
+  manualCourseError: string | null = null;
+
+  subManualCourseSigle = '';
+  subManualCourseName = '';
+  subManualCourseCredits: number | null = null;
+  subManualCourseError: string | null = null;
+
   availableCourses: Course[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -160,6 +170,8 @@ export class ProgramModulesEditor implements OnChanges {
     this.secEditTemp = null;
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
+    this.resetManualSectionCourseInputs();
+    this.resetSubManualCourseInputs();
     this.ensureCoursesLoaded();
   }
 
@@ -198,6 +210,14 @@ export class ProgramModulesEditor implements OnChanges {
         this.draftModules = JSON.parse(JSON.stringify(this.modules || []));
         this.editingIndex = null;
         this.editTemp = null;
+        this.subEditingIndex = null;
+        this.subEditTemp = null;
+        this.secEditingIndex = null;
+        this.secEditTemp = null;
+        this.subSecEditingIndex = null;
+        this.subSecEditTemp = null;
+        this.resetManualSectionCourseInputs();
+        this.resetSubManualCourseInputs();
       });
   }
 
@@ -214,8 +234,8 @@ export class ProgramModulesEditor implements OnChanges {
     if (this.editTemp == null) return;
     const rules: RuleDefinition[] = [...(this.editTemp.rules || [])];
     if (rules.find((r) => r.type === type)) return; // prevent duplicates
-    if (type === 'credits_exact') {
-      rules.push({ type: 'credits_exact', value: 0, enforced: true });
+    if (type === 'credits_exact' || type === 'credits_minimum' || type === 'credits_maximum') {
+      rules.push({ type, value: 0, enforced: true });
     } else if (type === 'exclusive_submodules') {
       const prefixes = this.inferSubmodulePrefixes(this.editTemp);
       rules.push({ type: 'exclusive_submodules', enforced: true, appliesToSubModules: prefixes });
@@ -293,12 +313,14 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.editTemp?.subModules) return;
     this.subEditingIndex = j;
     this.subEditTemp = JSON.parse(JSON.stringify(this.editTemp.subModules[j]));
+    this.resetSubManualCourseInputs();
     this.ensureCoursesLoaded();
   }
 
   cancelSubEdit(): void {
     this.subEditingIndex = null;
     this.subEditTemp = null;
+    this.resetSubManualCourseInputs();
   }
 
   saveSubEdit(): void {
@@ -308,6 +330,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, subModules: list };
     this.subEditingIndex = null;
     this.subEditTemp = null;
+    this.resetSubManualCourseInputs();
     this.updateExclusiveRuleFromSubmodules(this.editTemp);
   }
 
@@ -328,13 +351,13 @@ export class ProgramModulesEditor implements OnChanges {
 
   subAddRule(type: RuleType): void {
     if (!this.subEditTemp) return;
-    const allowed: RuleType[] = ['credits_exact','credits_minimum','director_approval'];
+    const allowed: RuleType[] = ['credits_exact','credits_minimum','credits_maximum','director_approval'];
     if (!allowed.includes(type)) return;
     const rules: RuleDefinition[] = [...(this.subEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
-    if (type === 'credits_exact' || type === 'credits_minimum') {
-      rules.push({ type, value: 0, enforced: true });
-    } else if (type === 'director_approval') {
+    if (type === 'director_approval') {
+      rules.push({ type, enforced: true });
+    } else {
       rules.push({ type, value: 0, enforced: true });
     }
     this.subEditTemp = { ...this.subEditTemp, rules };
@@ -377,12 +400,14 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.editTemp?.courses) return;
     this.secEditingIndex = k;
     this.secEditTemp = JSON.parse(JSON.stringify(this.editTemp.courses[k]));
+    this.resetManualSectionCourseInputs();
     this.ensureCoursesLoaded();
   }
 
   cancelSecEdit(): void {
     this.secEditingIndex = null;
     this.secEditTemp = null;
+    this.resetManualSectionCourseInputs();
   }
 
   saveSecEdit(): void {
@@ -392,6 +417,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, courses: list };
     this.secEditingIndex = null;
     this.secEditTemp = null;
+    this.resetManualSectionCourseInputs();
   }
 
   secOnDescriptionChange(val: string): void {
@@ -404,11 +430,15 @@ export class ProgramModulesEditor implements OnChanges {
   }
   secAddRule(type: RuleType): void {
     if (!this.secEditTemp) return;
-    const allowed: RuleType[] = ['credits_exact','credits_minimum','director_approval'];
+    const allowed: RuleType[] = ['credits_exact','credits_minimum','credits_maximum','director_approval'];
     if (!allowed.includes(type)) return;
     const rules: RuleDefinition[] = [...(this.secEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
-    rules.push({ type, value: 0, enforced: true });
+    if (type === 'director_approval') {
+      rules.push({ type, enforced: true });
+    } else {
+      rules.push({ type, value: 0, enforced: true });
+    }
     this.secEditTemp = { ...this.secEditTemp, rules };
   }
   secUpdateRule(idx: number, patch: Partial<RuleDefinition>): void {
@@ -444,11 +474,13 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.subEditTemp?.courses) return;
     this.subSecEditingIndex = k;
     this.subSecEditTemp = JSON.parse(JSON.stringify(this.subEditTemp.courses[k]));
+    this.resetSubManualCourseInputs();
     this.ensureCoursesLoaded();
   }
   subCancelSecEdit(): void {
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
+    this.resetSubManualCourseInputs();
   }
   subSaveSecEdit(): void {
     if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
@@ -457,6 +489,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.subEditTemp = { ...this.subEditTemp, courses: list };
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
+    this.resetSubManualCourseInputs();
   }
   subSecOnDescriptionChange(val: string): void {
     if (!this.subSecEditTemp) return;
@@ -467,11 +500,15 @@ export class ProgramModulesEditor implements OnChanges {
   }
   subSecAddRule(type: RuleType): void {
     if (!this.subSecEditTemp) return;
-    const allowed: RuleType[] = ['credits_exact','credits_minimum','director_approval'];
+    const allowed: RuleType[] = ['credits_exact','credits_minimum','credits_maximum','director_approval'];
     if (!allowed.includes(type)) return;
     const rules: RuleDefinition[] = [...(this.subSecEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
-    rules.push({ type, value: 0, enforced: true });
+    if (type === 'director_approval') {
+      rules.push({ type, enforced: true });
+    } else {
+      rules.push({ type, value: 0, enforced: true });
+    }
     this.subSecEditTemp = { ...this.subSecEditTemp, rules };
   }
   subSecUpdateRule(idx: number, patch: Partial<RuleDefinition>): void {
@@ -507,7 +544,8 @@ export class ProgramModulesEditor implements OnChanges {
       const label = this.ruleLabels[r.type] || r.type;
       if (r.type === 'credits_exact' && r.value != null) return `${label}: ${r.value} cr`;
       if (r.type === 'credits_minimum' && r.value != null) return `${label}: ${r.value} cr`;
-      if (r.type === 'director_approval' && r.value != null) return `${label} ≤ ${r.value} cr`;
+      if (r.type === 'credits_maximum' && r.value != null) return `${label}: ${r.value} cr`;
+      if (r.type === 'director_approval') return label;
       if (r.type === 'exclusive_submodules' && r.appliesToSubModules?.length)
         return `${label}: ${r.appliesToSubModules.join(', ')}`;
       return label;
@@ -534,6 +572,60 @@ export class ProgramModulesEditor implements OnChanges {
   moduleCoursesCount(m?: Module | null): number {
     if (!m?.courses) return 0;
     return m.courses.reduce((sum, sec) => sum + (sec.courses?.length || 0), 0);
+  }
+
+  addManualCourseToSection(): void {
+    if (!this.secEditTemp) return;
+    this.manualCourseError = null;
+    const sigle = (this.manualCourseSigle || '').trim().toUpperCase();
+    const name = (this.manualCourseName || '').trim();
+    const rawCredits = this.manualCourseCredits;
+    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
+      this.manualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
+      return;
+    }
+    const credits = Number(rawCredits);
+    if (!Number.isFinite(credits) || credits <= 0) {
+      this.manualCourseError = 'Les crédits doivent être un nombre positif.';
+      return;
+    }
+    const courses = [...(this.secEditTemp.courses || [])];
+    if (courses.some((c) => c.sigle.toUpperCase() === sigle)) {
+      this.manualCourseError = 'Ce sigle est déjà présent dans cette section.';
+      return;
+    }
+    const course: Course = { sigle, name, credits, trimester: 'N/A' };
+    courses.push(course);
+    this.secEditTemp = { ...this.secEditTemp, courses };
+    this.includeCourseInAvailableList(course);
+    this.resetManualSectionCourseInputs();
+  }
+
+  addManualCourseToSubSection(): void {
+    if (!this.subSecEditTemp) return;
+    this.subManualCourseError = null;
+    const sigle = (this.subManualCourseSigle || '').trim().toUpperCase();
+    const name = (this.subManualCourseName || '').trim();
+    const rawCredits = this.subManualCourseCredits;
+    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
+      this.subManualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
+      return;
+    }
+    const credits = Number(rawCredits);
+    if (!Number.isFinite(credits) || credits <= 0) {
+      this.subManualCourseError = 'Les crédits doivent être un nombre positif.';
+      return;
+    }
+    const courses = [...(this.subSecEditTemp.courses || [])];
+    if (courses.some((c) => c.sigle.toUpperCase() === sigle)) {
+      this.subManualCourseError = 'Ce sigle est déjà présent dans cette section.';
+      return;
+    }
+    const course: Course = { sigle, name, credits, trimester: 'N/A' };
+    courses.push(course);
+    this.subSecEditTemp = { ...this.subSecEditTemp, courses };
+    this.includeCourseInAvailableList(course);
+    this.resetSubManualCourseInputs();
   }
 
   // Courses selection handlers
@@ -566,6 +658,27 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.subSecEditTemp) return;
     const list = (this.subSecEditTemp.courses || []).filter(c => c.sigle !== sigle);
     this.subSecEditTemp = { ...this.subSecEditTemp, courses: list };
+  }
+
+  private resetManualSectionCourseInputs(): void {
+    this.manualCourseSigle = '';
+    this.manualCourseName = '';
+    this.manualCourseCredits = null;
+    this.manualCourseError = null;
+  }
+
+  private resetSubManualCourseInputs(): void {
+    this.subManualCourseSigle = '';
+    this.subManualCourseName = '';
+    this.subManualCourseCredits = null;
+    this.subManualCourseError = null;
+  }
+
+  private includeCourseInAvailableList(course: Course): void {
+    if (this.availableCourses.some((c) => c.sigle.toUpperCase() === course.sigle.toUpperCase())) {
+      return;
+    }
+    this.availableCourses = [...this.availableCourses, course];
   }
 
   private ensureCoursesLoaded(): void {

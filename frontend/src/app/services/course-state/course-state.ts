@@ -8,6 +8,7 @@ export interface CourseState {
   selectedInSubmodule: string | null;
   selectedInSection: string | null;
   credits: number;
+  course: Course;
 }
 
 export interface SectionRule {
@@ -46,7 +47,8 @@ export class CourseStateService {
         selectedInModule: state.selectedInModule,
         selectedInSubmodule: state.selectedInSubmodule,
         selectedInSection: state.selectedInSection,
-        credits: state.credits
+        credits: state.credits,
+        course: state.course
       };
     });
     console.log(serialized)
@@ -65,7 +67,8 @@ export class CourseStateService {
         selectedInModule: state.selectedInModule,
         selectedInSubmodule: state.selectedInSubmodule,
         selectedInSection: state.selectedInSection,
-        credits: state.credits
+        credits: state.credits,
+        course: state.course
       });
     });
   }
@@ -181,7 +184,8 @@ export class CourseStateService {
             selectedInModule: null,
             selectedInSubmodule: null,
             selectedInSection: null,
-            credits: course.credits
+            credits: course.credits,
+            course: course
           });
         }
       });
@@ -266,7 +270,8 @@ export class CourseStateService {
       selectedInModule: null,
       selectedInSubmodule: null,
       selectedInSection: null,
-      credits: 0
+      credits: 0,
+      course: {} as Course
     };
   }
 
@@ -277,7 +282,8 @@ export class CourseStateService {
         selectedInModule: null,
         selectedInSubmodule: null,
         selectedInSection: null,
-        credits: course.credits
+        credits: course.credits,
+        course: course
       });
     }
   }

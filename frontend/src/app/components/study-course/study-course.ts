@@ -14,12 +14,14 @@ export class StudyCourse {
   @Input() currentModuleTitle!: string;
   @Input() currentSubmoduleTitle: string | null = null;
   @Input() currentSectionDescription!: string;
+  @Input() isViewMode: boolean = false;
   @Output() selectionChange = new EventEmitter<{courseSigle: string, selected: boolean}>();
 
   constructor(private courseStateService: CourseStateService) {}
 
   onSelectionChange(selected: boolean) {
-    // Vérifier si la sélection est possible avant d'émettre
+    if (this.isViewMode) return;
+    
     if (selected) {
       const canSelect = this.courseStateService.canCourseBeSelected(
         this.course.sigle,
@@ -29,7 +31,6 @@ export class StudyCourse {
       );
       
       if (!canSelect.canSelect) {
-        // Empêcher la sélection et afficher un message
         return;
       }
     }
@@ -49,14 +50,14 @@ export class StudyCourse {
   }
 
   get isDisabled(): boolean {
-    // Désactivé si sélectionné dans un autre endroit
+    if (this.isViewMode) return true;
+    
     if (this.isSelected) {
       return this.courseState.selectedInModule !== this.currentModuleTitle ||
              this.courseState.selectedInSubmodule !== this.currentSubmoduleTitle ||
              this.courseState.selectedInSection !== this.currentSectionDescription;
     }
 
-    // Désactivé si la limite de crédits est atteinte dans la section/groupe de règles ou dans le module
     const canSelect = this.courseStateService.canCourseBeSelected(
       this.course.sigle,
       this.currentModuleTitle,
@@ -68,8 +69,9 @@ export class StudyCourse {
   }
 
   get disabledReason(): string {
+    if (this.isViewMode) return '';
+    
     if (this.isSelected && this.isDisabled) {
-      // Sélectionné ailleurs
       if (!this.currentSubmoduleTitle) {
         return this.courseState.selectedInModule === this.currentModuleTitle
         ? "Déjà sélectionné dans une autre section"
@@ -87,7 +89,6 @@ export class StudyCourse {
       return `Déjà sélectionné dans le module: ${this.courseState.selectedInModule}`;
     }
 
-    // Limite de crédits atteinte
     if (!this.isSelected && this.isDisabled) {
       const canSelect = this.courseStateService.canCourseBeSelected(
         this.course.sigle,
@@ -103,16 +104,16 @@ export class StudyCourse {
   }
 
   get selectionInfo(): string {
+    if (this.isViewMode) return '';
     return this.disabledReason;
   }
 
-  // Permettre l'interaction seulement si le cours peut être modifié
   canBeToggled(): boolean {
+    if (this.isViewMode) return false;
+    
     if (this.isSelected) {
-      // Si sélectionné, on peut le désélectionner seulement s'il est sélectionné dans cette section
       return !this.isDisabled;
     } else {
-      // Si non sélectionné, vérifier s'il peut être sélectionné
       const canSelect = this.courseStateService.canCourseBeSelected(
         this.course.sigle,
         this.currentModuleTitle,

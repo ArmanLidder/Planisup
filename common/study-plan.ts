@@ -31,6 +31,7 @@ export interface SerializedCourseState {
     selectedInSubmodule: string | null;
     selectedInSection: string | null;
     credits: number;
+    course: Course;
 }
 
 export interface StudyPlan {

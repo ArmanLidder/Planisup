@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
-import { Program, Module, Course, ProgramType } from '@common/program';
+import { Program, Module, Course, ProgramType, SubModule, Section } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
 import {
@@ -83,10 +83,16 @@ export class StudyPlan implements OnInit, OnDestroy {
 
   private initializeWithProgram(program: Program) {
     this.program = program;
-    this.modules = this.program.modules;
+    
+    // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
+    if (this.isViewMode) {
+      this.modules = this.filterSelectedCourses(program.modules);
+    } else {
+      this.modules = this.program.modules;
+    }
+    
     this.totalCredits = 0;
     this.selectedCredits = 0;
-
 
     for (const module of this.program.modules) {
       this.totalCredits += this.extractCreditsFromTitle(module.title);
@@ -101,6 +107,98 @@ export class StudyPlan implements OnInit, OnDestroy {
     this.loadAllCourses();
 
     this.calculateTotalCredits();
+  }
+
+  /**
+   * Filtre les modules pour ne garder que les cours sélectionnés
+   */
+  private filterSelectedCourses(modules: Module[]): Module[] {
+    return modules
+      .map(module => this.filterModule(module))
+      .filter(module => this.hasSelectedCourses(module));
+  }
+
+  /**
+   * Filtre un module pour ne garder que les cours sélectionnés
+   */
+  private filterModule(module: Module): Module {
+    const filteredModule: Module = { ...module };
+
+    if (module.courses) filteredModule.courses = this.filterSections(module.courses, module.title, null);
+
+    if (module.subModules) {
+      filteredModule.subModules = module.subModules
+        .map(subModule => this.filterSubModule(subModule, module.title))
+        .filter(subModule => this.hasSelectedCoursesInSubModule(subModule, module.title));
+    }
+
+    return filteredModule;
+  }
+
+  /**
+   * Filtre un sous-module pour ne garder que les cours sélectionnés
+   */
+  private filterSubModule(subModule: SubModule, moduleTitle: string): SubModule {
+    const filteredSubModule: SubModule = { ...subModule };
+
+    if (subModule.courses) filteredSubModule.courses = this.filterSections(subModule.courses, moduleTitle, subModule.title);
+
+    return filteredSubModule;
+  }
+
+  /**
+   * Filtre les sections pour ne garder que celles avec des cours sélectionnés
+   * Inclut TOUS les cours sélectionnés (même ceux de course-search)
+   */
+  private filterSections(
+    sections: Section[],
+    moduleTitle: string,
+    subModuleTitle: string | null
+  ): Section[] {
+    const filteredSections: Section[] = [];
+    
+    sections.forEach(section => {
+      const selectedCoursesInSection: Course[] = [];
+      
+      this.courseStateService.courseStates.forEach((state, courseSigle) => {
+        if (state.selected &&
+            state.selectedInModule === moduleTitle &&
+            state.selectedInSubmodule === subModuleTitle &&
+            state.selectedInSection === section.description) {
+          
+          if (state.course) selectedCoursesInSection.push(state.course);
+        }
+      });
+      
+      if (selectedCoursesInSection.length > 0) {
+        filteredSections.push({
+          ...section,
+          courses: selectedCoursesInSection
+        });
+      }
+    });
+    
+    return filteredSections;
+  }
+
+  /**
+   * Vérifie si un module contient des cours sélectionnés
+   */
+  private hasSelectedCourses(module: Module): boolean {
+    if (module.courses && module.courses.some(section => section.courses.length > 0)) return true;
+
+    if (module.subModules && module.subModules.length > 0) return true;
+
+    return false;
+  }
+
+  /**
+   * Vérifie si un sous-module contient des cours sélectionnés
+   */
+  private hasSelectedCoursesInSubModule(subModule: SubModule, moduleTitle: string): boolean {
+    if (!subModule.courses) return false;
+    
+    return subModule.courses.some(section => section.courses.length > 0);
   }
 
   loadAllCourses() {
@@ -194,7 +292,7 @@ export class StudyPlan implements OnInit, OnDestroy {
 
     const errors: string[] = [];
 
-    // Validation des groupes de règles (incluant les nouvelles règles d'approbation directeur)
+    // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();
     if (!groupValidation.isValid) {
       errors.push(...groupValidation.errors);
@@ -266,7 +364,6 @@ export class StudyPlan implements OnInit, OnDestroy {
       return;
     }
 
-    // Tout ça devra être effacé et mis dans un beau service
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',

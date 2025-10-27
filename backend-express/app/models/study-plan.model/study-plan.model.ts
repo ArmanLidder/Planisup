@@ -48,7 +48,7 @@ const CourseSchema: Schema = new mongoose.Schema({
     sigle: { type: String },
     name: { type: String },
     credits: { type: Number },
-    trimester: TrimesterSchema, // Student will only choose one date
+    trimester: [TrimesterSchema], // Student will only choose one date
     alreadyDone: { type: Boolean, default: false },
     grade: { type: String, enum: Object.values(Grade) }
 }, { _id: false});
@@ -63,7 +63,8 @@ const SerializedCourseStateSchema: Schema = new mongoose.Schema({
     selectedInModule: { type: String, default: null },
     selectedInSubmodule: { type: String, default: null },
     selectedInSection: { type: String, default: null },
-    credits: { type: Number, required: true }
+    credits: { type: Number, required: true },
+    course: CourseSchema
 }, { _id: false });
 
 const StudyPlanSchema: Schema = new mongoose.Schema(

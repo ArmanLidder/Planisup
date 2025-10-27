@@ -123,6 +123,7 @@ export class UserManagement implements OnInit {
     const oldRole = employee.role;
     employee.role = newRole;
     if (newRole === UserRole.Agent || newRole === UserRole.Registrar) {
+      employee.departement = undefined
       return;
     }
     const roleDisplayName = this.getRoleDisplayName(newRole);
@@ -143,7 +144,8 @@ export class UserManagement implements OnInit {
     const oldRole = user.role;
     user.role = newRole;
     if (newRole === UserRole.Agent || newRole === UserRole.Registrar) {
-      return;
+      user.departement = undefined
+      return
     }
     const roleDisplayName = this.getRoleDisplayName(newRole);
     const currentRoleDisplayName = this.getRoleDisplayName(oldRole);

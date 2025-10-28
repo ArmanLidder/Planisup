@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { User, UserRole } from '@common/user';
 import { Search } from '@app/pages/search/search';
+import { Archive } from '../archive/archive';
 
 @Component({
   selector: 'app-gsup-menu',
@@ -41,6 +42,13 @@ export class GsupMenu {
   public searchCourses(): void {
     this.isMenuOpen = false;
     this.dialog.open(Search, {
+      maxWidth: '90vw',
+    });
+  }
+
+  public openArchive(): void {
+    this.isMenuOpen = false;
+    this.dialog.open(Archive, {
       maxWidth: '90vw',
     });
   }

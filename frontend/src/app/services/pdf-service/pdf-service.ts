@@ -162,7 +162,7 @@ export class PdfService {
       let creditsTotal = 0;
       allCourses.forEach((course, index) => {
         creditsTotal += course.credits || 0;
-        const formattedTrimester = this.formatTrimester(course.trimester);
+        const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
         this.setTextField(form, `institution_cours_obligatoire_${pdfIndex}`, 'Polytechnique');
         this.setTextField(form, `trimestre_cours_obligatoire_${pdfIndex}`, formattedTrimester);
@@ -187,7 +187,7 @@ export class PdfService {
       let creditsTotal = 0;
       allCourses.forEach((course, index) => {
         creditsTotal += course.credits || 0;
-        const formattedTrimester = this.formatTrimester(course.trimester);
+        const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
         this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
         this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);

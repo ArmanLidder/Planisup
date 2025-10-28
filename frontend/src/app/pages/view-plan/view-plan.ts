@@ -1,13 +1,21 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Progress } from "@app/components/gsup-progress-bar/progress";
-import { getStepOrderForProgram as originalGetStepOrder, ProgressStepModel } from '@app/components/gsup-progress-bar/uiHelper';
+import { Progress } from '@app/components/gsup-progress-bar/progress';
+import {
+  getStepOrderForProgram as originalGetStepOrder,
+  ProgressStepModel,
+} from '@app/components/gsup-progress-bar/uiHelper';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { StudyPlan, StudyPlanStatus, StudyPlanStep, StepValidationStatus } from '@common/study-plan';
+import {
+  StudyPlan,
+  StudyPlanStatus,
+  StudyPlanStep,
+  StepValidationStatus,
+} from '@common/study-plan';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
-import { User, UserRole } from '@common/user';
-import { Loading } from "@app/components/loading/loading";
+import { User } from '@common/user';
+import { Loading } from '@app/components/loading/loading';
 import { ProgramType } from '@common/program';
 import { PdfService } from '@app/services/pdf-service/pdf-service';
 import { StudyPlan as StudyPlanComponent } from '@app/pages/study-plan/study-plan';
@@ -15,6 +23,8 @@ import { ProgramService } from '@app/services/program/program-service';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { ApiService } from '@app/services/api/api-service';
 import { Subscription } from 'rxjs';
+import { UserRole } from '@common/user';
+
 
 @Component({
   selector: 'app-view-plan',
@@ -33,21 +43,25 @@ export class ViewPlan implements OnInit, OnDestroy {
   private studyPlanSubscription: Subscription | null = null;
 
   constructor(
-    private readonly auth: AuthentificationService,
-    private readonly sPS: StudyPlanService,
+    protected readonly authentificationService: AuthentificationService,
+    protected readonly sPS: StudyPlanService,
     private readonly pdfService: PdfService,
     private readonly programService: ProgramService,
     private readonly courseStateService: CourseStateService,
-    private readonly apiService: ApiService,
+    private readonly apiService: ApiService
   ) {
-    this.currentUser = this.auth.currentUser;
+    this.currentUser = this.authentificationService.currentUser;
     this.studyPlan = this.sPS.studyPlan;
     this.isLoading$ = this.sPS.loading$;
     this.studyPlan$ = this.sPS.studyPlan$;
   }
 
+  get progressSteps(): ProgressStepModel[] {
+    return this.getProgressSteps();
+  }
+
   ngOnInit() {
-    // S'abonner aux changements du study plan
+    console.log(this.programService.program);
     this.studyPlanSubscription = this.studyPlan$.subscribe((plan) => {
       if (plan && plan.programId) {
         this.studyPlan = plan;
@@ -55,7 +69,6 @@ export class ViewPlan implements OnInit, OnDestroy {
       }
     });
 
-    // Charger immédiatement si le plan existe déjà
     if (this.sPS.studyPlan && this.sPS.studyPlan.programId) {
       this.loadProgramAndRestoreState(this.sPS.studyPlan);
     }
@@ -65,6 +78,41 @@ export class ViewPlan implements OnInit, OnDestroy {
     if (this.studyPlanSubscription) {
       this.studyPlanSubscription.unsubscribe();
     }
+  }
+
+  protected exportPDF() {
+    if (this.sPS.studyPlan && this.authentificationService.currentUser) {
+      this.pdfService.generateAndDownloadPdf(this.sPS.studyPlan);
+    }
+  }
+
+  private getCurrentStepOrder(): StudyPlanStep[] {
+    const studyPlan = this.studyPlan;
+    return this.getStepOrderForProgram(studyPlan!.programType);
+  }
+
+  private getStepOrderForProgram(programType: ProgramType): StudyPlanStep[] {
+    return originalGetStepOrder(programType);
+  }
+
+  private getValidationLabel(validation: StepValidationStatus): string {
+    const labels = {
+      [StepValidationStatus.IN_PROGRESS]: 'En cours',
+      [StepValidationStatus.APPROVED]: 'Approuvé',
+      [StepValidationStatus.NEEDS_CORRECTION]: 'Corrections requises',
+    };
+    return labels[validation] || validation;
+  }
+
+  private getStepLabel(step: StudyPlanStep): string {
+    const labels = {
+      [StudyPlanStep.STUDENT]: 'Étudiant',
+      [StudyPlanStep.DIRECTOR]: 'Directeur',
+      [StudyPlanStep.ADMIN_AGENT]: 'Agent administratif',
+      [StudyPlanStep.COORDONATOR]: 'Coordonnateur',
+      [StudyPlanStep.REGISTRAR]: 'Registraire',
+    };
+    return labels[step] || step;
   }
 
   private loadProgramAndRestoreState(plan: StudyPlan) {
@@ -88,54 +136,11 @@ export class ViewPlan implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Erreur lors du chargement du programme:', error);
-      }
+      },
     });
   }
 
-  get progressSteps(): ProgressStepModel[] {
-    return this.getProgressSteps();
-  }
-
-  getStatusLabel(status: StudyPlanStatus): string {
-    const labels = {
-      [StudyPlanStatus.LIVE]: 'En cours',
-      [StudyPlanStatus.CANCELLED]: 'Annulé',
-      [StudyPlanStatus.VALIDATED]: 'Validé'
-    };
-    return labels[status] || status;
-  }
-
-  getStepLabel(step: StudyPlanStep): string {
-    const labels = {
-      [StudyPlanStep.STUDENT]: 'Étudiant',
-      [StudyPlanStep.DIRECTOR]: 'Directeur',
-      [StudyPlanStep.ADMIN_AGENT]: 'Agent administratif',
-      [StudyPlanStep.COORDONATOR]: 'Coordonnateur',
-      [StudyPlanStep.REGISTRAR]: 'Registraire'
-    };
-    return labels[step] || step;
-  }
-
-  getValidationLabel(validation: StepValidationStatus): string {
-    const labels = {
-      [StepValidationStatus.IN_PROGRESS]: 'En cours',
-      [StepValidationStatus.APPROVED]: 'Approuvé',
-      [StepValidationStatus.NEEDS_CORRECTION]: 'Corrections requises'
-    };
-    return labels[validation] || validation;
-  }
-
-  protected getStepOrderForProgram(programType: ProgramType): StudyPlanStep[] {
-    return originalGetStepOrder(programType);
-  }
-
-
-  private getCurrentStepOrder(): StudyPlanStep[] {
-    const studyPlan = this.studyPlan;
-    return this.getStepOrderForProgram(studyPlan!.programType);
-  }
-
-  getProgressSteps(): ProgressStepModel[] {
+  private getProgressSteps(): ProgressStepModel[] {
     const studyPlan = this.studyPlan;
     if (!studyPlan) return [];
 
@@ -160,55 +165,18 @@ export class ViewPlan implements OnInit, OnDestroy {
         stepIndex: index,
         label: this.getStepLabel(step),
         displayLabel,
-        businessStep: step
+        businessStep: step,
       };
     });
   }
 
-  needsCorrection() : boolean {
-    return this.sPS.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
-  }
-
-  // protected isArchivedStudyPlan(): boolean {
-  //   const isCancelled = this.sPS.studyPlan?.status === StudyPlanStatus.CANCELLED;
-  //   const userHasToValidate = this.sPS.studyPlan?.studyPlanStep === this.auth.currentUser?.role;
-  //   return !isCancelled &&
-  // }
-
-  protected isStudent(): boolean {
-    return this.currentUser?.role === UserRole.Etudiant;
-  }
-
-  protected onValidate() {
-    this.sPS.approveStudyPlan();
-  }
-
-  protected onRefuse() {
-    this.sPS.refuseStudyPlan();
-  }
-
-  protected onCancel() {
-    this.sPS.cancelStudyPlan();
-  }
-
-  protected onSubmit() {
-    this.sPS.updateStudyPlan();
-  }
-
-  protected exportPDF() {
-    if (this.sPS.studyPlan && this.auth.currentUser) {
-      this.pdfService.generateAndDownloadPdf(this.sPS.studyPlan, this.auth.currentUser);
-    }
-  }
-
   protected isArchivedStudyPlan(): boolean {
     const isCancelled = this.sPS.studyPlan?.status === StudyPlanStatus.CANCELLED;
-    if (this.auth.currentUser?.role === UserRole.Agent && this.sPS.studyPlan?.agentValidationDate) return !isCancelled
-    if (this.auth.currentUser?.role === UserRole.Directeur && this.sPS.studyPlan?.directorValidationDate) return !isCancelled
-    if (this.auth.currentUser?.role === UserRole.Coordonnateur && this.sPS.studyPlan?.coordonatorValidationDate) return !isCancelled
-    if (this.auth.currentUser?.role === UserRole.Registrar && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
-    if (this.auth.currentUser?.role === UserRole.Etudiant && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
+    if (this.authentificationService.currentUser?.role === UserRole.Agent && this.sPS.studyPlan?.agentValidationDate) return !isCancelled
+    if (this.authentificationService.currentUser?.role === UserRole.Directeur && this.sPS.studyPlan?.directorValidationDate) return !isCancelled
+    if (this.authentificationService.currentUser?.role === UserRole.Coordonnateur && this.sPS.studyPlan?.coordonatorValidationDate) return !isCancelled
+    if (this.authentificationService.currentUser?.role === UserRole.Registrar && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
+    if (this.authentificationService.currentUser?.role === UserRole.Etudiant && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
     return false;
   }
-
 }

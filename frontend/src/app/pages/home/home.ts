@@ -34,7 +34,7 @@ export class Home implements OnInit {
   ngOnInit(): void {
     this.courseService.getCourses();
     this.programService.reset();
-    this.studyPlanService.resetPlan();
+    this.studyPlanService.resetStudyPlan();
   }
 
   navigateTo(degree: string): void {

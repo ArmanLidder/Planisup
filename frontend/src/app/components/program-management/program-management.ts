@@ -26,11 +26,16 @@ export class ProgramManagement implements OnInit {
   allPrograms$ = this.allPrograms.asObservable();
 
   private allProgramsOriginal = new Map<string, string>();
-  private readonly draftPrograms = new Map<string, Program>();
+  
   selectedProgramId: string | null = null;
   isEditing = false;
   isPreviewing = false;
   isSaving = false;
+
+  // Local editing state (single global draft while editing)
+  private originalProgram: Program | null = null;
+  protected editingDraft: Program | null = null;
+  protected isCreatingNew = false;
 
   @ViewChild(ProgramEditor) private programEditorComponent?: ProgramEditor;
 
@@ -53,11 +58,18 @@ export class ProgramManagement implements OnInit {
     const current = this.programService.program;
     if (current?._id) {
       this.selectedProgramId = current._id;
-      this.updateProgramLabel(current);
+      this.originalProgram = current;
     }
     this.programService.adminEditing$.subscribe((edit) => {
       this.isEditing = !!edit;
-      if (edit) this.isPreviewing = false;
+      if (edit) {
+        this.isPreviewing = false;
+        // Initialize draft from current original if needed
+        if (!this.editingDraft) {
+          const base = this.originalProgram || this.programService.program;
+          if (base) this.editingDraft = JSON.parse(JSON.stringify(base));
+        }
+      }
     });
   }
 
@@ -76,34 +88,45 @@ export class ProgramManagement implements OnInit {
   }
 
   selectProgram(programId: string): void {
-    const isDraft = this.draftPrograms.has(programId);
+    
     const switchingProgram = this.selectedProgramId && this.selectedProgramId !== programId;
-    this.selectedProgramId = programId;
-    this.isPreviewing = false;
-    if (switchingProgram && this.isEditing && !isDraft) {
-      // Auto-exit edit mode when selecting another program
-      this.exitEdit();
-    }
-    const draftProgram = this.draftPrograms.get(programId);
-    if (draftProgram) {
-      this.programService.program = draftProgram;
-      this.enterEditMode();
+
+    if (switchingProgram && this.isEditing && this.hasUnsavedChanges()) {
+      // Confirm discarding unsaved changes
+      this.confirmExit().then((ok) => {
+        if (!ok) return;
+        // Exit edit mode (cleans draft, removes draft entry if needed)
+        this.exitEdit();
+        this.finishSelectProgram(programId);
+      });
       return;
     }
-    this.apiService.getProgram(this.selectedProgramId).subscribe({
+    this.finishSelectProgram(programId);
+  }
+
+    private finishSelectProgram(programId: string): void {
+    // If we are editing but there are no unsaved changes, exit edit mode
+    if (this.isEditing && !this.hasUnsavedChanges()) {
+      this.isEditing = false;
+      this.isPreviewing = false;
+      this.programService.setAdminEditing(false);
+      if (this.originalProgram) this.editingDraft = JSON.parse(JSON.stringify(this.originalProgram));
+      else this.editingDraft = null;
+    }
+    this.selectedProgramId = programId;
+    this.isPreviewing = false;
+    this.apiService.getProgram(programId).subscribe({
       next: (program: Program) => {
-        this.programService.program = program;
+        this.programService.program = program; // view mode
+        this.originalProgram = program;
+        if (this.isEditing) this.editingDraft = JSON.parse(JSON.stringify(program));
       },
     });
   }
-
-  onProgramChange(updated: Program) {
-    this.programService.program = updated;
-    // Update left list label to reflect metadata changes
-    this.updateProgramLabel(updated);
-    if (this.selectedProgramId && this.draftPrograms.has(this.selectedProgramId)) {
-      this.draftPrograms.set(this.selectedProgramId, updated);
-    }
+onProgramChange(updated: Program) {
+    // Apply to local draft only
+    this.editingDraft = JSON.parse(JSON.stringify(updated));
+    
   }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
@@ -141,23 +164,38 @@ export class ProgramManagement implements OnInit {
   }
 
   createProgram(): void {
-    const tempId = `draft-${Date.now()}`;
+    // Prevent multiple creations at once
+    if (this.isEditing) {
+      if (this.hasUnsavedChanges()) {
+        // Ask before discarding current edits
+        this.confirmExit().then((ok) => {
+          if (!ok) return;
+          this.exitEdit();
+          this.startNewDraft();
+        });
+        return;
+      }
+      // No changes, just exit edit mode first
+      this.exitEdit();
+    }
+    this.startNewDraft();
+  }
+
+  private startNewDraft(): void {
     const draftProgram: Program = {
-      _id: tempId,
+      _id: undefined,
       degree: '',
       option: '',
       type: '',
       department: '',
       description: '',
       modules: [],
-    };
-    this.draftPrograms.set(tempId, draftProgram);
-    const updatedOptions = new Map(this.allProgramsOriginal);
-    updatedOptions.set(tempId, 'Nouveau programme');
-    this.allProgramsOriginal = updatedOptions;
-    this.allPrograms.next(new Map(updatedOptions));
-    this.selectedProgramId = tempId;
-    this.programService.program = draftProgram;
+    } as Program;
+    // Do not add to left list; keep selection internal
+    this.selectedProgramId = 'new-program';
+    this.originalProgram = null;
+    this.editingDraft = JSON.parse(JSON.stringify(draftProgram));
+    this.isCreatingNew = true;
     this.enterEditMode();
   }
 
@@ -169,11 +207,11 @@ export class ProgramManagement implements OnInit {
 
   async saveProgram(): Promise<void> {
     this.programEditorComponent?.flushModulesToProgram();
-    const program = this.programService.program;
+    const program = this.editingDraft;
     if (!program) return;
     if (this.isPreviewing) this.isPreviewing = false;
-    const wasDraft = this.isDraftSelected;
-    const draftId = wasDraft ? this.selectedProgramId : null;
+    const wasDraft = this.isCreatingNew;
+    const draftId = null;
     const confirmed = await this.confirmSave(
       wasDraft
         ? 'Voulez-vous créer ce nouveau programme ?'
@@ -185,7 +223,7 @@ export class ProgramManagement implements OnInit {
     this.isSaving = true;
     this.programService.saveProgram(program).subscribe({
       next: (saved) => {
-        this.handleProgramSaved(saved, wasDraft, draftId);
+        this.handleProgramSaved(saved, wasDraft);
         this.isSaving = false;
       },
       error: (error) => {
@@ -201,9 +239,7 @@ export class ProgramManagement implements OnInit {
     this.programService.setAdminEditing(true);
   }
 
-  get isDraftSelected(): boolean {
-    return !!(this.selectedProgramId && this.draftPrograms.has(this.selectedProgramId));
-  }
+  // isDraftSelected removed
 
   async requestExit(): Promise<void> {
     const confirmed = await this.confirmExit();
@@ -212,19 +248,20 @@ export class ProgramManagement implements OnInit {
   }
 
   exitEdit(): void {
-    if (this.isDraftSelected && this.selectedProgramId) {
-      const draftId = this.selectedProgramId;
-      this.draftPrograms.delete(draftId);
-      const updated = new Map(this.allProgramsOriginal);
-      updated.delete(draftId);
-      this.allProgramsOriginal = updated;
-      this.allPrograms.next(new Map(updated));
+        // Handle new creation draft (not in left list)
+    if (this.isCreatingNew) {
       this.selectedProgramId = null;
-      this.programService.program = null;
+      this.originalProgram = null;
+      this.editingDraft = null;
+      this.isCreatingNew = false;
     }
     this.isEditing = false;
     this.isPreviewing = false;
     this.programService.setAdminEditing(false);
+    // Reset draft to original for persisted programs
+    if (this.originalProgram) {
+      this.editingDraft = JSON.parse(JSON.stringify(this.originalProgram));
+    }
   }
 
   private async confirmSave(message: string, confirmLabel: string): Promise<boolean> {
@@ -249,29 +286,24 @@ export class ProgramManagement implements OnInit {
     return !!result;
   }
 
-  private handleProgramSaved(saved: Program, wasDraft: boolean, draftId: string | null): void {
+  private handleProgramSaved(saved: Program, wasDraft: boolean): void {
     if (!saved._id) {
       console.warn('Programme sauvegardé sans identifiant retourné.');
       return;
     }
 
-    if (wasDraft && draftId) {
-      this.draftPrograms.delete(draftId);
-      const options = new Map(this.allProgramsOriginal);
-      options.delete(draftId);
-      options.set(saved._id, this.buildProgramLabel(saved));
-      this.allProgramsOriginal = options;
-      this.allPrograms.next(new Map(options));
-      this.selectedProgramId = saved._id;
-    } else {
-      this.selectedProgramId = saved._id;
-    }
+    
 
     this.updateProgramLabel(saved);
-    this.syncReducedPrograms(saved, wasDraft ? draftId ?? undefined : undefined);
+    this.syncReducedPrograms(saved, undefined);
     this.isEditing = false;
     this.isPreviewing = false;
     this.programService.setAdminEditing(false);
+    // Sync persisted program into view and local draft
+    this.programService.program = saved;
+    this.originalProgram = saved;
+    this.editingDraft = JSON.parse(JSON.stringify(saved));
+    this.isCreatingNew = false;
   }
 
   private syncReducedPrograms(saved: Program, removedId?: string): void {
@@ -311,6 +343,35 @@ export class ProgramManagement implements OnInit {
         ? `${program.degree} - ${program.option}`
         : program.option
       : program.degree || '';
+  }
+
+  private hasUnsavedChanges(): boolean {
+    if (!this.isEditing) return false;
+    if (this.editingDraft == null && this.originalProgram == null) return false;
+    // New draft considered dirty if editingDraft exists and differs from a blank
+    if (!this.originalProgram && this.editingDraft) {
+      try {
+        const ed = this.editingDraft as Program;
+        const normalized = JSON.stringify({
+          degree: ed.degree || '',
+          option: ed.option || '',
+          type: ed.type || '',
+          department: ed.department || '',
+          description: ed.description || '',
+          modules: ed.modules || [],
+        });
+        const blank = JSON.stringify({ degree: '', option: '', type: '', department: '', description: '', modules: [] });
+        return normalized !== blank;
+      } catch {
+        return true;
+      }
+    }
+    if (!this.originalProgram || !this.editingDraft) return false;
+    try {
+      return JSON.stringify(this.originalProgram) !== JSON.stringify(this.editingDraft);
+    } catch {
+      return true;
+    }
   }
 
 }

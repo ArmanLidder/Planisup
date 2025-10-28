@@ -30,14 +30,14 @@
     <div *ngIf="!selectedProgramId" class="no-program-selected">
       <img src="./../../../assets/image_select.png" alt="" />
       <h3>
-        Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
+        Sélectionnez un programme dans la liste affichAce afin d'interagir avec un plan d'Actude.
       </h3>
       <h3>
         Appuyez sur le bouton d'ajout situé à droite de la barre de recherche pour ajouter un
         programme.
       </h3>
     </div>
-    <ng-container *ngIf="selectedProgramId && programService.program">
+    <ng-container *ngIf="selectedProgramId && (programService.program || editingDraft)">
       <div
         class="right-toolbar"
         *ngIf="isEditing"
@@ -55,29 +55,28 @@
           (click)="saveProgram()"
           [disabled]="isSaving"
         >
-          {{ isDraftSelected ? 'Créer le programme' : 'Enregistrer les modifications' }}
+          {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
         </button>
         <button
           mat-flat-button
           color="warn"
           (click)="requestExit()"
         >
-          Quitter l’édition
+          Quitter l'édition
         </button>
       </div>
 
       <div class="right-content" [class.has-toolbar]="isEditing">
         <app-program-editor
           #programEditor
-          *ngIf="isEditing && !isPreviewing"
-          [program]="programService.program!"
-          [isNew]="isDraftSelected"
+          *ngIf="isEditing && !isPreviewing && editingDraft"
+          [program]="editingDraft!"
+          [isNew]="isCreatingNew"
           (programChange)="onProgramChange($event)"
         ></app-program-editor>
 
-        <app-study-plan
-          *ngIf="(!isEditing) || isPreviewing"
-        ></app-study-plan>
+        <app-study-plan *ngIf="!isEditing"></app-study-plan>
+        <app-study-plan *ngIf="isEditing && isPreviewing" [programOverride]="editingDraft || undefined"></app-study-plan>
       </div>
     </ng-container>
   </div>

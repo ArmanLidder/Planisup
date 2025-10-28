@@ -226,7 +226,7 @@
             </div>
             <div class="edit-actions">
               <button type="button" class="btn-secondary" (click)="cancelSecEdit()">Annuler</button>
-              <button type="button" class="btn-primary" (click)="saveSecEdit()">Enregistrer</button>
+              <button type="button" class="btn-primary" (click)="saveSecEdit()">Appliquer</button>
             </div>
           </div>
         </div>
@@ -439,7 +439,7 @@
                   </div>
                   <div class="edit-actions">
                     <button type="button" class="btn-secondary" (click)="subCancelSecEdit()">Annuler</button>
-                    <button type="button" class="btn-primary" (click)="subSaveSecEdit()">Enregistrer</button>
+                    <button type="button" class="btn-primary" (click)="subSaveSecEdit()">Appliquer</button>
                   </div>
                 </div>
               </div>
@@ -447,23 +447,17 @@
 
             <div class="edit-actions">
               <button type="button" class="btn-secondary" (click)="cancelSubEdit()">Annuler</button>
-              <button type="button" class="btn-primary" (click)="saveSubEdit()">Enregistrer</button>
+              <button type="button" class="btn-primary" (click)="saveSubEdit()">Appliquer</button>
             </div>
           </div>
         </div>
       </div>
       <div class="edit-actions">
         <button type="button" class="btn-secondary" (click)="cancelEdit()">Annuler</button>
-        <button type="button" class="btn-primary" (click)="saveEdit()">Confirmer</button>
+        <button type="button" class="btn-primary" (click)="saveEdit()">Appliquer</button>
       </div>
     </div>
   </div>
 
-  <!-- Sticky footer actions appear only when changes exist -->
-  <div class="editor-footer" *ngIf="hasChanges">
-    <div class="footer-actions">
-      <button type="button" class="btn-secondary" (click)="cancelAll()">Annuler tout</button>
-      <button type="button" class="btn-primary" (click)="saveAll()">Enregistrer tout</button>
-    </div>
-  </div>
+  
 </div>

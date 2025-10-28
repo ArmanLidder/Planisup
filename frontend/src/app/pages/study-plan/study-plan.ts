@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyModule } from '../../components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
@@ -25,9 +25,10 @@ import slugify from 'slugify';
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
-export class StudyPlan implements OnInit, OnDestroy {
+export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' =
     'modifyStudent';
+  @Input() programOverride?: Program;
 
   totalCredits: number = 0;
   selectedCredits: number = 0;
@@ -48,22 +49,31 @@ export class StudyPlan implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to program changes
-    this.programSubscription = this.programService.program$.subscribe((program) => {
-      if (program) {
-        this.initializeWithProgram(program);
+    // Subscribe to program changes, unless an override is provided
+    if (!this.programOverride) {
+      this.programSubscription = this.programService.program$.subscribe((program) => {
+        if (program) {
+          this.initializeWithProgram(program);
+        }
+      });
+      // Initialize if program is already available
+      if (this.programService.program) {
+        this.initializeWithProgram(this.programService.program);
       }
-    });
-
-    // Initialize if program is already available
-    if (this.programService.program) {
-      this.initializeWithProgram(this.programService.program);
+    } else {
+      this.initializeWithProgram(this.programOverride);
     }
   }
 
   ngOnDestroy() {
     if (this.programSubscription) {
       this.programSubscription.unsubscribe();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['programOverride'] && this.programOverride) {
+      this.initializeWithProgram(this.programOverride);
     }
   }
 

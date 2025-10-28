@@ -53,14 +53,7 @@ export class ProgramModulesEditor implements OnChanges {
     if (changes['modules']) {
       // Deep clone input to draft when program changes
       this.draftModules = JSON.parse(JSON.stringify(this.modules || []));
-      this.editingIndex = null;
-      this.editTemp = null;
-      this.subEditingIndex = null;
-      this.subEditTemp = null;
-      this.secEditingIndex = null;
-      this.secEditTemp = null;
-      this.subSecEditingIndex = null;
-      this.subSecEditTemp = null;
+      this.resetVariables();
     }
   }
 
@@ -139,7 +132,7 @@ export class ProgramModulesEditor implements OnChanges {
       const prefixes = this.inferSubmodulePrefixes(m);
       const rules = m.rules || [];
       if (!rules.find((r) => r.type === 'exclusive_submodules')) {
-        rules.push({ type: 'exclusive_submodules', enforced: true, appliesToSubModules: prefixes });
+        rules.push({ type: 'exclusive_submodules', appliesToSubModules: prefixes });
       } else {
         rules.forEach((r) => {
           if (r.type === 'exclusive_submodules') r.appliesToSubModules = prefixes;
@@ -185,6 +178,10 @@ export class ProgramModulesEditor implements OnChanges {
     const arr = [...this.draftModules];
     arr[this.editingIndex] = this.editTemp;
     this.draftModules = arr;
+    this.resetVariables();
+  }
+
+  resetVariables(): void {
     this.editingIndex = null;
     this.editTemp = null;
     this.subEditingIndex = null;
@@ -195,58 +192,18 @@ export class ProgramModulesEditor implements OnChanges {
     this.subSecEditTemp = null;
   }
 
-  // Save/Cancel all changes
-  saveAll(): void {
-    this.confirm('Enregistrer toutes les modifications des modules ?', 'Annuler', 'Enregistrer')
-      .then((ok) => {
-        if (ok) this.modulesChange.emit(JSON.parse(JSON.stringify(this.draftModules)));
-      });
-  }
-
-  cancelAll(): void {
-    this.confirm('Annuler toutes les modifications des modules ?', 'Non', 'Oui')
-      .then((ok) => {
-        if (!ok) return;
-        this.draftModules = JSON.parse(JSON.stringify(this.modules || []));
-        this.editingIndex = null;
-        this.editTemp = null;
-        this.subEditingIndex = null;
-        this.subEditTemp = null;
-        this.secEditingIndex = null;
-        this.secEditTemp = null;
-        this.subSecEditingIndex = null;
-        this.subSecEditTemp = null;
-        this.resetManualSectionCourseInputs();
-        this.resetSubManualCourseInputs();
-      });
-  }
-
-  get hasChanges(): boolean {
-    try {
-      return JSON.stringify(this.draftModules) !== JSON.stringify(this.modules || []);
-    } catch {
-      return true;
-    }
-  }
-
   // Rules handling for module edit
   addRule(type: RuleType): void {
     if (this.editTemp == null) return;
     const rules: RuleDefinition[] = [...(this.editTemp.rules || [])];
     if (rules.find((r) => r.type === type)) return; // prevent duplicates
     if (type === 'credits_exact' || type === 'credits_minimum' || type === 'credits_maximum') {
-      rules.push({ type, value: 0, enforced: true });
+      rules.push({ type, value: 0});
     } else if (type === 'exclusive_submodules') {
       const prefixes = this.inferSubmodulePrefixes(this.editTemp);
-      rules.push({ type: 'exclusive_submodules', enforced: true, appliesToSubModules: prefixes });
+      rules.push({ type: 'exclusive_submodules', appliesToSubModules: prefixes });
     }
     this.editTemp = { ...this.editTemp, rules };
-  }
-
-  updateRule(index: number, patch: Partial<RuleDefinition>): void {
-    if (!this.editTemp?.rules) return;
-    // Mutate in place to avoid input losing focus
-    Object.assign(this.editTemp.rules[index], patch);
   }
 
   removeRule(index: number): void {
@@ -262,13 +219,6 @@ export class ProgramModulesEditor implements OnChanges {
       if (m && m[1]) set.add(m[1]);
     });
     return Array.from(set);
-  }
-
-  toNumber(val: any): number { return Number(val) || 0; }
-
-  setRuleValue(index: number, value: number): void {
-    if (!this.editTemp?.rules) return;
-    this.editTemp.rules[index].value = value;
   }
 
   hasRule(type: RuleType): boolean {
@@ -356,16 +306,11 @@ export class ProgramModulesEditor implements OnChanges {
     const rules: RuleDefinition[] = [...(this.subEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
     if (type === 'director_approval') {
-      rules.push({ type, enforced: true });
+      rules.push({ type });
     } else {
-      rules.push({ type, value: 0, enforced: true });
+      rules.push({ type, value: 0 });
     }
     this.subEditTemp = { ...this.subEditTemp, rules };
-  }
-
-  subUpdateRule(index: number, patch: Partial<RuleDefinition>): void {
-    if (!this.subEditTemp?.rules) return;
-    Object.assign(this.subEditTemp.rules[index], patch);
   }
 
   subRemoveRule(index: number): void {
@@ -435,16 +380,13 @@ export class ProgramModulesEditor implements OnChanges {
     const rules: RuleDefinition[] = [...(this.secEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
     if (type === 'director_approval') {
-      rules.push({ type, enforced: true });
+      rules.push({ type});
     } else {
-      rules.push({ type, value: 0, enforced: true });
+      rules.push({ type, value: 0});
     }
     this.secEditTemp = { ...this.secEditTemp, rules };
   }
-  secUpdateRule(idx: number, patch: Partial<RuleDefinition>): void {
-    if (!this.secEditTemp?.rules) return;
-    Object.assign(this.secEditTemp.rules[idx], patch);
-  }
+
   secRemoveRule(idx: number): void {
     if (!this.secEditTemp?.rules) return;
     const rules = this.secEditTemp.rules.filter((_, i) => i !== idx);
@@ -505,16 +447,13 @@ export class ProgramModulesEditor implements OnChanges {
     const rules: RuleDefinition[] = [...(this.subSecEditTemp.rules || [])];
     if (rules.find(r => r.type === type)) return;
     if (type === 'director_approval') {
-      rules.push({ type, enforced: true });
+      rules.push({ type });
     } else {
-      rules.push({ type, value: 0, enforced: true });
+      rules.push({ type, value: 0});
     }
     this.subSecEditTemp = { ...this.subSecEditTemp, rules };
   }
-  subSecUpdateRule(idx: number, patch: Partial<RuleDefinition>): void {
-    if (!this.subSecEditTemp?.rules) return;
-    Object.assign(this.subSecEditTemp.rules[idx], patch);
-  }
+
   subSecRemoveRule(idx: number): void {
     if (!this.subSecEditTemp?.rules) return;
     const rules = this.subSecEditTemp.rules.filter((_, i) => i !== idx);
@@ -524,12 +463,6 @@ export class ProgramModulesEditor implements OnChanges {
     const val = (selectEl.value || 'credits_exact') as RuleType;
     this.subSecAddRule(val);
     selectEl.value = 'credits_exact';
-  }
-
-  private async confirm(message: string, first: string, second: string): Promise<boolean> {
-    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
-    const ref = this.dialog.open(GsupDialog as any, { data: { message, firstButton: first, secondButton: second } });
-    return await ref.afterClosed().toPromise();
   }
 
   onAddRule(selectEl: HTMLSelectElement): void {

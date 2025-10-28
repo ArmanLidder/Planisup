@@ -14,10 +14,10 @@ interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthentificationService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private apiService: ApiService) {
+  constructor(private readonly apiService: ApiService) {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       try {
@@ -28,6 +28,10 @@ export class AuthentificationService {
         localStorage.removeItem('currentUser');
       }
     }
+  }
+
+  get currentUser(): User | null {
+    return this.currentUserSubject.value;
   }
 
   login(loginRequest: LoginRequest): Observable<LoginResponse> {
@@ -68,10 +72,6 @@ export class AuthentificationService {
     this.currentUserSubject.next(null);
   }
 
-  get currentUser(): User | null {
-    return this.currentUserSubject.value;
-  }
-
   isAuthenticated(): boolean {
     return !!this.currentUser;
   }
@@ -86,6 +86,10 @@ export class AuthentificationService {
 
   isAdmin(): boolean {
     return this.currentUser?.role === UserRole.Administrateur;
+  }
+
+  isStudent(): boolean {
+    return this.currentUser?.role === UserRole.Etudiant;
   }
 
   canAccessAdmin(): boolean {
@@ -107,8 +111,8 @@ export class AuthentificationService {
       usercode: 'test-user',
       role: UserRole.Administrateur,
       lastName: 'string',
-      currentPlan: "",
-      plans: [""],
+      currentPlan: '',
+      plans: [''],
     };
     localStorage.setItem('currentUser', JSON.stringify(fakeUser));
     this.currentUserSubject.next(fakeUser);

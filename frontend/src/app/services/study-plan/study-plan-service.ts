@@ -1,47 +1,47 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '@app/services/api/api-service';
-import { StudyPlan } from '@common/study-plan';
+import { StepValidationStatus, StudyPlan, StudyPlanStatus } from '@common/study-plan';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { CourseStateService } from '../course-state/course-state';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StudyPlanService {
   constructor(
-    private apiService: ApiService,
-    private auth: AuthentificationService,
-    private router: Router,
-    private courseStateService: CourseStateService,
+    private readonly apiService: ApiService,
+    private readonly auth: AuthentificationService,
+    private readonly router: Router,
+    private readonly courseStateService: CourseStateService
   ) {}
 
-  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private readonly loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
 
-  private studyPlanSubject = new BehaviorSubject<StudyPlan|null>(null);
+  private readonly studyPlanSubject = new BehaviorSubject<StudyPlan | null>(null);
   studyPlan$ = this.studyPlanSubject.asObservable();
 
   get studyPlan(): StudyPlan | null {
     return this.studyPlanSubject.value;
   }
 
-  loadStudyPlan(id: string, isStudent: boolean = false) {
+  loadStudyPlan(id: string, isStudent: boolean = false): void {
     this.loadingSubject.next(false);
     this.apiService.getStudyPlan(id).subscribe({
       next: (plan: StudyPlan) => {
         this.studyPlanSubject.next(plan);
-        if (isStudent && plan._id) this.auth.addStudyPlan(plan._id)
+        if (isStudent && plan._id) this.auth.addStudyPlan(plan._id);
       },
       complete: () => {
         this.loadingSubject.next(false);
         this.router.navigate(['/view-plan']);
-      }
+      },
     });
   }
 
-  cancelStudyPlan() {
+  cancelStudyPlan(): void {
     this.loadingSubject.next(true);
     if (this.studyPlan?._id) {
       this.apiService.cancelStudyPlan(this.studyPlan._id).subscribe({
@@ -55,36 +55,36 @@ export class StudyPlanService {
         complete: () => {
           this.loadingSubject.next(false);
           this.router.navigate(['/accueil']);
-        }
+        },
       });
     }
   }
 
-  approveStudyPlan() {
+  approveStudyPlan(): void {
     this.loadingSubject.next(true);
     if (this.studyPlan?._id && this.auth.currentUser?._id) {
       this.apiService.approveStudyPlan(this.studyPlan._id, this.auth.currentUser?._id).subscribe({
         complete: () => {
           this.loadingSubject.next(false);
           this.router.navigate(['/accueil']);
-        }
+        },
       });
     }
   }
 
-  refuseStudyPlan() {
+  refuseStudyPlan(): void {
     this.loadingSubject.next(true);
     if (this.studyPlan?._id) {
       this.apiService.refuseStudyPlan(this.studyPlan._id).subscribe({
         complete: () => {
           this.loadingSubject.next(false);
           this.router.navigate(['/accueil']);
-        }
+        },
       });
     }
   }
 
-  updateStudyPlan() {
+  updateStudyPlan(): void {
     this.loadingSubject.next(true);
     if (this.studyPlan) {
       const updatedPlan = {
@@ -92,7 +92,7 @@ export class StudyPlanService {
         courseState: this.courseStateService.serializeCourseState(),
         coursesSelection: {
           modules: this.courseStateService.getSelectedCoursesByModule(),
-        }
+        },
       };
       this.apiService.submitStudyPlan(this.studyPlan).subscribe({
         next: (plan: StudyPlan) => {
@@ -101,12 +101,28 @@ export class StudyPlanService {
         complete: () => {
           this.loadingSubject.next(false);
           this.router.navigate(['/view-plan']);
-        }
+        },
       });
     }
   }
 
-  resetPlan() {
+  needsCorrectionStudyPlan(): boolean {
+    return this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
+  }
+
+  resetStudyPlan() {
     this.studyPlanSubject.next(null);
+  }
+
+  studyPlanStatusLive(): boolean {
+    return this.studyPlan?.status === StudyPlanStatus.LIVE;
+  }
+
+  studyPlanStatusCancelled(): boolean {
+    return this.studyPlan?.status === StudyPlanStatus.CANCELLED;
+  }
+
+  studyPlanStatusValidated(): boolean {
+    return this.studyPlan?.status === StudyPlanStatus.VALIDATED;
   }
 }

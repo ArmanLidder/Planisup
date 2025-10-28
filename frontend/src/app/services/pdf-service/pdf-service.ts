@@ -7,35 +7,31 @@ import { StudyPlan, StudyPlanStep } from '@common/study-plan';
 import { catchError, map, Observable, of } from 'rxjs';
 import { lastValueFrom } from 'rxjs';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PdfService {
-  constructor(
-    private readonly apiService: ApiService,
-  ) {
-  }
+  constructor(private readonly apiService: ApiService) {}
 
   async debugPdfFields(): Promise<string[]> {
     const pdfUrl = '/assets/plan_etudes_2cycle.pdf';
-    const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+    const pdfBytes = await fetch(pdfUrl).then((res) => res.arrayBuffer());
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const form = pdfDoc.getForm();
-    
+
     const fieldNames: string[] = [];
 
     const fields = form.getFields();
-    fields.forEach(field => {
+    fields.forEach((field) => {
       fieldNames.push(field.getName());
     });
     console.log('Tous les champs trouvés dans le PDF:', fieldNames);
     return fieldNames;
   }
 
-  async generateStudyPlanPdf(studyPlan: StudyPlan, currentUser: User ): Promise<Uint8Array> {
+  async generateStudyPlanPdf(studyPlan: StudyPlan, currentUser: User): Promise<Uint8Array> {
     const pdfUrl = '/assets/plan_etudes_2cycle.pdf';
-    const pdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+    const pdfBytes = await fetch(pdfUrl).then((res) => res.arrayBuffer());
 
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const form = pdfDoc.getForm();
@@ -43,10 +39,15 @@ export class PdfService {
     return new Promise((resolve, reject) => {
       this.fillFormFields(form, studyPlan, currentUser, resolve, reject);
     });
-
   }
 
-  private async fillFormFields(form: PDFForm, studyPlan: StudyPlan, currentUser: User, resolve: (value: Uint8Array) => void , reject: (error: any) => void) {
+  private async fillFormFields(
+    form: PDFForm,
+    studyPlan: StudyPlan,
+    currentUser: User,
+    resolve: (value: Uint8Array) => void,
+    reject: (error: any) => void
+  ) {
     // await this.debugPdfFields(); // Utile pour voir les id dans le pdf
 
     if (currentUser?._id) {
@@ -67,7 +68,7 @@ export class PdfService {
     this.setTextField(form, 'prénom', plans[0].firstName);
     this.setTextField(form, 'matricule', '21345678'); // À adapter si le matricule est disponible
 
-    switch(studyPlan.programType) {
+    switch (studyPlan.programType) {
       case ProgramType.MASTER:
         this.setCheckBox(form, 'm_ing'); // ou 'm_sc_a' à ajouter plus tard
         break;
@@ -82,10 +83,10 @@ export class PdfService {
       this.setTextField(form, 'programme', program.department);
       this.setTextField(form, 'option_ou_orientation', program.option || '');
     });
-    
+
     const [director, codirecteur1 /*, codirecteur2*/] = await Promise.all([
       lastValueFrom(this.getUsersignature(studyPlan, UserRole.Directeur)),
-      lastValueFrom(this.getUsersignature(studyPlan, "coodirector")),
+      lastValueFrom(this.getUsersignature(studyPlan, 'coodirector')),
       // lastValueFrom(this.getUsersignature(studyPlan, "coodirector")), // À adapter si deux codirecteurs existent
     ]);
 
@@ -98,10 +99,9 @@ export class PdfService {
   private async fillAdditionalWorkShops(form: PDFForm, studyPlan: StudyPlan) {
     // Remplir les ateliers complémentaires si c'est une maitrise de recherche
     // this.setCheckBox(form, 'CAP7002');
-    // this.setCheckBox(form, 'CAP7002E'); 
+    // this.setCheckBox(form, 'CAP7002E');
     // this.setCheckBox(form, 'CAP7005');
     // this.setCheckBox(form, 'CAP7005E');
-
     // Remplir les trimestres pour les ateliers si c'est une maitrise de recherche
     // this.setTextField(form, 'trimestre_atelier_1', 'Automne 2024'); // À adapter
     // this.setTextField(form, 'trimestre_atelier_2', 'Hiver 2025'); // À adapter
@@ -120,7 +120,11 @@ export class PdfService {
         this.setTextField(form, `sigle_cours_obligatoire_${pdfIndex}`, course.sigle || '');
         this.setTextField(form, `titre_cours_obligatoire_${pdfIndex}`, course.name || '');
         this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
-        this.setTextField(form, `crédits_cours_obligatoire_${pdfIndex}`, course.credits?.toString() || '');
+        this.setTextField(
+          form,
+          `crédits_cours_obligatoire_${pdfIndex}`,
+          course.credits?.toString() || ''
+        );
         if (pdfIndex === allCourses.length) {
           this.setTextField(form, `credits_total_1`, creditsTotal.toString());
         }
@@ -128,7 +132,8 @@ export class PdfService {
     }
   }
 
-  private async fillComplementaryCourses(form: PDFForm, studyPlan: StudyPlan) { // À voir avec l'équipe comment gérer les cours complémentaires
+  private async fillComplementaryCourses(form: PDFForm, studyPlan: StudyPlan) {
+    // À voir avec l'équipe comment gérer les cours complémentaires
     if (studyPlan.coursesSelection && studyPlan.coursesSelection.modules) {
       const allCourses = this.extractAllCourses(studyPlan);
       let creditsTotal = 0;
@@ -140,8 +145,16 @@ export class PdfService {
         this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
         this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
         this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
-        this.setTextField(form, `catégorie_cours_complémentaire_${pdfIndex}`, course.moduleType || '');
-        this.setTextField(form, `crédits_cours_complémentaire_${pdfIndex}`, course.credits?.toString() || '');
+        this.setTextField(
+          form,
+          `catégorie_cours_complémentaire_${pdfIndex}`,
+          course.moduleType || ''
+        );
+        this.setTextField(
+          form,
+          `crédits_cours_complémentaire_${pdfIndex}`,
+          course.credits?.toString() || ''
+        );
         if (pdfIndex === allCourses.length) {
           this.setTextField(form, `credits_total_2`, creditsTotal.toString());
         }
@@ -150,30 +163,51 @@ export class PdfService {
   }
 
   private async fillConditionOfObtainingDegree(form: PDFForm, studyPlan: StudyPlan) {
-    this.setCheckBox(form, "acceptation_condition");
-    const [studentSignature, directorSignature, coordonatorSignature, codirectorSignature] = await Promise.all([
-      lastValueFrom(this.getUsersignature(studyPlan, UserRole.Etudiant)),
-      lastValueFrom(this.getUsersignature(studyPlan, UserRole.Directeur)),
-      lastValueFrom(this.getUsersignature(studyPlan, UserRole.Coordonnateur)),
-      lastValueFrom(this.getUsersignature(studyPlan, "coodirector")),
-    ]);
+    this.setCheckBox(form, 'acceptation_condition');
+    const [studentSignature, directorSignature, coordonatorSignature, codirectorSignature] =
+      await Promise.all([
+        lastValueFrom(this.getUsersignature(studyPlan, UserRole.Etudiant)),
+        lastValueFrom(this.getUsersignature(studyPlan, UserRole.Directeur)),
+        lastValueFrom(this.getUsersignature(studyPlan, UserRole.Coordonnateur)),
+        lastValueFrom(this.getUsersignature(studyPlan, 'coodirector')),
+      ]);
 
-    this.setTextField(form, "signature_étudiant_et_date", `${studentSignature}    ${new Date().toLocaleDateString()}`);
-    this.setTextField(form, "signature_directeur_et_date", `${directorSignature}    ${new Date().toLocaleDateString()}`);
-    this.setTextField(form, "signature_cpes_et_date", `${coordonatorSignature}    ${new Date().toLocaleDateString()}`);
-    this.setTextField(form, "signature_codirecteur_et_date", `${codirectorSignature}    ${new Date().toLocaleDateString()}`);
+    this.setTextField(
+      form,
+      'signature_étudiant_et_date',
+      `${studentSignature}    ${new Date().toLocaleDateString()}`
+    );
+    this.setTextField(
+      form,
+      'signature_directeur_et_date',
+      `${directorSignature}    ${new Date().toLocaleDateString()}`
+    );
+    this.setTextField(
+      form,
+      'signature_cpes_et_date',
+      `${coordonatorSignature}    ${new Date().toLocaleDateString()}`
+    );
+    this.setTextField(
+      form,
+      'signature_codirecteur_et_date',
+      `${codirectorSignature}    ${new Date().toLocaleDateString()}`
+    );
   }
 
   private async fillSectionReservedForRegistrar(form: PDFForm, studyplan: StudyPlan) {
     const [registrarSignature] = await Promise.all([
-      lastValueFrom(this.getUsersignature(studyplan, StudyPlanStep.REGISTRAR))
+      lastValueFrom(this.getUsersignature(studyplan, StudyPlanStep.REGISTRAR)),
     ]);
-    // this.setTextField(form, "commentaire_registrariat", "Remplie par le registraire"); // À adapter 
-    this.setTextField(form, "signature_registrariat", `${registrarSignature}`);
-    this.setTextField(form, "date_signature_registrariat", `${new Date().toLocaleDateString()}`);
+    // this.setTextField(form, "commentaire_registrariat", "Remplie par le registraire"); // À adapter
+    this.setTextField(form, 'signature_registrariat', `${registrarSignature}`);
+    this.setTextField(form, 'date_signature_registrariat', `${new Date().toLocaleDateString()}`);
   }
 
-  private async completeForm(form: PDFForm, resolve: (value: Uint8Array) => void , reject: (error: any) => void) {
+  private async completeForm(
+    form: PDFForm,
+    resolve: (value: Uint8Array) => void,
+    reject: (error: any) => void
+  ) {
     try {
       resolve(await form.doc.save());
     } catch (error) {
@@ -185,11 +219,11 @@ export class PdfService {
     if (!trimester) {
       return 'Non spécifié';
     }
-    
+
     if (trimester.term && trimester.year) {
       return `${trimester.term} ${trimester.year}`;
     }
-    
+
     console.warn('Format de trimestre non reconnu:', trimester);
     return 'Format inconnu';
   }
@@ -214,9 +248,9 @@ export class PdfService {
             allCourses.push({
               ...course,
               module: module.title,
-              moduleType: this.determineModuleType(module.title)
+              moduleType: this.determineModuleType(module.title),
             });
-          })
+          });
         }
       });
     }
@@ -225,7 +259,7 @@ export class PdfService {
 
   private determineModuleType(moduleTitle: string): string {
     if (moduleTitle.includes('(A)')) return 'A';
-    if (moduleTitle.includes('(B)')) return 'B'; 
+    if (moduleTitle.includes('(B)')) return 'B';
     if (moduleTitle.includes('(C)')) return 'C';
     return 'autre';
   }
@@ -243,21 +277,21 @@ export class PdfService {
 
   private getUsersignature(studyPlan: any, role: any): Observable<string> {
     console.log('Getting signature for role:', studyPlan);
-    switch(role) {
+    switch (role) {
       case UserRole.Etudiant:
         return this.apiService.getUserById(studyPlan.studentId).pipe(
-          map(user => user.user.firstName + " " + user.user.lastName),
-          catchError(() => of(studyPlan.studentId || ""))
+          map((user) => user.user.firstName + ' ' + user.user.lastName),
+          catchError(() => of(studyPlan.studentId || ''))
         );
       case UserRole.Directeur:
         return this.apiService.getUserById(studyPlan.directorId).pipe(
-          map(user => user.user.firstName + " " + user.user.lastName),
-          catchError(() => of(studyPlan.supervisor || ""))
+          map((user) => user.user.firstName + ' ' + user.user.lastName),
+          catchError(() => of(studyPlan.supervisor || ''))
         );
       case UserRole.Coordonnateur:
         return this.apiService.getUserById(studyPlan.coordonatorId).pipe(
-          map(user => user.user.firstName + " " + user.user.lastName),
-          catchError(() => of(studyPlan.coordonatorId || ""))
+          map((user) => user.user.firstName + ' ' + user.user.lastName),
+          catchError(() => of(studyPlan.coordonatorId || ''))
         );
       // case "coodirector": // à adapter si codirecteurId existe
       //   return this.apiService.getUserById(studyPlan.coodirectorId).pipe(
@@ -270,7 +304,7 @@ export class PdfService {
       //     catchError(() => of(studyPlan.registrarId || ""))
       //   );
       default:
-        return of("");
+        return of('');
     }
   }
 

@@ -25,18 +25,18 @@
     }
   </div>
   <div class="container-right">
-    <div *ngIf="!this.isStudent()" class="action-buttons">
+    <div *ngIf="!this.isStudent() && !this.isArchivedStudyPlan()" class="action-buttons">
       <button class="btn-action btn-validate" (click)="onValidate()">Valider</button>
       <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
     </div>
     <div *ngIf="this.isStudent()" class="action-buttons">
-      <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">
+      <button *ngIf="this.needsCorrection()  && !this.isArchivedStudyPlan()" class="btn-action btn-validate" (click)="onSubmit()">
         Soumettre
       </button>
-      <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
+      <button *ngIf="this.needsCorrection()  && !this.isArchivedStudyPlan()" class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
       <ng-container *ngIf="studyPlan$ | async as studyPlan">
         <button
-          *ngIf="getStatusLabel(studyPlan.status) === 'Validé'"
+          *ngIf="getStatusLabel(studyPlan.status) === 'Validé' && this.isArchivedStudyPlan()"
           class="btn-action btn-validate"
           (click)="exportPDF()"
         >
@@ -44,6 +44,6 @@
         </button>
       </ng-container>
     </div>
-    <app-chat></app-chat>
+    <app-chat *ngIf="!this.isArchivedStudyPlan()"></app-chat>
   </div>
 </div>

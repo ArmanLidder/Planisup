@@ -200,4 +200,15 @@ export class ViewPlan implements OnInit, OnDestroy {
       this.pdfService.generateAndDownloadPdf(this.sPS.studyPlan, this.auth.currentUser);
     }
   }
+
+  protected isArchivedStudyPlan(): boolean {
+    const isCancelled = this.sPS.studyPlan?.status === StudyPlanStatus.CANCELLED;
+    if (this.auth.currentUser?.role === UserRole.Agent && this.sPS.studyPlan?.agentValidationDate) return !isCancelled
+    if (this.auth.currentUser?.role === UserRole.Directeur && this.sPS.studyPlan?.directorValidationDate) return !isCancelled
+    if (this.auth.currentUser?.role === UserRole.Coordonnateur && this.sPS.studyPlan?.coordonatorValidationDate) return !isCancelled
+    if (this.auth.currentUser?.role === UserRole.Registrar && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
+    if (this.auth.currentUser?.role === UserRole.Etudiant && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
+    return false;
+  }
+
 }

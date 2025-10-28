@@ -4,9 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:debug": "ng serve --configuration development --open",
     "build": "ng build",
+    "build:debug": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:debug": "ng test --watch=true --browsers=Chrome"
   },
   "prettier": {
     "printWidth": 100,

@@ -92,6 +92,10 @@ export class AuthentificationService {
     return this.currentUser?.role === UserRole.Etudiant;
   }
 
+  isRegistrar(): boolean {
+    return this.currentUser?.role === UserRole.Registrar;
+  }
+
   canAccessAdmin(): boolean {
     const role = this.currentUser?.role;
     return role === UserRole.Administrateur;

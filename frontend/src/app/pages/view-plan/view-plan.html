@@ -41,7 +41,10 @@
       <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
       <ng-container *ngIf="studyPlan$ | async as studyPlan">
         <button
-          *ngIf="this.sPS.studyPlanStatusValidated()"
+          *ngIf="
+            this.sPS.studyPlanStatusValidated() &&
+            (this.authentificationService.isStudent() || this.authentificationService.isRegistrar())
+          "
           class="btn-action btn-validate"
           (click)="exportPDF()"
         >

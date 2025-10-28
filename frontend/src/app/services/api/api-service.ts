@@ -44,9 +44,7 @@ export class ApiService {
   }
 
   getAllPrograms(): Observable<ReducedProgram[]> {
-    return this.http.get<ReducedProgram[]>(
-      `${environment.serverUrl}/program`
-    );
+    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program`);
   }
 
   getProgram(id: string): Observable<Program> {
@@ -77,7 +75,7 @@ export class ApiService {
   updateUserRole(
     userId: string,
     newRole: UserRole,
-    departement?: string,
+    departement?: string
   ): Observable<{ success: boolean; user: User; message: string }> {
     return this.http.patch<{ success: boolean; user: User; message: string }>(
       `${environment.serverUrl}/users/${userId}/role`,
@@ -103,7 +101,10 @@ export class ApiService {
   }
 
   approveStudyPlan(id: string, employeeId: string): Observable<any> {
-    return this.http.patch<any>(`${environment.serverUrl}/study-plan/approuved/${id}/${employeeId}`, {});
+    return this.http.patch<any>(
+      `${environment.serverUrl}/study-plan/approuved/${id}/${employeeId}`,
+      {}
+    );
   }
 
   refuseStudyPlan(id: string): Observable<any> {
@@ -117,6 +118,10 @@ export class ApiService {
   // This will get study plan in progress thst re linked to the user role
   getStudyPlans(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
+  }
+
+  getProcessMembersByIdStudyPlan(id: string): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.serverUrl}/study-plan/members/${id}`);
   }
 
   getChat(chatId: string): Observable<any> {

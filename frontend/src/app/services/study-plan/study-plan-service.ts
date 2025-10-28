@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { CourseStateService } from '../course-state/course-state';
+import { ProgramService } from '../program/program-service';
+import { ProgramType } from '@common/program';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +16,7 @@ export class StudyPlanService {
     private readonly apiService: ApiService,
     private readonly auth: AuthentificationService,
     private readonly router: Router,
+    private readonly programService: ProgramService,
     private readonly courseStateService: CourseStateService
   ) {}
 
@@ -124,5 +127,17 @@ export class StudyPlanService {
 
   studyPlanStatusValidated(): boolean {
     return this.studyPlan?.status === StudyPlanStatus.VALIDATED;
+  }
+
+  isProgramMaster(): boolean {
+    return this.programService?.type === ProgramType.MASTER;
+  }
+
+  isProgramDESS(): boolean {
+    return this.programService?.type === ProgramType.DESS;
+  }
+
+  isProgramPHD(): boolean {
+    return this.programService?.type === ProgramType.PHD;
   }
 }

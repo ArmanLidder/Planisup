@@ -5,7 +5,7 @@
       <img src="./../../../assets/home.png" alt="" />
       <p class="text">Accueil</p>
     </div>
-    <div *ngIf="!(isStudent() && isAdmin())" class="dropdown-option" (click)="openArchive()">
+    <div *ngIf="!isStudent() && !isAdmin()" class="dropdown-option" (click)="openArchive()">
       <img src="./../../../assets/archive.png" alt="" />
       <p class="text">Archive</p>
     </div>

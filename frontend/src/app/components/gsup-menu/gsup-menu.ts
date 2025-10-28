@@ -49,6 +49,10 @@ export class GsupMenu {
     return this.currentUser?.role === UserRole.Administrateur;
   }
 
+  public isStudent(): boolean {
+    return this.currentUser?.role === UserRole.Etudiant;
+  }
+
   @HostListener('document:click', ['$event'])
   clickOutsideMenu(event: Event) {
     if (this.isMenuOpen && !this.reference.nativeElement.contains(event.target)) {

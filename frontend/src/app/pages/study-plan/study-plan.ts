@@ -52,15 +52,20 @@ export class StudyPlan implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to program changes
-    this.programSubscription = this.programService.program$.subscribe((program) => {
-      if (program) {
-        this.initializeWithProgram(program);
-      }
-    });
+
+    // Commented because it serves nothing
+
+    // // Subscribe to program changes
+    // this.programSubscription = this.programService.program$.subscribe((program) => {
+    //   if (program) {
+    //     console.log('Programme chargé dans StudyPlan:', program);
+    //     this.initializeWithProgram(program);
+    //   }
+    // });
 
     // Initialize if program is already available
     if (this.programService.program) {
+      console.log('Programme chargé dans StudyPlan:', this.programService.program);
       this.initializeWithProgram(this.programService.program);
     }
 
@@ -83,14 +88,14 @@ export class StudyPlan implements OnInit, OnDestroy {
 
   private initializeWithProgram(program: Program) {
     this.program = program;
-    
+
     // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
     if (this.isViewMode) {
       this.modules = this.filterSelectedCourses(program.modules);
     } else {
       this.modules = this.program.modules;
     }
-    
+
     this.totalCredits = 0;
     this.selectedCredits = 0;
 
@@ -156,20 +161,20 @@ export class StudyPlan implements OnInit, OnDestroy {
     subModuleTitle: string | null
   ): Section[] {
     const filteredSections: Section[] = [];
-    
+
     sections.forEach(section => {
       const selectedCoursesInSection: Course[] = [];
-      
+
       this.courseStateService.courseStates.forEach((state, courseSigle) => {
         if (state.selected &&
             state.selectedInModule === moduleTitle &&
             state.selectedInSubmodule === subModuleTitle &&
             state.selectedInSection === section.description) {
-          
+
           if (state.course) selectedCoursesInSection.push(state.course);
         }
       });
-      
+
       if (selectedCoursesInSection.length > 0) {
         filteredSections.push({
           ...section,
@@ -177,7 +182,7 @@ export class StudyPlan implements OnInit, OnDestroy {
         });
       }
     });
-    
+
     return filteredSections;
   }
 
@@ -197,7 +202,7 @@ export class StudyPlan implements OnInit, OnDestroy {
    */
   private hasSelectedCoursesInSubModule(subModule: SubModule, moduleTitle: string): boolean {
     if (!subModule.courses) return false;
-    
+
     return subModule.courses.some(section => section.courses.length > 0);
   }
 

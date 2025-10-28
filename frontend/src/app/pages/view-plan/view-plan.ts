@@ -74,15 +74,15 @@ export class ViewPlan implements OnInit, OnDestroy {
         // Définir le programme dans le service
         this.programService.program = program;
         this.programService.type = plan.programType;
-        
+
         // Initialiser le courseStateService avec les modules du programme
         this.courseStateService.initializeCourseStates(program.modules);
-        
+
         // Restaurer le courseState depuis le plan d'études
         if (plan.courseState) {
           this.courseStateService.restoreCourseState(plan.courseState);
         }
-        
+
         // Indiquer que le plan est chargé
         this.isStudyPlanLoaded = true;
       },
@@ -168,6 +168,12 @@ export class ViewPlan implements OnInit, OnDestroy {
   needsCorrection() : boolean {
     return this.sPS.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
   }
+
+  // protected isArchivedStudyPlan(): boolean {
+  //   const isCancelled = this.sPS.studyPlan?.status === StudyPlanStatus.CANCELLED;
+  //   const userHasToValidate = this.sPS.studyPlan?.studyPlanStep === this.auth.currentUser?.role;
+  //   return !isCancelled &&
+  // }
 
   protected isStudent(): boolean {
     return this.currentUser?.role === UserRole.Etudiant;

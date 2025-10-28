@@ -49,6 +49,14 @@ export class ProgramService {
 
   constructor(private api: ApiService, private router: Router) {}
 
+  // Admin edit mode state (in-memory only)
+  private adminEditingSubject = new BehaviorSubject<boolean>(false);
+  adminEditing$ = this.adminEditingSubject.asObservable();
+
+  setAdminEditing(value: boolean): void {
+    this.adminEditingSubject.next(value);
+  }
+
   /** Step 0 → 1: Load departements for a certain type */
   loadDepartements(type: string): void {
     if (this.departementsSubject.getValue().length > 0) return;

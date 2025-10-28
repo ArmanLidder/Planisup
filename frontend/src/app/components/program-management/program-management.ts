@@ -21,7 +21,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 })
 export class ProgramManagement implements OnInit {
   private readonly programsSubject = new BehaviorSubject<Map<string, ReducedProgram[]>>(new Map());
-  programs$ = this.programsSubject.asObservable();
 
   protected readonly allPrograms = new BehaviorSubject<Map<string, string>>(new Map());
   allPrograms$ = this.allPrograms.asObservable();
@@ -50,9 +49,15 @@ export class ProgramManagement implements OnInit {
     const allPrograms = Array.from(map.values()).flat();
     this.populateOptionsList(allPrograms);
 
-    // Toggle edit mode via query param (?edit=1)
-    this.activatedRoute.queryParams.subscribe((qp) => {
-      this.isEditing = qp['edit'] === '1' || qp['edit'] === 'true';
+    // Initialize selection and edit mode from ProgramService state (no URL params)
+    const current = this.programService.program;
+    if (current?._id) {
+      this.selectedProgramId = current._id;
+      this.updateProgramLabel(current);
+    }
+    this.programService.adminEditing$.subscribe((edit) => {
+      this.isEditing = !!edit;
+      if (edit) this.isPreviewing = false;
     });
   }
 
@@ -193,11 +198,7 @@ export class ProgramManagement implements OnInit {
   private enterEditMode(): void {
     this.isEditing = true;
     this.isPreviewing = false;
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams: { edit: '1' },
-      queryParamsHandling: 'merge',
-    });
+    this.programService.setAdminEditing(true);
   }
 
   get isDraftSelected(): boolean {
@@ -223,11 +224,7 @@ export class ProgramManagement implements OnInit {
     }
     this.isEditing = false;
     this.isPreviewing = false;
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams: { edit: null },
-      queryParamsHandling: 'merge',
-    });
+    this.programService.setAdminEditing(false);
   }
 
   private async confirmSave(message: string, confirmLabel: string): Promise<boolean> {
@@ -274,11 +271,7 @@ export class ProgramManagement implements OnInit {
     this.syncReducedPrograms(saved, wasDraft ? draftId ?? undefined : undefined);
     this.isEditing = false;
     this.isPreviewing = false;
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams: { edit: null },
-      queryParamsHandling: 'merge',
-    });
+    this.programService.setAdminEditing(false);
   }
 
   private syncReducedPrograms(saved: Program, removedId?: string): void {

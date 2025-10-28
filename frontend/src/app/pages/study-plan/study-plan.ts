@@ -279,11 +279,11 @@ export class StudyPlan implements OnInit, OnDestroy {
   }
 
   modifyPlan(): void {
-    // Enter admin edit mode for the currently selected program
-    this.router.navigate(['/admin/programs'], {
-      queryParams: { edit: '1' },
-      queryParamsHandling: 'merge',
-    });
+    // If already on admin programs, simply enable edit mode; else enable then navigate
+    this.programService.setAdminEditing(true);
+    if (this.router.url !== '/admin/programs') {
+      this.router.navigate(['/admin/programs']);
+    }
   }
 
   // Ajouter cette méthode helper

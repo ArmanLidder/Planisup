@@ -6,6 +6,8 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { User, UserRole } from '@common/user';
 import { Search } from '@app/pages/search/search';
 import { Archive } from '../archive/archive';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { StudyPlanStatus } from '@common/study-plan';
 
 @Component({
   selector: 'app-gsup-menu',
@@ -22,7 +24,8 @@ export class GsupMenu {
     private readonly reference: ElementRef,
     private readonly router: Router,
     private readonly authentificationService: AuthentificationService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly sPS: StudyPlanService,
   ) {}
 
   public openMenu(): void {
@@ -59,6 +62,12 @@ export class GsupMenu {
 
   public isStudent(): boolean {
     return this.currentUser?.role === UserRole.Etudiant;
+  }
+
+  public isValidationForStudent(): boolean {
+    const statusOngoingOrValidated = this.sPS.studyPlan?.status === StudyPlanStatus.VALIDATED
+      || this.sPS.studyPlan?.status === StudyPlanStatus.LIVE;
+    return this.isStudent() && statusOngoingOrValidated;
   }
 
   @HostListener('document:click', ['$event'])

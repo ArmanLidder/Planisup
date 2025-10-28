@@ -1,7 +1,7 @@
 <div class="menu-container">
   <img class="image" src="./../../../assets/more.png" (click)="openMenu()" alt="" />
   <div class="container-dropdown" *ngIf="isMenuOpen">
-    <div class="dropdown-option" (click)="navigateTo('accueil')" *ngIf="!isAdmin()">
+    <div class="dropdown-option" (click)="navigateTo('accueil')" *ngIf="!isAdmin() && !isValidationForStudent()">
       <img src="./../../../assets/home.png" alt="" />
       <p class="text">Accueil</p>
     </div>

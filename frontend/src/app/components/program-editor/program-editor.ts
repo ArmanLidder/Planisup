@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Program } from '@common/program';
@@ -14,12 +14,15 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class ProgramEditor implements OnChanges {
   @Input() program!: Program;
+  @Input() isNew = false;
   @Output() programChange = new EventEmitter<Program>();
-  @Output() exit = new EventEmitter<void>();
+
+  @ViewChild(ProgramModulesEditor) private modulesEditor?: ProgramModulesEditor;
 
   form: FormGroup;
   allowedTypes: string[] = ['dess', 'maitrise', 'doctorat', 'dess,maitrise'];
   metadataEditing = false;
+  private newModeInitialized = false;
 
   constructor(private readonly fb: FormBuilder) {
     this.form = this.fb.group({
@@ -33,20 +36,26 @@ export class ProgramEditor implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['program'] && this.program) {
-      this.form.reset({
-        degree: this.program.degree,
-        option: this.program.option || '',
-        type: this.program.type,
-        department: this.program.department,
-        description: this.program.description || '',
-      }, { emitEvent: false });
+      this.syncFormWithProgram();
+    }
+    if (changes['isNew']) {
+      if (this.isNew) {
+        this.enableCreationModeOnce();
+      } else {
+        this.newModeInitialized = false;
+      }
+    } else if (this.isNew) {
+      this.enableCreationModeOnce();
     }
   }
 
   enterMetadataEdit(): void {
     this.metadataEditing = true;
-    // refresh form with latest program values
-    this.ngOnChanges({ program: { currentValue: this.program, previousValue: null, firstChange: false, isFirstChange: () => false } });
+    this.syncFormWithProgram();
+  }
+
+  flushModulesToProgram(): void {
+    this.modulesEditor?.commitDrafts();
   }
 
   saveMetadata(): void {
@@ -82,11 +91,27 @@ export class ProgramEditor implements OnChanges {
   }
 
   cancelMetadata(): void {
-    this.ngOnChanges({ program: { currentValue: this.program, previousValue: null, firstChange: false, isFirstChange: () => false } });
-    this.metadataEditing = false;
+    this.syncFormWithProgram();
+    this.metadataEditing = this.isNew ? true : false;
   }
 
-  exitEdit(): void {
-    this.exit.emit();
+  private syncFormWithProgram(): void {
+    if (!this.program) return;
+    this.form.reset(
+      {
+        degree: this.program.degree,
+        option: this.program.option || '',
+        type: this.program.type,
+        department: this.program.department,
+        description: this.program.description || '',
+      },
+      { emitEvent: false }
+    );
+  }
+
+  private enableCreationModeOnce(): void {
+    if (this.newModeInitialized) return;
+    this.metadataEditing = true;
+    this.newModeInitialized = true;
   }
 }

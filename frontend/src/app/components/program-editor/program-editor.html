@@ -1,15 +1,14 @@
 <div class="editor-root">
   <div class="editor-topbar">
     <div class="editor-heading">
-      <h2>Éditeur de programme</h2>
+      <h2>{{ isNew ? 'Création de programme' : 'Éditeur de programme' }}</h2>
       <p class="subtitle">
-        Édition de:
+        {{ isNew ? 'Nouveau programme' : 'Édition de :' }}
         <strong>
-          {{ program.degree }}<span *ngIf="program.option"> - {{ program.option }}</span>
+          {{ program.degree || 'À compléter' }}<span *ngIf="program.option"> - {{ program.option }}</span>
         </strong>
       </p>
     </div>
-    <button type="button" class="btn-link exit-edit-btn" (click)="exitEdit()">Quitter l'édition</button>
   </div>
 
   <!-- Metadata view/edit wrapper -->

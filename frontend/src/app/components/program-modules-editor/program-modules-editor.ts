@@ -632,6 +632,10 @@ export class ProgramModulesEditor implements OnChanges {
     this.resetManualSectionCourseInputs();
   }
 
+  commitDrafts(): void {
+    this.modulesChange.emit(JSON.parse(JSON.stringify(this.draftModules)));
+  }
+
   addManualCourseToSubSection(): void {
     if (!this.subSecEditTemp) return;
     this.subManualCourseError = null;

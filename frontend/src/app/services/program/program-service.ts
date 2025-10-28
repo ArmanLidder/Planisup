@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ApiService } from '@app/services/api/api-service';
 import { Program, ReducedProgram } from '@common/program';
 
@@ -151,5 +152,22 @@ export class ProgramService {
     const noOption = this.optionsSubject.getValue().length === 0;
     const decrement = noOption ? 2 : 1;
     this.stepSubject.next(step - decrement);
+  }
+
+  saveProgram(program: Program): Observable<Program> {
+    const isDraft = !program._id || program._id.startsWith('draft-');
+    if (isDraft) {
+      const { _id, ...payload } = program;
+      return this.api.createProgram(payload as Omit<Program, '_id'>).pipe(
+        tap((saved) => {
+          this.program = saved;
+        })
+      );
+    }
+    return this.api.updateProgram(program._id!, program).pipe(
+      tap((saved) => {
+        this.program = saved;
+      })
+    );
   }
 }

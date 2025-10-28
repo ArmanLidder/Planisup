@@ -49,6 +49,18 @@ export class ApiService {
     return this.http.get<Program>(`${environment.serverUrl}/program/${id}`);
   }
 
+  createProgram(program: Omit<Program, '_id'>): Observable<Program> {
+    return this.http.post<Program>(`${environment.serverUrl}/program`, program, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  updateProgram(id: string, program: Partial<Program>): Observable<Program> {
+    return this.http.put<Program>(`${environment.serverUrl}/program/${id}`, program, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
   getAllUsers(): Observable<{ success: boolean; users: User[]; count: number }> {
     return this.http.get<{ success: boolean; users: User[]; count: number }>(
       `${environment.serverUrl}/users`,

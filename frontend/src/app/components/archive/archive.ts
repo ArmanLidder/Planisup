@@ -13,6 +13,7 @@ import { Loading } from '@app/components/loading/loading';
 import { RouterModule } from '@angular/router';
 import { User } from '@common/user';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ProgramService } from '@app/services/program/program-service';
 
 @Component({
   selector: 'app-archive',
@@ -51,6 +52,7 @@ export class Archive implements OnInit, AfterViewInit {
   constructor(
     private readonly apiService: ApiService,
     private readonly sPS: StudyPlanService,
+    private readonly pS: ProgramService,
     protected readonly auth: AuthentificationService,
     private readonly dialogRef: MatDialogRef<Archive>
   ) {
@@ -109,6 +111,7 @@ export class Archive implements OnInit, AfterViewInit {
   onRowClick(row: StudyPlanEntry) {
     this.selectedRow = row;
     this.sPS.resetPlan();
+    this.pS.reset();
     this.sPS.loadStudyPlan(row.studyPlanId);
     this.dialogRef.close();
   }

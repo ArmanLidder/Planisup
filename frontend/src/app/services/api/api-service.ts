@@ -114,9 +114,13 @@ export class ApiService {
     return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
   }
 
-  // This will get study plan in progress thst re linked to the user role
+  // This will get study plan in progress that are linked to the user role
   getStudyPlans(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
+  }
+
+  getArchivedStudyPlans(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.serverUrl}/study-plan/archive/${id}`);
   }
 
   getChat(chatId: string): Observable<any> {

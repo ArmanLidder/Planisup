@@ -37,33 +37,34 @@
         programme.
       </h3>
     </div>
+
     <ng-container *ngIf="selectedProgramId && (programService.program || editingDraft)">
-      <div
-        class="right-toolbar"
-        *ngIf="isEditing"
-      >
-        <button
-          mat-stroked-button
-          color="primary"
-          (click)="togglePreview()"
-        >
-          {{ isPreviewing ? 'Revenir à l’édition' : 'Prévisualiser le plan' }}
-        </button>
-        <button
-          mat-flat-button
-          color="primary"
-          (click)="saveProgram()"
-          [disabled]="isSaving"
-        >
-          {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
-        </button>
-        <button
-          mat-flat-button
-          color="warn"
-          (click)="requestExit()"
-        >
-          Quitter l'édition
-        </button>
+      <div class="right-toolbar" *ngIf="isEditing">
+        <div class="toolbar-left">
+          <button
+            class="btn-danger"
+            *ngIf="!isCreatingNew"
+            (click)="confirmDeleteProgram()"
+          >
+            Supprimer le programme
+          </button>
+        </div>
+
+        <div class="toolbar-right">
+          <button mat-stroked-button (click)="togglePreview()">
+            {{ isPreviewing ? 'Revenir à l’édition' : 'Prévisualiser le plan' }}
+          </button>
+          <button
+            mat-flat-button
+            (click)="saveProgram()"
+            [disabled]="isSaving || !isDraftDifferentThanOriginal()"
+          >
+            {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
+          </button>
+          <button mat-flat-button (click)="requestExit()">
+            Quitter l'édition
+          </button>
+        </div>
       </div>
 
       <div class="right-content" [class.has-toolbar]="isEditing">

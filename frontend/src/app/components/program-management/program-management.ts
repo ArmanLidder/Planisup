@@ -26,7 +26,7 @@ export class ProgramManagement implements OnInit {
   allPrograms$ = this.allPrograms.asObservable();
 
   private allProgramsOriginal = new Map<string, string>();
-  
+
   selectedProgramId: string | null = null;
   isEditing = false;
   isPreviewing = false;
@@ -54,7 +54,6 @@ export class ProgramManagement implements OnInit {
     const allPrograms = Array.from(map.values()).flat();
     this.populateOptionsList(allPrograms);
 
-    // Initialize selection and edit mode from ProgramService state (no URL params)
     const current = this.programService.program;
     if (current?._id) {
       this.selectedProgramId = current._id;
@@ -64,7 +63,6 @@ export class ProgramManagement implements OnInit {
       this.isEditing = !!edit;
       if (edit) {
         this.isPreviewing = false;
-        // Initialize draft from current original if needed
         if (!this.editingDraft) {
           const base = this.originalProgram || this.programService.program;
           if (base) this.editingDraft = JSON.parse(JSON.stringify(base));
@@ -88,14 +86,12 @@ export class ProgramManagement implements OnInit {
   }
 
   selectProgram(programId: string): void {
-    
+    this.isCreatingNew = false;
     const switchingProgram = this.selectedProgramId && this.selectedProgramId !== programId;
 
     if (switchingProgram && this.isEditing && this.hasUnsavedChanges()) {
-      // Confirm discarding unsaved changes
       this.confirmExit().then((ok) => {
         if (!ok) return;
-        // Exit edit mode (cleans draft, removes draft entry if needed)
         this.exitEdit();
         this.finishSelectProgram(programId);
       });
@@ -105,7 +101,6 @@ export class ProgramManagement implements OnInit {
   }
 
     private finishSelectProgram(programId: string): void {
-    // If we are editing but there are no unsaved changes, exit edit mode
     if (this.isEditing && !this.hasUnsavedChanges()) {
       this.isEditing = false;
       this.isPreviewing = false;
@@ -114,6 +109,7 @@ export class ProgramManagement implements OnInit {
       else this.editingDraft = null;
     }
     this.selectedProgramId = programId;
+
     this.isPreviewing = false;
     this.apiService.getProgram(programId).subscribe({
       next: (program: Program) => {
@@ -123,10 +119,9 @@ export class ProgramManagement implements OnInit {
       },
     });
   }
-onProgramChange(updated: Program) {
-    // Apply to local draft only
+
+  onProgramChange(updated: Program) {
     this.editingDraft = JSON.parse(JSON.stringify(updated));
-    
   }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {
@@ -164,7 +159,6 @@ onProgramChange(updated: Program) {
   }
 
   createProgram(): void {
-    // Prevent multiple creations at once
     if (this.isEditing) {
       if (this.hasUnsavedChanges()) {
         // Ask before discarding current edits
@@ -175,7 +169,6 @@ onProgramChange(updated: Program) {
         });
         return;
       }
-      // No changes, just exit edit mode first
       this.exitEdit();
     }
     this.startNewDraft();
@@ -211,7 +204,6 @@ onProgramChange(updated: Program) {
     if (!program) return;
     if (this.isPreviewing) this.isPreviewing = false;
     const wasDraft = this.isCreatingNew;
-    const draftId = null;
     const confirmed = await this.confirmSave(
       wasDraft
         ? 'Voulez-vous créer ce nouveau programme ?'
@@ -224,12 +216,19 @@ onProgramChange(updated: Program) {
     this.programService.saveProgram(program).subscribe({
       next: (saved) => {
         this.handleProgramSaved(saved, wasDraft);
+        alert(wasDraft ? 'Programme crée avec succès.' : 'Modifications enregistrées avec succès.');
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Erreur lors de la sauvegarde du programme:', error);
+        const msg =
+          (error && error.error?.details)
+            ? JSON.stringify(error.error.details, null, 2)
+            : 'Une erreur est survenue lors de la sauvegarde.';
+        alert(msg);
         this.isSaving = false;
       },
+
     });
   }
 
@@ -239,8 +238,6 @@ onProgramChange(updated: Program) {
     this.programService.setAdminEditing(true);
   }
 
-  // isDraftSelected removed
-
   async requestExit(): Promise<void> {
     const confirmed = await this.confirmExit();
     if (!confirmed) return;
@@ -248,7 +245,6 @@ onProgramChange(updated: Program) {
   }
 
   exitEdit(): void {
-        // Handle new creation draft (not in left list)
     if (this.isCreatingNew) {
       this.selectedProgramId = null;
       this.originalProgram = null;
@@ -291,9 +287,6 @@ onProgramChange(updated: Program) {
       console.warn('Programme sauvegardé sans identifiant retourné.');
       return;
     }
-
-    
-
     this.updateProgramLabel(saved);
     this.syncReducedPrograms(saved, undefined);
     this.isEditing = false;
@@ -301,6 +294,7 @@ onProgramChange(updated: Program) {
     this.programService.setAdminEditing(false);
     // Sync persisted program into view and local draft
     this.programService.program = saved;
+    this.selectedProgramId = saved._id!;
     this.originalProgram = saved;
     this.editingDraft = JSON.parse(JSON.stringify(saved));
     this.isCreatingNew = false;
@@ -345,7 +339,7 @@ onProgramChange(updated: Program) {
       : program.degree || '';
   }
 
-  private hasUnsavedChanges(): boolean {
+  protected hasUnsavedChanges(): boolean {
     if (!this.isEditing) return false;
     if (this.editingDraft == null && this.originalProgram == null) return false;
     // New draft considered dirty if editingDraft exists and differs from a blank
@@ -368,10 +362,67 @@ onProgramChange(updated: Program) {
     }
     if (!this.originalProgram || !this.editingDraft) return false;
     try {
-      return JSON.stringify(this.originalProgram) !== JSON.stringify(this.editingDraft);
+      return this.isDraftDifferentThanOriginal();
     } catch {
       return true;
     }
   }
+
+  protected isDraftDifferentThanOriginal(): boolean {
+    return JSON.stringify(this.originalProgram) !== JSON.stringify(this.editingDraft);
+  }
+
+  async confirmDeleteProgram(): Promise<void> {
+    if (!this.selectedProgramId) return;
+
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message: 'Supprimer ce programme ? Cette action est irréversible.',
+        firstButton: 'Annuler',
+        secondButton: 'Supprimer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    if (!result) return;
+
+    this.apiService.deleteProgram(this.selectedProgramId).subscribe({
+      next: (res) => {
+        alert('Programme supprimé avec succès.');
+        this.selectedProgramId = null;
+        this.originalProgram = null;
+        this.editingDraft = null;
+        this.isEditing = false;
+        this.isPreviewing = false;
+        this.programService.setAdminEditing(false);
+
+        // ✅ Reload list from server to refresh left panel
+        this.reloadProgramsList();
+      },
+
+      error: (err) => {
+        console.error('Erreur lors de la suppression du programme:', err);
+        alert('Échec de la suppression du programme.');
+      },
+    });
+  }
+
+  private reloadProgramsList(): void {
+    // Get all programs fresh from backend
+    this.apiService.getAllPrograms().subscribe({
+      next: (programs) => {
+        const map = this.populateProgramMap(programs);
+        this.programsSubject.next(map);
+
+        const allPrograms = Array.from(map.values()).flat();
+        this.populateOptionsList(allPrograms);
+      },
+      error: (err) => {
+        console.error('Erreur lors du rechargement des programmes:', err);
+        alert('Impossible de recharger la liste des programmes.');
+      },
+    });
+  }
+
 
 }

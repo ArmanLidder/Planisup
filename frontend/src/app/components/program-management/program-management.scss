@@ -155,7 +155,7 @@ input {
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .programs-container app-study-plan {
@@ -229,10 +229,24 @@ input {
 .right-toolbar {
   position: absolute;
   top: 1rem;
+  left: 1rem;
   right: 1rem;
   display: flex;
-  gap: 0.5rem;
+  justify-content: space-between; /* 👈 left group vs right group */
+  align-items: center;
   z-index: 2;
+  margin-bottom: 5rem;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .right-content {
@@ -241,11 +255,27 @@ input {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  overflow: hidden;
+  overflow-y: auto;  /* ✅ still scrollable */
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  scrollbar-gutter: stable;
+
+  /* 👇 Hide scrollbar visually but keep scrolling functional */
+  -ms-overflow-style: none;  /* IE and old Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
+.right-content::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Edge (WebKit-based) */
+}
+
+
+
 .right-content.has-toolbar {
-  padding-top: 3rem;
+  padding-top: 5rem;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .right-content > * {
@@ -269,4 +299,15 @@ input {
 }
 ::-webkit-scrollbar {
   width: 15px;
+}
+
+.btn-danger { background-color: #e74c3c; color: white; }
+.btn-danger:hover { background-color: #c0392b; }
+.btn-danger {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
 }

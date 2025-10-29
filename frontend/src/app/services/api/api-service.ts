@@ -61,6 +61,13 @@ export class ApiService {
     });
   }
 
+  deleteProgram(id: string): Observable<{ message: string; id: string }> {
+    return this.http.delete<{ message: string; id: string }>(
+      `${environment.serverUrl}/program/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
   getAllUsers(): Observable<{ success: boolean; users: User[]; count: number }> {
     return this.http.get<{ success: boolean; users: User[]; count: number }>(
       `${environment.serverUrl}/users`,

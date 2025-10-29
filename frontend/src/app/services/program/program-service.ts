@@ -178,4 +178,13 @@ export class ProgramService {
       })
     );
   }
+
+  deleteProgram(id: string): Observable<{ message: string; id: string }> {
+    return this.api.deleteProgram(id).pipe(
+      tap(() => {
+        if (this.program?._id === id) this.program = null;
+      })
+    );
+  }
+
 }

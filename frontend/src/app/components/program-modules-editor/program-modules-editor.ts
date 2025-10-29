@@ -51,7 +51,6 @@ export class ProgramModulesEditor implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['modules']) {
-      // Deep clone input to draft when program changes
       this.draftModules = JSON.parse(JSON.stringify(this.modules || []));
       this.resetVariables();
     }
@@ -128,22 +127,11 @@ export class ProgramModulesEditor implements OnChanges {
     } else {
       m.courses = undefined;
       m.subModules = (m.subModules || []) as SubModule[];
-      // Ensure exclusive_submodules rule is present and inferred
-      const prefixes = this.inferSubmodulePrefixes(m);
-      const rules = m.rules || [];
-      if (!rules.find((r) => r.type === 'exclusive_submodules')) {
-        rules.push({ type: 'exclusive_submodules', appliesToSubModules: prefixes });
-      } else {
-        rules.forEach((r) => {
-          if (r.type === 'exclusive_submodules') r.appliesToSubModules = prefixes;
-        });
-      }
-      m.rules = rules;
+
     }
     this.editTemp = m;
   }
 
-  // View/Edit toggle for a module
   startEdit(index: number): void {
     this.editingIndex = index;
     this.editTemp = JSON.parse(JSON.stringify(this.draftModules[index]));
@@ -192,33 +180,35 @@ export class ProgramModulesEditor implements OnChanges {
     this.subSecEditTemp = null;
   }
 
-  // Rules handling for module edit
   addRule(type: RuleType): void {
     if (this.editTemp == null) return;
     const rules: RuleDefinition[] = [...(this.editTemp.rules || [])];
     if (rules.find((r) => r.type === type)) return; // prevent duplicates
-    if (type === 'credits_exact' || type === 'credits_minimum' || type === 'credits_maximum') {
-      rules.push({ type, value: 0});
-    } else if (type === 'exclusive_submodules') {
-      const prefixes = this.inferSubmodulePrefixes(this.editTemp);
-      rules.push({ type: 'exclusive_submodules', appliesToSubModules: prefixes });
+    switch (type) {
+      case 'credits_exact':
+      case 'credits_minimum':
+      case 'credits_maximum':
+        rules.push({ type, value: 0 });
+        break;
+      case 'exclusive_submodules':
+        rules.push({ type: 'exclusive_submodules' });
+        break;
+      case 'director_approval':
+        rules.push({ type: 'director_approval' });
+        break;
+
+      default:
+        break;
     }
+
     this.editTemp = { ...this.editTemp, rules };
   }
+
 
   removeRule(index: number): void {
     if (!this.editTemp?.rules) return;
     const rules = this.editTemp.rules.filter((_, i) => i !== index);
     this.editTemp = { ...this.editTemp, rules };
-  }
-
-  inferSubmodulePrefixes(mod: Module): string[] {
-    const set = new Set<string>();
-    (mod.subModules || []).forEach((sm) => {
-      const m = sm.title.match(/\(([A-Z]\d+)\)/);
-      if (m && m[1]) set.add(m[1]);
-    });
-    return Array.from(set);
   }
 
   hasRule(type: RuleType): boolean {
@@ -231,7 +221,7 @@ export class ProgramModulesEditor implements OnChanges {
     const list = [...(this.editTemp.subModules || [])];
     list.push({ title: 'Nouveau sous-module', description: [], courses: [], rules: [] });
     this.editTemp = { ...this.editTemp, subModules: list };
-    this.updateExclusiveRuleFromSubmodules(this.editTemp);
+
   }
 
   removeSubModule(j: number): void {
@@ -240,7 +230,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, subModules: list };
     this.subEditingIndex = null;
     this.subEditTemp = null;
-    this.updateExclusiveRuleFromSubmodules(this.editTemp);
+
   }
 
   moveSubModuleUp(j: number): void {
@@ -248,7 +238,7 @@ export class ProgramModulesEditor implements OnChanges {
     const list = [...this.editTemp.subModules];
     [list[j - 1], list[j]] = [list[j], list[j - 1]];
     this.editTemp = { ...this.editTemp, subModules: list };
-    this.updateExclusiveRuleFromSubmodules(this.editTemp);
+
   }
 
   moveSubModuleDown(j: number): void {
@@ -256,7 +246,6 @@ export class ProgramModulesEditor implements OnChanges {
     const list = [...this.editTemp.subModules];
     [list[j + 1], list[j]] = [list[j], list[j + 1]];
     this.editTemp = { ...this.editTemp, subModules: list };
-    this.updateExclusiveRuleFromSubmodules(this.editTemp);
   }
 
   startSubEdit(j: number): void {
@@ -281,7 +270,6 @@ export class ProgramModulesEditor implements OnChanges {
     this.subEditingIndex = null;
     this.subEditTemp = null;
     this.resetSubManualCourseInputs();
-    this.updateExclusiveRuleFromSubmodules(this.editTemp);
   }
 
   subOnTitleChange(val: string): void {
@@ -319,12 +307,6 @@ export class ProgramModulesEditor implements OnChanges {
     this.subEditTemp = { ...this.subEditTemp, rules };
   }
 
-  // Keep module exclusive_submodules rule in sync with current submodule titles
-  private updateExclusiveRuleFromSubmodules(mod: Module): void {
-    if (!mod.rules) return;
-    const ex = mod.rules.find(r => r.type === 'exclusive_submodules');
-    if (ex) ex.appliesToSubModules = this.inferSubmodulePrefixes(mod);
-  }
 
   // ---------- Module-level sections editor ----------
   addSection(): void {
@@ -479,9 +461,7 @@ export class ProgramModulesEditor implements OnChanges {
       if (r.type === 'credits_minimum' && r.value != null) return `${label}: ${r.value} cr`;
       if (r.type === 'credits_maximum' && r.value != null) return `${label}: ${r.value} cr`;
       if (r.type === 'director_approval') return label;
-      if (r.type === 'exclusive_submodules' && r.appliesToSubModules?.length)
-        return `${label}: ${r.appliesToSubModules.join(', ')}`;
-      return label;
+return label;
     });
     return parts.join(', ');
   }
@@ -503,10 +483,7 @@ export class ProgramModulesEditor implements OnChanges {
     if (rule.type === 'credits_exact' || rule.type === 'credits_minimum' || rule.type === 'credits_maximum') {
       return rule.value != null ? `${rule.value} cr` : null;
     }
-    if (rule.type === 'exclusive_submodules' && rule.appliesToSubModules?.length) {
-      return rule.appliesToSubModules.join(', ');
-    }
-    return null;
+return null;
   }
 
   requiresRuleValue(type: RuleType): boolean {

@@ -18,9 +18,6 @@ export type RuleType =
 export interface RuleDefinition {
     type: RuleType;
     value?: number;
-    text?: string;
-    enforced?: boolean;
-    appliesToSubModules?: string[];
 }
 
 

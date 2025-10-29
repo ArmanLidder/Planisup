@@ -52,24 +52,31 @@ export class StudyPlanService {
       const user = await UserModel.findById(id);
       const userId = user._id;
       const role: UserRole = user.role;
-      const query: any = isArchive ? this.generateArchiveQuery(role, userId) : this.generateQuery(role, userId);
+      const query: any = isArchive
+        ? this.generateArchiveQuery(role, userId)
+        : this.generateQuery(role, userId);
       const studyPlans: IStudyPlan[] = await StudyPlanModel.find(query).exec();
-          if (isArchive) return this.convertToStudyPlanEntries(studyPlans);
-          if (role !== UserRole.Agent && role !== UserRole.Registrar) return this.convertToStudyPlanEntries(studyPlans)
-          const plansWithProgram = await Promise.all(
-            studyPlans.map(async (plan) => {
-              const program = await ProgramModel.findById(plan.programId) as IProgram;
-              return { plan, program };
-            })
-          );
-          const filteredPlans = plansWithProgram
-            .filter(({ program }) => program && program.department === user.department)
-            .map(({ plan }) => plan);
-        return this.convertToStudyPlanEntries(filteredPlans);
-    } catch(e) {
-        this.logger.error(e)
-        return []
-    }                                         
+      if (isArchive) return this.convertToStudyPlanEntries(studyPlans);
+      if (role !== UserRole.Agent && role !== UserRole.Registrar)
+        return this.convertToStudyPlanEntries(studyPlans);
+      const plansWithProgram = await Promise.all(
+        studyPlans.map(async (plan) => {
+          const program = (await ProgramModel.findById(
+            plan.programId
+          )) as IProgram;
+          return { plan, program };
+        })
+      );
+      const filteredPlans = plansWithProgram
+        .filter(
+          ({ program }) => program && program.department === user.department
+        )
+        .map(({ plan }) => plan);
+      return this.convertToStudyPlanEntries(filteredPlans);
+    } catch (e) {
+      this.logger.error(e);
+      return [];
+    }
   }
 
   async cancelStudyPlan(id: string) {
@@ -199,17 +206,19 @@ export class StudyPlanService {
 
   private generateArchiveQuery(role: UserRole, userId: string) {
     const query: any = {};
-    query['status'] = { $in: [StudyPlanStatus.LIVE, StudyPlanStatus.VALIDATED] };
+    query["status"] = {
+      $in: [StudyPlanStatus.LIVE, StudyPlanStatus.VALIDATED],
+    };
     if (role === UserRole.Directeur) {
-      query['directorId'] = userId;
-      query['directorValidationDate'] = { $exists: true, $ne: null }; 
+      query["directorId"] = userId;
+      query["directorValidationDate"] = { $exists: true, $ne: null };
     } else if (role === UserRole.Coordonnateur) {
-      query['coordonatorId'] = userId;
-      query['coordonatorValidationDate'] = { $exists: true, $ne: null };
+      query["coordonatorId"] = userId;
+      query["coordonatorValidationDate"] = { $exists: true, $ne: null };
     } else if (role === UserRole.Agent) {
-      query['agentId'] = userId;
+      query["agentId"] = userId;
     } else if (role === UserRole.Registrar) {
-      query['registrarId'] = userId;
+      query["registrarId"] = userId;
     }
     return query;
   }

@@ -26,11 +26,17 @@
     }
   </div>
   <div class="container-right">
-    <div *ngIf="!this.authentificationService.isStudent() && !this.isArchivedStudyPlan()" class="action-buttons">
-      <button class="btn-action btn-validate" (click)="this.sPS.approveStudyPlan() ">Valider</button>
+    <div
+      *ngIf="!this.authentificationService.isStudent() && !this.isArchivedStudyPlan()"
+      class="action-buttons"
+    >
+      <button class="btn-action btn-validate" (click)="this.sPS.approveStudyPlan()">Valider</button>
       <button class="btn-action btn-refuse" (click)="this.sPS.refuseStudyPlan()">Refuser</button>
     </div>
-    <div *ngIf="this.authentificationService.isStudent()  && !this.isArchivedStudyPlan()" class="action-buttons">
+    <div
+      *ngIf="this.authentificationService.isStudent() && !this.isArchivedStudyPlan()"
+      class="action-buttons"
+    >
       <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
       <button
         *ngIf="this.sPS.needsCorrectionStudyPlan()"
@@ -40,13 +46,11 @@
         Soumettre
       </button>
     </div>
-     <div *ngIf="this.isArchivedStudyPlan()" class="action-buttons">
-        <button
-          class="btn-action btn-validate"
-          (click)="exportPDF()"
-        >
-          Exporter en PDF
-        </button>
+    <div
+      *ngIf="this.sPS.studyPlanStatusValidated() && this.isArchivedStudyPlan()"
+      class="action-buttons"
+    >
+      <button class="btn-action btn-validate" (click)="exportPDF()">Exporter en PDF</button>
     </div>
     <app-chat *ngIf="!this.isArchivedStudyPlan()"></app-chat>
   </div>

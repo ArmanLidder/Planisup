@@ -65,6 +65,7 @@ export class PdfService {
 
     this.members.forEach((member) => {
       if (member.role === UserRole.Etudiant) {
+        const dateCreated = studyPlan.createdDate ? new Date(studyPlan.createdDate) : new Date();
         this.firstNameFile = member.firstName;
         this.lastNameFile = member.lastName;
         this.setTextField(form, 'nom', this.lastNameFile);
@@ -73,11 +74,14 @@ export class PdfService {
         this.setTextField(
           form,
           'signature_étudiant_et_date',
-          `${this.firstNameFile} ${this.lastNameFile}, ${new Date().toLocaleDateString()}`
+          `${this.firstNameFile} ${this.lastNameFile}, ${dateCreated.toLocaleDateString()}`
         );
       }
 
       if (member.role === UserRole.Directeur) {
+        const dateValidated = studyPlan.directorValidationDate
+          ? new Date(studyPlan.directorValidationDate)
+          : new Date();
         this.setTextField(
           form,
           'directeur_d’études_ou_de_recherche',
@@ -86,25 +90,31 @@ export class PdfService {
         this.setTextField(
           form,
           'signature_directeur_et_date',
-          `${member.firstName} ${member.lastName}, ${new Date().toLocaleDateString()}`
+          `${member.firstName} ${member.lastName}, ${dateValidated.toLocaleDateString()}`
         );
       }
 
       if (member.role === UserRole.Coordonnateur) {
+        const dateValidated = studyPlan.coordonatorValidationDate
+          ? new Date(studyPlan.coordonatorValidationDate)
+          : new Date();
         this.setTextField(
           form,
           'signature_cpes_et_date',
-          `${member.firstName} ${member.lastName}, ${new Date().toLocaleDateString()}`
+          `${member.firstName} ${member.lastName}, ${dateValidated.toLocaleDateString()}`
         );
       }
 
       if (member.role === UserRole.Registrar) {
+        const dateValidated = studyPlan.registrarValidationDate
+          ? new Date(studyPlan.registrarValidationDate)
+          : new Date();
         this.setTextField(form, 'commentaire_registrariat');
         this.setTextField(form, 'signature_registrariat', `${member.firstName} ${member.lastName}`);
         this.setTextField(
           form,
           'date_signature_registrariat',
-          `${new Date().toLocaleDateString()}`
+          `${dateValidated.toLocaleDateString()}`
         );
       }
 

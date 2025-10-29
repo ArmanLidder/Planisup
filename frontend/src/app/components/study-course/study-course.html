@@ -15,6 +15,34 @@
     
     <span class="course-code">{{ course.sigle }}</span>
     <span class="course-name" [class.disabled-text]="!canBeToggled()">{{ course.name }}</span>
+    
+    <!-- Section Avantage Poly intégrée dans la ligne -->
+    <div class="avantage-poly-inline" *ngIf="isSelected">
+      <label class="avantage-poly-checkbox">
+        <input type="checkbox" 
+               [checked]="isAvantagePolyChecked"
+               (change)="onAvantagePolyChange($event)"
+               *ngIf="!isViewMode">
+        <span class="avantage-checkmark" *ngIf="!isViewMode"></span>
+        <span class="avantage-poly-label" *ngIf="!isViewMode">Avantage Poly</span>
+        <span class="avantage-poly-label" *ngIf="currentGrade && isViewMode">Avantage Poly</span>
+        <span class="current-grade" *ngIf="currentGrade && isViewMode"> - {{ currentGrade }}</span>
+      </label>
+      
+      <!-- Dropdown pour sélectionner la note -->
+      <div class="grade-selector" *ngIf="isAvantagePolyChecked && !isViewMode">
+        <select 
+          class="grade-dropdown"
+          [value]="currentGrade || ''"
+          (change)="onGradeSelect($any($event.target).value)">
+          <option value="" disabled>Sélectionnez une note</option>
+          <option *ngFor="let grade of grades" [value]="grade">
+            {{ grade }}
+          </option>
+        </select>
+      </div>
+    </div>
+    
     <span class="course-credits" [class.disabled-text]="!canBeToggled()">{{ course.credits }} crédits</span>
     
     <!-- Icône de sélection seulement en mode édition -->
@@ -27,7 +55,7 @@
       ⚠️
     </span>
   </label>
-  
+
   <!-- Info de sélection seulement en mode édition -->
   <div class="selection-info" *ngIf="!isViewMode && selectionInfo" 
        [class.error-info]="isDisabled">

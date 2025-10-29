@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Course, Module, Section, SubModule } from '@common/program';
+import { Course, Grade, Module, Section, SubModule } from '@common/program';
 import { SelectedModule, SerializedCourseState } from '@common/study-plan';
 
 export interface CourseState {
@@ -35,6 +35,8 @@ export class CourseStateService {
   public sectionRules: SectionRule[] = [];
   public exclusiveSubModuleRules: ExclusiveSubModuleRule[] = [];
   private modules: Module[] = [];
+
+  private readonly AVANTAGE_POLY_MAX_CREDITS = 15;
 
   /**
    * Sérialise le courseState en objet simple pour l'envoi au serveur
@@ -770,7 +772,6 @@ export class CourseStateService {
     };
   }
 
-  // Nouvelle méthode helper
   private getSelectedCoursesInSection(moduleTitle: string, subModuleTitle: string | null, sectionDescription: string): string[] {
     const selectedCourses: string[] = [];
     this.courseStates.forEach((state, courseSigle) => {
@@ -782,5 +783,15 @@ export class CourseStateService {
       }
     });
     return selectedCourses;
+  }
+
+  setAvantagePoly(courseSigle: string, alreadyDone: boolean, grade?: Grade) {
+    const state = this.courseStates.get(courseSigle);
+
+    if (!state || !state.selected) return;
+
+    state.course.alreadyDone = alreadyDone
+
+    if (grade) state.course.grade = grade;
   }
 }

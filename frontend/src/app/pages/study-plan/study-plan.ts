@@ -52,16 +52,7 @@ export class StudyPlan implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-
-    // Commented because it serves nothing
-
-    // // Subscribe to program changes
-    // this.programSubscription = this.programService.program$.subscribe((program) => {
-    //   if (program) {
-    //     console.log('Programme chargé dans StudyPlan:', program);
-    //     this.initializeWithProgram(program);
-    //   }
-    // });
+    this.courseService.getCourses();
 
     // Initialize if program is already available
     if (this.programService.program) {
@@ -296,6 +287,14 @@ export class StudyPlan implements OnInit, OnDestroy {
     if (this.isViewMode) return;
 
     const errors: string[] = [];
+
+    if (this.directorId === "") {
+      errors.push('Vous devez selectionner un Directeur');
+    }
+
+    if (this.coordonatorId === "" ) {
+      errors.push('Vous devez selectionner un Coordonateur');
+    }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();

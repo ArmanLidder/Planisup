@@ -1,6 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Grade } from "@common/program";
 
+export interface IRuleDefinition extends Document {
+  type: string;       // 'credits_exact' | 'credits_minimum' | 'credits_maximum' | 'director_approval' | 'exclusive_submodules'
+  value?: number;     // optional; semantics validated in controller later
+}
+
 export interface IProgram extends Document {
     degree: string;
     option?: string;
@@ -15,17 +20,20 @@ export interface IModule extends Document {
     description: string[];
     courses?: ISection[];
     subModules?: ISubModule[];
+    rules?: IRuleDefinition[];
 }
 
 export interface ISubModule extends Document {
     title: string;
     description: string[];
     courses: ISection[];
+    rules?: IRuleDefinition[];
 }
 
 export interface ISection extends Document {
     description: string;
     courses: ICourse[];
+    rules?: IRuleDefinition[];
 }
 
 export interface ICourse extends Document {
@@ -43,6 +51,10 @@ export interface ITrimester extends Document {
     dayNight?: string;
 }
 
+const RuleDefinitionSchema: Schema = new mongoose.Schema({
+  type: { type: String, required: true },
+  value: { type: Number }
+});
 
 const TrimesterSchema: Schema = new mongoose.Schema({
     year: { type: Number },
@@ -51,40 +63,51 @@ const TrimesterSchema: Schema = new mongoose.Schema({
 });
 
 const CourseSchema: Schema = new mongoose.Schema({
-    sigle: { type: String },
+    sigle: { type: String, required: true },
     name: { type: String },
-    credits: { type: Number },
+    credits: { type: Number, required: true },
     trimester: [TrimesterSchema],
     alreadyDone: { type: Boolean, default: false },
     grade: { type: String, enum: Object.values(Grade) }
 });
 
 const SectionSchema: Schema = new mongoose.Schema({
-    description: { type: String },
-    courses: [CourseSchema]
+    description: { type: String , default : ''},
+    courses: [CourseSchema], default: [],
+    rules: { type: [RuleDefinitionSchema], default: [] }
 });
 
 const SubModuleSchema: Schema = new mongoose.Schema({
-    title: { type: String },
+    title: { type: String, required: true},
     description: [String],
-    courses: [SectionSchema]
+    courses: [SectionSchema],
+    rules: { type: [RuleDefinitionSchema], default: [] }
 });
 
 const ModuleSchema: Schema = new mongoose.Schema({
-    title: { type: String },
-    description: [String],
-    courses: [SectionSchema],
-    subModules: [SubModuleSchema]
+  title: { type: String, required: true },
+  description: { type: [String], default: [] },
+  courses: { type: [SectionSchema], default: [] },
+  subModules: { type: [SubModuleSchema], default: [] },
+  rules: { type: [RuleDefinitionSchema], default: [] }
 });
 
 const ProgramSchema: Schema = new mongoose.Schema({
-    degree: { type: String},
-    option: { type: String},
-    type: { type: [String]},
-    department: { type: String},
-    description: { type: String},
-    modules: [ModuleSchema]
+  degree: { type: String, required: true },
+  option: { type: String },
+  type: {
+    type: [String],
+    required: [true, 'Program type is required.'],
+    validate: {
+      validator: (arr: string[]) => Array.isArray(arr) && arr.length > 0,
+      message: 'Program type must contain at least one value.'
+    }
+  },
+  department: { type: String, required: true },
+  description: { type: String, default: '' },
+  modules: { type: [ModuleSchema], default: [] }
 }, { collection: 'Program' });
+
 
 export const ProgramModel = mongoose.model<IProgram>("Program", ProgramSchema);
 

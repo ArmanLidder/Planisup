@@ -13,7 +13,8 @@
     
     <!-- Affichage du statut seulement pour la première section du groupe -->
     <!-- Ne pas afficher pour les sections credits_minimum -->
-    <div class="section-status" *ngIf="isFirstInRuleGroup && hasRequiredCredits && !isMinimumRuleSection">
+    <!-- Ne pas afficher en mode view -->
+    <div class="section-status" *ngIf="!isViewMode && isFirstInRuleGroup && hasRequiredCredits && !isMinimumRuleSection">
       <div class="credits-info">
         <span class="credits-count">{{ sectionStatus.selectedCredits }} / {{ sectionStatus.requiredCredits }}</span>
         <span class="credits-label">crédits</span>
@@ -36,12 +37,14 @@
       [currentModuleTitle]="currentModuleTitle"
       [currentSubmoduleTitle]="currentSubmoduleTitle"
       [currentSectionDescription]="section.description"
+      [isViewMode]="isViewMode"
       (selectionChange)="onCourseSelectionChange($event)">
     </app-study-course>
   </div>
   
   <!-- Composant de recherche pour les sections avec approbation du directeur -->
-  <div class="director-approval-search" *ngIf="isDirectorApprovalSection">
+  <!-- Ne pas afficher en mode view car les cours sont déjà dans la liste -->
+  <div class="director-approval-search" *ngIf="!isViewMode && isDirectorApprovalSection">
     <app-course-search
       [allCourses]="allCourses"
       [maxCredits]="sectionRule?.requiredCredits || 0"
@@ -51,5 +54,5 @@
       [currentSectionDescription]="section.description"
       (courseSelectionChange)="onSearchCourseSelectionChange($event)">
     </app-course-search>
-</div>
+  </div>
 </div>

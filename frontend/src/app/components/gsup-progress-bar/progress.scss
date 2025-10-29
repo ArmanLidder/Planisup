@@ -1,157 +1,157 @@
 :host {
-    display: grid;
-    grid-template-columns: min-content 1fr;
-    justify-content: start;
+  display: grid;
+  grid-template-columns: min-content 1fr;
+  justify-content: start;
 
-    font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1rem);
-    
-    .steps-progress {
-        padding: min(5px, 0.5vw) min(5px, 0.5vw) min(10px, 1vw) 0;
-        box-shadow: 0 8px 16px rgba(0,0,0, 6.08);
-        grid-column: 1 / 2;
-        align-self: start;
-        background-color: #fff;
-        border-radius: clamp(8px, 1vw, 10px);
-        height: fit-content;
-        width: clamp(70px, 8vw, 91px);
-    }
+  font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1rem);
 
-    .step-content {
-        margin-top: 0;
-        position: relative;
-        grid-column: 2 / 3;
-    }
+  .steps-progress {
+    padding: min(5px, 0.5vw) min(5px, 0.5vw) min(10px, 1vw) 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 6.08);
+    grid-column: 1 / 2;
+    align-self: start;
+    background-color: #fff;
+    border-radius: clamp(8px, 1vw, 10px);
+    height: fit-content;
+    width: clamp(70px, 8vw, 91px);
+  }
+
+  .step-content {
+    margin-top: 0;
+    position: relative;
+    grid-column: 2 / 3;
+  }
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: clamp(15px, 2vw, 20px) clamp(8px, 1vw, 10px);
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(15px, 2vw, 20px) clamp(8px, 1vw, 10px);
+  position: relative;
 }
 
 // SVG checkbox avec taille responsive
 svg#checkbox {
-    width: clamp(28px, 3.5vw, 36px);
-    height: clamp(28px, 3.5vw, 36px);
-    stroke: #23c274;
-    stroke-width: min(5px, 0.4vw);
+  width: clamp(28px, 3.5vw, 36px);
+  height: clamp(28px, 3.5vw, 36px);
+  stroke: #23c274;
+  stroke-width: min(5px, 0.4vw);
 
-    .circle {
-        stroke-dasharray: 280;
-        stroke-dashoffset: 280;
-        fill: #d2d2d2;
-        transition: stroke-dashoffset 0.4s, fill 0.4s 0.2s cubic-bezier(0.45, 0, 0.55, 1);
-    }
+  .circle {
+    stroke-dasharray: 280;
+    stroke-dashoffset: 280;
+    fill: #d2d2d2;
+    transition: stroke-dashoffset 0.4s, fill 0.4s 0.2s cubic-bezier(0.45, 0, 0.55, 1);
+  }
 
-    .check {
-        stroke-dasharray: 70;
-        stroke-dashoffset: 70;
-        stroke: #fff;
-        fill: none;
-        transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
-    }
+  .check {
+    stroke-dasharray: 70;
+    stroke-dashoffset: 70;
+    stroke: #fff;
+    fill: none;
+    transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+  }
 }
 
 .check-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: clamp(4px, 0.6vw, 6px);
+
+  .info {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    gap: clamp(4px, 0.6vw, 6px);
+    text-align: center;
+    margin-top: clamp(4px, 0.6vw, 6px);
 
-    .info {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        margin-top: clamp(4px, 0.6vw, 6px);
-
-        span.progress-info {
-            text-transform: capitalize;
-            font-size: clamp(8px, 0.8vw, 10px);
-            padding: clamp(1px, 0.2vw, 2px) clamp(4px, 0.6vw, 6px);
-            font-weight: 500;
-            color: currentColor;
-            background-color: #eee;
-            border-radius: clamp(8px, 1vw, 12px);
-            transition: background-color 0.1s ease-in-out;
-        }
-
-        span.progress-info.in-progress {
-            background-color: #234dc2;
-            color:#fff;
-        }
-
-        span.progress-info.complete {
-            background-color: #23c274;
-            color: #fff;
-        }
-
-        span.step {
-            text-transform: uppercase;
-            font-weight: normal;
-            letter-spacing: 0.4px;
-            font-size: clamp(8px, 0.8vw, 10px);
-            color: #777;
-            margin-top: clamp(2px, 0.3vw, 3px);
-        }
+    span.progress-info {
+      text-transform: capitalize;
+      font-size: clamp(8px, 0.8vw, 10px);
+      padding: clamp(1px, 0.2vw, 2px) clamp(4px, 0.6vw, 6px);
+      font-weight: 500;
+      color: currentColor;
+      background-color: #eee;
+      border-radius: clamp(8px, 1vw, 12px);
+      transition: background-color 0.1s ease-in-out;
     }
+
+    span.progress-info.in-progress {
+      background-color: #234dc2;
+      color: #fff;
+    }
+
+    span.progress-info.complete {
+      background-color: #23c274;
+      color: #fff;
+    }
+
+    span.step {
+      text-transform: uppercase;
+      font-weight: normal;
+      letter-spacing: 0.4px;
+      font-size: clamp(8px, 0.8vw, 10px);
+      color: #777;
+      margin-top: clamp(2px, 0.3vw, 3px);
+    }
+  }
 }
 
 // Ligne de progression VERTICALE compacte - version responsive
 .progress-line {
-    width: clamp(2px, 0.3vw, 3px);
-    height: clamp(35px, 5vw, 50px);
-    margin: clamp(4px, 0.6vw, 6px) 0;
-    overflow: hidden;
-    display: block;
-    background-color: #d2d2d2;
-    border-radius: clamp(4px, 0.6vw, 6px);
-    position: relative;
+  width: clamp(2px, 0.3vw, 3px);
+  height: clamp(35px, 5vw, 50px);
+  margin: clamp(4px, 0.6vw, 6px) 0;
+  overflow: hidden;
+  display: block;
+  background-color: #d2d2d2;
+  border-radius: clamp(4px, 0.6vw, 6px);
+  position: relative;
 
-    .progress-percent {
-        width: inherit;
-        height: 0%;
-        transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
-        position: absolute;
-        top: 0;
-    }
+  .progress-percent {
+    width: inherit;
+    height: 0%;
+    transition: all 0.4s 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+    position: absolute;
+    top: 0;
+  }
 }
 
 .progress-line.active {
-    .progress-percent{
-        background-color: #234dc2;
-    }
+  .progress-percent {
+    background-color: #234dc2;
+  }
 }
 
 .progress-line.complete {
-    .progress-percent{
-        background-color: #23c274;
-        height: 100%;
-    }
+  .progress-percent {
+    background-color: #23c274;
+    height: 100%;
+  }
 }
 
 .check-box.active {
-    svg#checkbox {
-        .circle {
-            fill: #234dc2;
-        }
+  svg#checkbox {
+    .circle {
+      fill: #234dc2;
     }
+  }
 }
 
 .check-box.complete {
-    svg#checkbox {
-        .circle {
-            stroke-dashoffset: 0;
-            fill: #23c274;
-        }
-
-        .check {
-            stroke-dashoffset: 0;
-        }
+  svg#checkbox {
+    .circle {
+      stroke-dashoffset: 0;
+      fill: #23c274;
     }
+
+    .check {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 
 .check-box.needs-correction {
@@ -174,22 +174,22 @@ svg#checkbox {
 //     :host {
 //         grid-template-columns: min-content 1fr;
 //         gap: 15px;
-        
+
 //         .steps-progress {
 //             width: 65px;
 //             padding: 4px 4px 8px 0;
 //         }
 //     }
-    
+
 //     .container {
 //         padding: 12px 6px;
 //     }
-    
+
 //     svg#checkbox {
 //         width: 24px;
 //         height: 24px;
 //     }
-    
+
 //     .progress-line {
 //         height: 30px;
 //         margin: 4px 0;
@@ -200,7 +200,7 @@ svg#checkbox {
 //     :host {
 //         grid-template-columns: 1fr;
 //         grid-template-rows: auto 1fr;
-        
+
 //         .steps-progress {
 //             grid-column: 1;
 //             grid-row: 1;
@@ -209,20 +209,20 @@ svg#checkbox {
 //             display: flex;
 //             justify-content: center;
 //         }
-        
+
 //         .step-content {
 //             grid-column: 1;
 //             grid-row: 2;
 //         }
 //     }
-    
+
 //     .container {
 //         flex-direction: row;
 //         justify-content: center;
 //         gap: 20px;
 //         padding: 10px 5px;
 //     }
-    
+
 //     .progress-line {
 //         width: 40px;
 //         height: 3px;

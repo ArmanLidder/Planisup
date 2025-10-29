@@ -9,6 +9,7 @@ export interface IUser extends Document {
     role: UserRole;
     currentPlan: string;
     plans: [string];
+    department?: string;
 }
 
 const UserSchema = new Schema({
@@ -21,7 +22,8 @@ const UserSchema = new Schema({
         required: true,
     },
     currentPlan:  { type: String},
-    plans: { type: [String] }
+    plans: { type: [String] },
+    department: { type: String }
 }, {collection: 'User'});
 
 export const UserModel = model<IUser>('User', UserSchema);
@@ -35,6 +37,7 @@ export const convertUserInterface = (user: IUser) => {
         role: user.role,
         currentPlan: user.currentPlan,
         plans: user.plans,
+        departement: user.department,
     }
 }
 

@@ -1,90 +1,53 @@
 @if (isLoading$ | async) {
 <app-loading></app-loading>
 }
-<div class="view-plan-container" [class.one-button]="isStudent() && !needsCorrection()" [class.correction]="needsCorrection()">
+<div
+  class="view-plan-container"
+  [class.one-button]="
+    this.authentificationService.isStudent() && !this.sPS.needsCorrectionStudyPlan()
+  "
+  [class.correction]="this.sPS.needsCorrectionStudyPlan()"
+>
   <div class="container-left">
-    <app-progress
-      [itemProgressList]="progressSteps">
-    </app-progress>
+    <app-progress [itemProgressList]="progressSteps"> </app-progress>
   </div>
   <div class="container-middle">
-
-    <!-- Study Plan Content -->
-    <div class="study-plan-content" *ngIf="studyPlan$ | async as studyPlan">
-      <div class="study-plan-header">
-        <h2>Plan d'étude</h2>
-        <div class="status-badge" [class]="'status-' + studyPlan.status">
-          {{ getStatusLabel(studyPlan.status) }}
-        </div>
-      </div>
-      <div class="study-plan-info">
-        <div class="info-row">
-          <span class="label">Type de programme:</span>
-          <span class="value">{{ studyPlan.programType }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Étape actuelle:</span>
-          <span class="value">{{ getStepLabel(studyPlan.studyPlanStep) }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Statut de validation:</span>
-          <span class="value" [class]="'validation-' + studyPlan.stepValidation">
-            {{ getValidationLabel(studyPlan.stepValidation) }}
-          </span>
-        </div>
-        <div class="info-row" *ngIf="studyPlan.createdDate">
-          <span class="label">Date de création:</span>
-          <span class="value">{{ studyPlan.createdDate | date:'dd/MM/yyyy' }}</span>
-        </div>
-        <div class="info-row" *ngIf="studyPlan.modifiedDate">
-          <span class="label">Dernière modification:</span>
-          <span class="value">{{ studyPlan.modifiedDate | date:'dd/MM/yyyy HH:mm' }}</span>
-        </div>
-      </div>
-      <div class="courses-selection" *ngIf="studyPlan.coursesSelection && studyPlan.coursesSelection.modules && studyPlan.coursesSelection.modules.length > 0">
-        <h3>Sélection de cours</h3>
-        <div class="modules-container">
-          <div class="module" *ngFor="let module of studyPlan.coursesSelection.modules">
-            <div class="module-header">
-              <h4>{{ module.title }}</h4>
-              <span class="course-count">{{ (module.courses && module.courses.length) || 0 }} cours</span>
-            </div>
-            <div class="courses-list" *ngIf="module.courses && module.courses.length > 0">
-              <div class="course-item" *ngFor="let course of module.courses">
-                <div class="course-info">
-                  <span class="course-sigle">{{ course.sigle }}</span>
-                  <span class="course-name">{{ course.name }}</span>
-                  <span class="course-credits">{{ course.credits }} crédits</span>
-                </div>
-                <div class="course-details">
-                  <span class="course-trimester" *ngIf="course.trimester && typeof course.trimester === 'object' && 'term' in course.trimester">
-                    {{ course.trimester.term }} {{ course.trimester.year }}
-                  </span>
-                  <span class="already-done" *ngIf="course.alreadyDone">✓ Déjà complété</span>
-                  <span class="course-grade" *ngIf="course.grade">Note: {{ course.grade }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="empty-courses" *ngIf="!studyPlan.coursesSelection || !studyPlan.coursesSelection.modules || studyPlan.coursesSelection.modules.length === 0">
-        <p>Aucun cours sélectionné pour le moment.</p>
-      </div>
+    @if (studyPlan$ | async; as studyPlan) { @if (isStudyPlanLoaded && studyPlan) {
+    <app-study-plan
+      [isViewMode]="true"
+      [directorId]="studyPlan.directorId"
+      [coordonatorId]="studyPlan.coordonatorId"
+    >
+    </app-study-plan>
+    } } @else if (!isStudyPlanLoaded) {
+    <div class="loading-message">
+      <p>Chargement du plan d'études...</p>
     </div>
+    }
   </div>
   <div class="container-right">
-    <div *ngIf="!this.isStudent()" class="action-buttons">
-      <button class="btn-action btn-validate" (click)="onValidate()">Valider</button>
-      <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
+    <div *ngIf="!this.authentificationService.isStudent() && !this.isArchivedStudyPlan()" class="action-buttons">
+      <button class="btn-action btn-validate" (click)="this.sPS.approveStudyPlan() ">Valider</button>
+      <button class="btn-action btn-refuse" (click)="this.sPS.refuseStudyPlan()">Refuser</button>
     </div>
-    <div *ngIf="this.isStudent()" class="action-buttons">
-      <button *ngIf="this.needsCorrection()" class="btn-action btn-validate" (click)="onSubmit()">Soumettre</button>
-      <button class="btn-action btn-cancel" (click)="onCancel()">Abandonner</button>
-      <ng-container *ngIf="studyPlan$ | async as studyPlan">
-        <button *ngIf="getStatusLabel(studyPlan.status) === 'Validé'" class="btn-action btn-validate" (click)="exportPDF()">Exporter en PDF</button>
-      </ng-container>
+    <div *ngIf="this.authentificationService.isStudent()  && !this.isArchivedStudyPlan()" class="action-buttons">
+      <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
+      <button
+        *ngIf="this.sPS.needsCorrectionStudyPlan()"
+        class="btn-action btn-validate"
+        (click)="this.sPS.updateStudyPlan()"
+      >
+        Soumettre
+      </button>
     </div>
-    <app-chat></app-chat>
+     <div *ngIf="this.isArchivedStudyPlan()" class="action-buttons">
+        <button
+          class="btn-action btn-validate"
+          (click)="exportPDF()"
+        >
+          Exporter en PDF
+        </button>
+    </div>
+    <app-chat *ngIf="!this.isArchivedStudyPlan()"></app-chat>
   </div>
 </div>

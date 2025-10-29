@@ -17,6 +17,7 @@ export class StudySection {
   @Input() currentModuleTitle!: string;
   @Input() currentSubmoduleTitle: string | null = null;
   @Input() allCourses: Course[] = [];
+  @Input() isViewMode: boolean = false;
   @Output() courseSelectionChange = new EventEmitter<{
     courseSigle: string, 
     selected: boolean, 
@@ -27,6 +28,8 @@ export class StudySection {
   constructor(private courseStateService: CourseStateService) {}
 
   onCourseSelectionChange(event: {courseSigle: string, selected: boolean}) {
+    if (this.isViewMode) return;
+    
     this.courseSelectionChange.emit({
       courseSigle: event.courseSigle,
       selected: event.selected,
@@ -36,6 +39,8 @@ export class StudySection {
   }
 
   onSearchCourseSelectionChange(event: { course: Course; selected: boolean }) {
+    if (this.isViewMode) return;
+    
     this.courseSelectionChange.emit({
       courseSigle: event.course.sigle,
       selected: event.selected,
@@ -45,6 +50,18 @@ export class StudySection {
   }
 
   get sectionStatus() {
+    if (this.isViewMode) {
+      return {
+        selectedCredits: 0,
+        requiredCredits: undefined,
+        isComplete: false,
+        hasRule: false,
+        isInGroup: false,
+        isGroupLeader: false,
+        isMinimum: false
+      };
+    }
+    
     return this.courseStateService.getSectionStatus(
       this.currentModuleTitle,
       this.currentSubmoduleTitle,
@@ -53,6 +70,10 @@ export class StudySection {
   }
 
   get sectionRule() {
+    if (this.isViewMode) {
+      return null;
+    }
+    
     return this.courseStateService.getSectionRule(
       this.currentModuleTitle,
       this.currentSubmoduleTitle,
@@ -61,65 +82,66 @@ export class StudySection {
   }
 
   get isRuleSection(): boolean {
-    return this.sectionRule?.type === 'credits_choice';
+    return !this.isViewMode && this.sectionRule?.type === 'credits_choice';
   }
 
   get isDirectorApprovalSingleSection(): boolean {
-    return this.sectionRule?.type === 'director_approval_single';
+    return !this.isViewMode && this.sectionRule?.type === 'director_approval_single';
   }
 
   get isDirectorApprovalSection(): boolean {
-    return this.sectionRule?.type === 'director_approval' || this.sectionRule?.type === 'director_approval_single';
+    return !this.isViewMode && (this.sectionRule?.type === 'director_approval' || this.sectionRule?.type === 'director_approval_single');
   }
 
   get isMinimumRuleSection(): boolean {
-    return this.sectionRule?.type === 'credits_minimum';
+    return !this.isViewMode && this.sectionRule?.type === 'credits_minimum';
   }
 
   get isInRuleGroup(): boolean {
-    return this.sectionRule?.groupSections !== undefined;
+    return !this.isViewMode && this.sectionRule?.groupSections !== undefined;
   }
 
   get isFirstInRuleGroup(): boolean {
-    // Vérifier si c'est la section leader du groupe (celle qui a défini la règle originale)
-    return this.sectionRule?.description === this.section.description && 
+    return !this.isViewMode && 
+           this.sectionRule?.description === this.section.description && 
            (this.sectionRule?.type === 'credits_choice' || 
             this.sectionRule?.type === 'credits_minimum' || 
             this.sectionRule?.type === 'director_approval');
   }
 
   get progressPercentage(): number {
-    if (!this.hasRequiredCredits) return 0;
+    if (this.isViewMode || !this.hasRequiredCredits) return 0;
     const percentage = (this.sectionStatus.selectedCredits / this.sectionStatus.requiredCredits!) * 100;
     return Math.min(percentage, 100);
   }
 
   getProgressColor(): string {
-    if (!this.hasRequiredCredits) return '#e0e0e0';
+    if (this.isViewMode || !this.hasRequiredCredits) return '#e0e0e0';
     
     const selected = this.sectionStatus.selectedCredits;
     const required = this.sectionStatus.requiredCredits!;
     const isMinimum = this.sectionStatus.isMinimum;
     
     if (isMinimum) {
-      // Pour les minimums : vert si >= requis, bleu si > 0, gris sinon
-      if (selected >= required) return '#4caf50'; // Vert - minimum atteint
-      if (selected > 0) return '#2196f3'; // Bleu - en cours
-      return '#e0e0e0'; // Gris - rien sélectionné
+      if (selected >= required) return '#4caf50';
+      if (selected > 0) return '#2196f3';
+      return '#e0e0e0';
     } else {
-      // Pour les exacts : vert si === requis, bleu si > 0, gris sinon
-      if (selected === required) return '#4caf50'; // Vert - exact
-      if (selected > 0) return '#2196f3'; // Bleu - en cours
-      return '#e0e0e0'; // Gris - rien sélectionné
+      if (selected === required) return '#4caf50';
+      if (selected > 0) return '#2196f3';
+      return '#e0e0e0';
     }
   }
 
   get hasRequiredCredits(): boolean {
-    return this.sectionStatus.requiredCredits !== undefined && this.sectionStatus.requiredCredits > 0;
+    return !this.isViewMode && 
+           this.sectionStatus.requiredCredits !== undefined && 
+           this.sectionStatus.requiredCredits > 0;
   }
 
   get isCreditsComplete(): boolean {
-    return this.hasRequiredCredits && 
+    return !this.isViewMode && 
+           this.hasRequiredCredits && 
            this.sectionStatus.selectedCredits >= this.sectionStatus.requiredCredits!;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Course, Module, Section, SubModule } from '@common/program';
-import { SelectedModule } from '@common/study-plan';
+import { SelectedModule, SerializedCourseState } from '@common/study-plan';
 
 export interface CourseState {
   selected: boolean;
@@ -8,6 +8,7 @@ export interface CourseState {
   selectedInSubmodule: string | null;
   selectedInSection: string | null;
   credits: number;
+  course: Course;
 }
 
 export interface SectionRule {
@@ -34,6 +35,43 @@ export class CourseStateService {
   public sectionRules: SectionRule[] = [];
   public exclusiveSubModuleRules: ExclusiveSubModuleRule[] = [];
   private modules: Module[] = [];
+
+  /**
+   * Sérialise le courseState en objet simple pour l'envoi au serveur
+   */
+  serializeCourseState(): { [courseSigle: string]: SerializedCourseState } {
+    const serialized: { [courseSigle: string]: SerializedCourseState } = {};
+    this.courseStates.forEach((state, sigle) => {
+      serialized[sigle] = {
+        selected: state.selected,
+        selectedInModule: state.selectedInModule,
+        selectedInSubmodule: state.selectedInSubmodule,
+        selectedInSection: state.selectedInSection,
+        credits: state.credits,
+        course: state.course
+      };
+    });
+    console.log(serialized)
+    return serialized;
+  }
+
+  /**
+   * Restaure le courseState depuis un objet sérialisé
+   */
+  restoreCourseState(serializedState: { [courseSigle: string]: SerializedCourseState }) {
+    console.log("je suis la pr voir se que tu fais");
+    console.log(serializedState)
+    Object.entries(serializedState).forEach(([sigle, state]) => {
+      this.courseStates.set(sigle, {
+        selected: state.selected,
+        selectedInModule: state.selectedInModule,
+        selectedInSubmodule: state.selectedInSubmodule,
+        selectedInSection: state.selectedInSection,
+        credits: state.credits,
+        course: state.course
+      });
+    });
+  }
 
   initializeCourseStates(modules: any[]) {
     this.courseStates.clear();
@@ -146,7 +184,8 @@ export class CourseStateService {
             selectedInModule: null,
             selectedInSubmodule: null,
             selectedInSection: null,
-            credits: course.credits
+            credits: course.credits,
+            course: course
           });
         }
       });
@@ -231,7 +270,8 @@ export class CourseStateService {
       selectedInModule: null,
       selectedInSubmodule: null,
       selectedInSection: null,
-      credits: 0
+      credits: 0,
+      course: {} as Course
     };
   }
 
@@ -242,7 +282,8 @@ export class CourseStateService {
         selectedInModule: null,
         selectedInSubmodule: null,
         selectedInSection: null,
-        credits: course.credits
+        credits: course.credits,
+        course: course
       });
     }
   }

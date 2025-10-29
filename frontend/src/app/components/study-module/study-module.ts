@@ -13,7 +13,8 @@ import { CourseStateService } from '@app/services/course-state/course-state';
 export class StudyModule implements OnInit {
   @Input() module!: Module;
   @Input() progressStyle!: any;
-  @Input() allCourses: Course[] = []; // Tous les cours pour la recherche
+  @Input() allCourses: Course[] = [];
+  @Input() isViewMode: boolean = false;
   @Output() courseSelectionChange = new EventEmitter<{
     courseSigle: string, 
     moduleTitle: string, 
@@ -70,6 +71,8 @@ export class StudyModule implements OnInit {
     section: string
     submoduleTitle: string | null
   }) {
+    if (this.isViewMode) return;
+    
     this.courseSelectionChange.emit({
       courseSigle: event.courseSigle,
       moduleTitle: this.module.title,
@@ -83,7 +86,6 @@ export class StudyModule implements OnInit {
   calculateSelectedCredits() {
     this.selectedCredits = 0;
     
-    // Parcourir tous les courseStates et compter ceux de ce module
     this.courseStateService.courseStates.forEach((state, courseSigle) => {
       if (state.selected && state.selectedInModule === this.module.title) {
         this.selectedCredits += state.credits;

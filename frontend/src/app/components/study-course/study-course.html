@@ -1,27 +1,35 @@
 <div class="study-course" 
      [class.selected]="isSelected" 
      [class.disabled]="isDisabled"
+     [class.view-mode]="isViewMode"
      [class.credits-limit-reached]="isDisabled && !isSelected">
   <label class="course-checkbox" [class.disabled-label]="!canBeToggled()">
-    <input type="checkbox" 
-           [checked]="isSelected"
-           [disabled]="!canBeToggled()"
-           (change)="onSelectionChange($any($event.target).checked)">
-    <span class="checkmark" [class.disabled-checkmark]="!canBeToggled()"></span>
+    <!-- En mode view, pas de checkbox -->
+    <ng-container *ngIf="!isViewMode">
+      <input type="checkbox" 
+             [checked]="isSelected"
+             [disabled]="!canBeToggled()"
+             (change)="onSelectionChange($any($event.target).checked)">
+      <span class="checkmark" [class.disabled-checkmark]="!canBeToggled()"></span>
+    </ng-container>
+    
     <span class="course-code">{{ course.sigle }}</span>
     <span class="course-name" [class.disabled-text]="!canBeToggled()">{{ course.name }}</span>
     <span class="course-credits" [class.disabled-text]="!canBeToggled()">{{ course.credits }} crédits</span>
     
-    <span class="already-selected-icon" *ngIf="isSelected && !isDisabled">
+    <!-- Icône de sélection seulement en mode édition -->
+    <span class="already-selected-icon" *ngIf="!isViewMode && isSelected && !isDisabled">
       ✓
     </span>
     
-    <span class="blocked-icon" *ngIf="isDisabled && !isSelected">
+    <!-- Icône de blocage seulement en mode édition -->
+    <span class="blocked-icon" *ngIf="!isViewMode && isDisabled && !isSelected">
       ⚠️
     </span>
   </label>
   
-  <div class="selection-info" *ngIf="selectionInfo" 
+  <!-- Info de sélection seulement en mode édition -->
+  <div class="selection-info" *ngIf="!isViewMode && selectionInfo" 
        [class.error-info]="isDisabled">
     {{ selectionInfo }}
   </div>

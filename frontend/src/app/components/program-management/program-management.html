@@ -76,8 +76,8 @@
           (programChange)="onProgramChange($event)"
         ></app-program-editor>
 
-        <app-study-plan *ngIf="!isEditing"></app-study-plan>
-        <app-study-plan *ngIf="isEditing && isPreviewing" [programOverride]="editingDraft || undefined"></app-study-plan>
+        <app-study-plan *ngIf="!isEditing" [state]="'viewAdmin'"></app-study-plan>
+        <app-study-plan *ngIf="isEditing && isPreviewing" [programOverride]="editingDraft || undefined" [state]="'viewAdmin'"></app-study-plan>
       </div>
     </ng-container>
   </div>

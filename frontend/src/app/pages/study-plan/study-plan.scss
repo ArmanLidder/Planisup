@@ -14,23 +14,23 @@ header {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 2px solid #3498db;
-  
+
   h1 {
     color: #2c3e50;
     margin: 0;
     font-size: 28px;
   }
-  
+
   .total-credits {
     text-align: center;
-    
+
     .credits-count {
       display: block;
       font-size: 24px;
       font-weight: bold;
       color: #2c3e50;
     }
-    
+
     .credits-label {
       font-size: 14px;
       color: #7f8c8d;
@@ -43,21 +43,21 @@ header {
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 25px;
-  
+
   .description {
     margin-top: 0;
     line-height: 1.5;
   }
-  
+
   .conditions {
     margin: 15px 0;
-    
+
     p {
       margin: 8px 0;
       font-weight: 500;
     }
   }
-  
+
   .note {
     background-color: #fff3cd;
     padding: 12px 15px;
@@ -79,7 +79,7 @@ header {
 .actions {
   text-align: center;
   margin-top: 30px;
-  
+
   .btn-primary {
     background-color: #3498db;
     color: white;
@@ -90,14 +90,49 @@ header {
     font-size: 16px;
     font-weight: 500;
     transition: background-color 0.3s, transform 0.2s;
-    
+
     &:hover {
       background-color: #2980b9;
       transform: translateY(-2px);
     }
-    
+
     &:active {
       transform: translateY(0);
+    }
+  }
+}
+
+.selectors {
+  display: flex;
+  gap: 2rem;
+  margin-top: 20px;
+  flex-wrap: wrap;
+
+  .form-group {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #2c3e50;
+    }
+
+    select {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      font-size: 15px;
+      color: #333;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+      }
     }
   }
 }

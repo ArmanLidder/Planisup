@@ -25,6 +25,15 @@ export interface SelectedModule {
     courses: Course[]
 }
 
+export interface SerializedCourseState {
+    selected: boolean;
+    selectedInModule: string | null;
+    selectedInSubmodule: string | null;
+    selectedInSection: string | null;
+    credits: number;
+    course: Course;
+}
+
 export interface StudyPlan {
     _id?: string,
     status: StudyPlanStatus
@@ -35,12 +44,19 @@ export interface StudyPlan {
     programType: ProgramType // DESS, Master and PHD for easy step modification in frontend
     studyPlanStep: StudyPlanStep,
     stepValidation: StepValidationStatus,
+    courseState: { [courseSigle: string]: SerializedCourseState },
     coursesSelection: {
         modules: SelectedModule[]
     }
     chatId?: string,
     createdDate?: Date,
     modifiedDate?: Date,
+    directorValidationDate?: Date,
+    coordonatorValidationDate?: Date,
+    agentValidationDate?: Date,
+    agentId?: string,
+    registrarValidationDate?: Date,
+    registrarId?: string,
 }
 
 export interface StudyPlanEntry {

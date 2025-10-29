@@ -25,6 +25,7 @@ export class UserController {
     this.router.get('/:id', this.getUserById.bind(this));
     this.router.patch('/:id/role', this.updateUserRole.bind(this));
     this.router.delete('/:id', this.deleteUser.bind(this));
+    this.router.get('/employees/directors-coordinators', this.getDirectorsAndCoordonnateurs.bind(this));
   }
 
   // private requireAdmin(req: Request, res: Response, next: Function): void {
@@ -73,7 +74,6 @@ export class UserController {
     }
   }
 
-
   private async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       this.logger.info('Admin requested all users list');
@@ -96,7 +96,7 @@ export class UserController {
   private async updateUserRole(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { newRole } = req.body;
+      const { newRole, departement } = req.body;
 
       if (!Object.values(UserRole).includes(newRole)) {
         res.status(400).json({
@@ -106,13 +106,16 @@ export class UserController {
         return;
       }
 
-      const updatedUser = await this.userService.updateUserRole(id, newRole);
-      this.logger.info(`User ${id} role updated to ${newRole}`);
+      const updatedUser = await this.userService.updateUserRole(id, newRole, departement);
+
+      if (departement) this.logger.info(`User ${id} role updated to ${newRole} with department ${departement}`);
+      else this.logger.info(`User ${id} role updated to ${newRole} with no department`);
 
       res.status(200).json({
         success: true,
         user: updatedUser,
-        message: `User role updated to ${newRole}`
+        message: departement ? `User role updated to ${newRole} with department ${departement}` 
+                : `User role updated to ${newRole} with no department`
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -139,6 +142,23 @@ export class UserController {
       res.status(500).json({
         success: false,
         message: 'Failed to delete user'
+      });
+    }
+  }
+
+  private async getDirectorsAndCoordonnateurs(req: Request, res: Response): Promise<void> {
+      try {
+        this.logger.info(`Fetching directors and coordinators list`);
+        const employees = await this.userService.getEmployees([UserRole.Directeur, UserRole.Coordonnateur]);
+        const directors = employees.filter(emp => emp.role === UserRole.Directeur);
+        const coordinators = employees.filter(emp => emp.role === UserRole.Coordonnateur);
+        this.logger.info(`Found ${directors.length} directors and ${coordinators.length} coordinators`);
+        res.status(200).json({ directors, coordinators });
+    } catch (error) {
+      this.logger.error(`Get directors and coordinators failed: ${error}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch directors and coordinators'
       });
     }
   }

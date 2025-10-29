@@ -33,6 +33,10 @@ export class ApiService {
     return this.http.get<string[]>(`${environment.serverUrl}/program/query/${type}`);
   }
 
+  getAllDepartements(): Observable<string[]> {
+    return this.http.get<string[]>(`${environment.serverUrl}/program/departements`);
+  }
+
   getPrograms(type: string, departement: string): Observable<ReducedProgram[]> {
     return this.http.get<ReducedProgram[]>(
       `${environment.serverUrl}/program/query/${type}/${departement}`
@@ -40,9 +44,7 @@ export class ApiService {
   }
 
   getAllPrograms(): Observable<ReducedProgram[]> {
-    return this.http.get<ReducedProgram[]>(
-      `${environment.serverUrl}/program`
-    );
+    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program`);
   }
 
   getProgram(id: string): Observable<Program> {
@@ -75,6 +77,13 @@ export class ApiService {
     );
   }
 
+  getDirectorsAndCoordinators(): Observable<{ directors: User[]; coordinators: User[] }> {
+    return this.http.get<{ directors: User[]; coordinators: User[] }>(
+      `${environment.serverUrl}/users/employees/directors-coordinators`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
   getUserById(userId: string): Observable<{ success: boolean; user: User }> {
     return this.http.get<{ success: boolean; user: User }>(
       `${environment.serverUrl}/users/${userId}`,
@@ -84,11 +93,12 @@ export class ApiService {
 
   updateUserRole(
     userId: string,
-    newRole: UserRole
+    newRole: UserRole,
+    departement?: string
   ): Observable<{ success: boolean; user: User; message: string }> {
     return this.http.patch<{ success: boolean; user: User; message: string }>(
       `${environment.serverUrl}/users/${userId}/role`,
-      { newRole },
+      { newRole, departement },
       { headers: this.getAuthHeaders() }
     );
   }
@@ -109,8 +119,11 @@ export class ApiService {
     return this.http.delete<any>(`${environment.serverUrl}/study-plan/cancel/${id}`);
   }
 
-  approveStudyPlan(id: string): Observable<any> {
-    return this.http.patch<any>(`${environment.serverUrl}/study-plan/approuved/${id}`, {});
+  approveStudyPlan(id: string, employeeId: string): Observable<any> {
+    return this.http.patch<any>(
+      `${environment.serverUrl}/study-plan/approuved/${id}/${employeeId}`,
+      {}
+    );
   }
 
   refuseStudyPlan(id: string): Observable<any> {
@@ -121,9 +134,18 @@ export class ApiService {
     return this.http.get<any>(`${environment.serverUrl}/study-plan/${id}`);
   }
 
-  // This will get study plan in progress thst re linked to the user role
+  // This will get study plan in progress that are linked to the user role
   getStudyPlans(id: string): Observable<any[]> {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/assigned/${id}`);
+  }
+
+  getArchivedStudyPlans(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.serverUrl}/study-plan/archive/${id}`);
+  }
+
+
+  getProcessMembersByIdStudyPlan(id: string): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.serverUrl}/study-plan/members/${id}`);
   }
 
   getChat(chatId: string): Observable<any> {

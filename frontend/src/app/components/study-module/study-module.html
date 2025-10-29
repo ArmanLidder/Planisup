@@ -10,7 +10,7 @@
     </div>
   </div>
   
-  <div class="progress-bar">
+  <div class="progress-bar" *ngIf="!isViewMode">
     <div class="progress-fill" [ngStyle]="getModuleProgressStyle()"></div>
   </div>
   
@@ -25,6 +25,7 @@
         [section]="section"
         [currentModuleTitle]="module.title"
         [allCourses]="allCourses"
+        [isViewMode]="isViewMode"
         (courseSelectionChange)="onCourseSelectionChange($event)">
       </app-study-section>
     </div>
@@ -50,6 +51,7 @@
               [currentModuleTitle]="module.title"
               [currentSubmoduleTitle]="subModule.title"
               [allCourses]="allCourses"
+              [isViewMode]="isViewMode"
               (courseSelectionChange)="onCourseSelectionChange($event)">
             </app-study-section>
           </div>

@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule,FormsModule],
+  imports: [CommonModule, StudyModule, FormsModule],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -124,8 +124,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
    */
   private filterSelectedCourses(modules: Module[]): Module[] {
     return modules
-      .map(module => this.filterModule(module))
-      .filter(module => this.hasSelectedCourses(module));
+      .map((module) => this.filterModule(module))
+      .filter((module) => this.hasSelectedCourses(module));
   }
 
   /**
@@ -134,12 +134,13 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private filterModule(module: Module): Module {
     const filteredModule: Module = { ...module };
 
-    if (module.courses) filteredModule.courses = this.filterSections(module.courses, module.title, null);
+    if (module.courses)
+      filteredModule.courses = this.filterSections(module.courses, module.title, null);
 
     if (module.subModules) {
       filteredModule.subModules = module.subModules
-        .map(subModule => this.filterSubModule(subModule, module.title))
-        .filter(subModule => this.hasSelectedCoursesInSubModule(subModule, module.title));
+        .map((subModule) => this.filterSubModule(subModule, module.title))
+        .filter((subModule) => this.hasSelectedCoursesInSubModule(subModule, module.title));
     }
 
     return filteredModule;
@@ -151,7 +152,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private filterSubModule(subModule: SubModule, moduleTitle: string): SubModule {
     const filteredSubModule: SubModule = { ...subModule };
 
-    if (subModule.courses) filteredSubModule.courses = this.filterSections(subModule.courses, moduleTitle, subModule.title);
+    if (subModule.courses)
+      filteredSubModule.courses = this.filterSections(
+        subModule.courses,
+        moduleTitle,
+        subModule.title
+      );
 
     return filteredSubModule;
   }
@@ -167,15 +173,16 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   ): Section[] {
     const filteredSections: Section[] = [];
 
-    sections.forEach(section => {
+    sections.forEach((section) => {
       const selectedCoursesInSection: Course[] = [];
 
       this.courseStateService.courseStates.forEach((state, courseSigle) => {
-        if (state.selected &&
-            state.selectedInModule === moduleTitle &&
-            state.selectedInSubmodule === subModuleTitle &&
-            state.selectedInSection === section.description) {
-
+        if (
+          state.selected &&
+          state.selectedInModule === moduleTitle &&
+          state.selectedInSubmodule === subModuleTitle &&
+          state.selectedInSection === section.description
+        ) {
           if (state.course) selectedCoursesInSection.push(state.course);
         }
       });
@@ -183,7 +190,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       if (selectedCoursesInSection.length > 0) {
         filteredSections.push({
           ...section,
-          courses: selectedCoursesInSection
+          courses: selectedCoursesInSection,
         });
       }
     });
@@ -195,7 +202,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
    * Vérifie si un module contient des cours sélectionnés
    */
   private hasSelectedCourses(module: Module): boolean {
-    if (module.courses && module.courses.some(section => section.courses.length > 0)) return true;
+    if (module.courses && module.courses.some((section) => section.courses.length > 0)) return true;
 
     if (module.subModules && module.subModules.length > 0) return true;
 
@@ -208,7 +215,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private hasSelectedCoursesInSubModule(subModule: SubModule, moduleTitle: string): boolean {
     if (!subModule.courses) return false;
 
-    return subModule.courses.some(section => section.courses.length > 0);
+    return subModule.courses.some((section) => section.courses.length > 0);
   }
 
   loadAllCourses() {
@@ -302,11 +309,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     const errors: string[] = [];
 
-    if (this.directorId === "") {
+    if (this.directorId === '') {
       errors.push('Vous devez selectionner un Directeur');
     }
 
-    if (this.coordonatorId === "" ) {
+    if (this.coordonatorId === '') {
       errors.push('Vous devez selectionner un Coordonateur');
     }
 
@@ -378,7 +385,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
 
     if (this.courseStateService.getAvantagePolyCredit() > this.AVANTAGE_POLY_MAX_CREDITS) {
-      errors.push(`Le total de crédits d'avantage Poly ne peut pas dépasser 15 (actuellement: ${this.courseStateService.getAvantagePolyCredit()})`);
+      errors.push(
+        `Le total de crédits d'avantage Poly ne peut pas dépasser 15 (actuellement: ${this.courseStateService.getAvantagePolyCredit()})`
+      );
     }
 
     if (!this.courseStateService.isAllAvantagePolyGrade()) {
@@ -437,12 +446,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   }
 
   getDirectorName(id: string): string | null {
-    const d = this.directors.find(dir => dir._id === id);
+    const d = this.directors.find((dir) => dir._id === id);
     return d ? `${d.firstName} ${d.lastName}` : null;
   }
 
   getCoordinatorName(id: string): string | null {
-    const c = this.coordinators.find(co => co._id === id);
+    const c = this.coordinators.find((co) => co._id === id);
     return c ? `${c.firstName} ${c.lastName}` : null;
   }
 }

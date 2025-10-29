@@ -53,7 +53,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
-    protected router: Router
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -300,6 +300,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     if (this.isViewMode) return;
 
     const errors: string[] = [];
+
+    if (this.directorId === "") {
+      errors.push('Vous devez selectionner un Directeur');
+    }
+
+    if (this.coordonatorId === "" ) {
+      errors.push('Vous devez selectionner un Coordonateur');
+    }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();

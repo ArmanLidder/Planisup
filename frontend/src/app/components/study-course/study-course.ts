@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CourseState, CourseStateService } from '@app/services/course-state/course-state';
-import { Course } from '@common/program';
+import { Course, Grade } from '@common/program';
 
 @Component({
   selector: 'app-study-course',
@@ -16,6 +16,9 @@ export class StudyCourse {
   @Input() currentSectionDescription!: string;
   @Input() isViewMode: boolean = false;
   @Output() selectionChange = new EventEmitter<{courseSigle: string, selected: boolean}>();
+
+  showGradeDropdown: boolean = false;
+  grades = Object.values(Grade);
 
   constructor(private courseStateService: CourseStateService) {}
 
@@ -122,5 +125,29 @@ export class StudyCourse {
       );
       return canSelect.canSelect;
     }
+  }
+
+  onAvantagePolyChange(event: Event) {
+    if (this.isViewMode) return;
+
+    const checked = (event.target as HTMLInputElement).checked;
+
+    this.courseStateService.setAvantagePoly(this.course.sigle, checked);
+
+    this.showGradeDropdown = checked;
+  }
+
+  onGradeSelect(grade: Grade) {
+    if (this.isViewMode) return;
+    
+    this.courseStateService.setAvantagePoly(this.course.sigle, true, grade);
+  }
+
+  get currentGrade(): Grade | undefined {
+    return this.courseState.course.grade;
+  }
+
+  get isAvantagePolyChecked(): boolean {
+    return this.courseState.course.alreadyDone || false;
   }
 }

@@ -32,7 +32,6 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.courseService.getCourses();
     this.programService.reset();
     this.studyPlanService.resetStudyPlan();
   }

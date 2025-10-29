@@ -219,33 +219,6 @@
                 </div>
               </div>
             </div>
-            <div class="manual-course">
-              <span class="manual-course-title">Ajouter un cours manuellement</span>
-              <div class="manual-fields">
-                <input
-                  type="text"
-                  placeholder="Sigle (ex. ABC1234)"
-                  [(ngModel)]="manualCourseSigle"
-                  [ngModelOptions]="{ standalone: true }"
-                />
-                <input
-                  type="text"
-                  placeholder="Titre du cours"
-                  [(ngModel)]="manualCourseName"
-                  [ngModelOptions]="{ standalone: true }"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  placeholder="Crédits"
-                  [(ngModel)]="manualCourseCredits"
-                  [ngModelOptions]="{ standalone: true }"
-                />
-                <button type="button" class="btn-secondary manual-add" (click)="addManualCourseToSection()">Ajouter</button>
-              </div>
-              <div class="manual-error" *ngIf="manualCourseError">{{ manualCourseError }}</div>
-            </div>
             <div class="form-row">
               <app-course-search
                 [allCourses]="availableCourses"
@@ -258,6 +231,7 @@
                 [showSelectedList]="false"
                 [showCheckboxes]="false"
                 (courseSelectionChange)="onModuleSectionCourseChange($event)"
+                [allowManualInput]="true"
               ></app-course-search>
             </div>
             <div class="edit-actions">
@@ -432,33 +406,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="manual-course">
-                    <span class="manual-course-title">Ajouter un cours manuellement</span>
-                    <div class="manual-fields">
-                      <input
-                        type="text"
-                        placeholder="Sigle (ex. ABC1234)"
-                        [(ngModel)]="subManualCourseSigle"
-                        [ngModelOptions]="{ standalone: true }"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Titre du cours"
-                        [(ngModel)]="subManualCourseName"
-                        [ngModelOptions]="{ standalone: true }"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.5"
-                        placeholder="Crédits"
-                        [(ngModel)]="subManualCourseCredits"
-                        [ngModelOptions]="{ standalone: true }"
-                      />
-                      <button type="button" class="btn-secondary manual-add" (click)="addManualCourseToSubSection()">Ajouter</button>
-                    </div>
-                    <div class="manual-error" *ngIf="subManualCourseError">{{ subManualCourseError }}</div>
-                  </div>
                   <div class="form-row">
                     <app-course-search
                       [allCourses]="availableCourses"
@@ -471,6 +418,7 @@
                       [showSelectedList]="false"
                       [showCheckboxes]="false"
                       (courseSelectionChange)="onSubSectionCourseChange($event)"
+                      [allowManualInput]="true"
                     ></app-course-search>
                   </div>
                   <div class="edit-actions">

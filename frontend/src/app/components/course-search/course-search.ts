@@ -20,11 +20,17 @@ export class CourseSearch implements OnInit {
   @Input() pickMode: boolean = false;
   @Input() showSelectedList: boolean = true;
   @Input() showCheckboxes: boolean = true;
-  
+  @Input() allowManualInput: boolean = false;
+
   @Output() courseSelectionChange = new EventEmitter<{
     course: Course;
     selected: boolean;
   }>();
+
+  manualCourseSigle: string = '';
+  manualCourseName: string = '';
+  manualCourseCredits: number | null = null;
+  manualCourseError: string | null = null;
 
   searchTerm: string = '';
   creditFilter: string = '';
@@ -32,7 +38,7 @@ export class CourseSearch implements OnInit {
   selectedCourses: Course[] = [];
   selectedCredits: number = 0;
   isExpanded: boolean = false;
-  
+
   // Pagination
   currentPage: number = 0;
   coursesPerPage: number = 10;
@@ -55,7 +61,7 @@ export class CourseSearch implements OnInit {
       this.currentModuleTitle,
       this.currentSubmoduleTitle
     );
-    
+
     return (!testResult.canSelect && testResult.reason?.includes('module exclusif')) || false;
   }
 
@@ -65,7 +71,7 @@ export class CourseSearch implements OnInit {
       this.currentModuleTitle,
       this.currentSubmoduleTitle
     );
-    
+
     return testResult.reason || '';
   }
 
@@ -75,7 +81,7 @@ export class CourseSearch implements OnInit {
 
     this.allCourses.forEach(course => {
       const state = this.courseStateService.getCourseState(course.sigle);
-      if (state.selected && 
+      if (state.selected &&
           state.selectedInModule === this.currentModuleTitle &&
           state.selectedInSubmodule === this.currentSubmoduleTitle &&
           state.selectedInSection === this.currentSectionDescription) {
@@ -87,16 +93,16 @@ export class CourseSearch implements OnInit {
 
   filterCourses() {
     this.filteredCourses = this.allCourses.filter(course => {
-      const matchesSearch = !this.searchTerm || 
+      const matchesSearch = !this.searchTerm ||
         course.sigle.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         course.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-        
-      const matchesCredit = !this.creditFilter || 
+
+      const matchesCredit = !this.creditFilter ||
         course.credits.toString() === this.creditFilter;
-      
+
       return matchesSearch && matchesCredit;
     });
-    
+
     this.currentPage = 0;
   }
 
@@ -124,7 +130,7 @@ export class CourseSearch implements OnInit {
 
   isSelectedElsewhere(course: Course): boolean {
     const state = this.courseStateService.getCourseState(course.sigle);
-    return state.selected && 
+    return state.selected &&
            (state.selectedInModule !== this.currentModuleTitle ||
             state.selectedInSubmodule !== this.currentSubmoduleTitle ||
             state.selectedInSection !== this.currentSectionDescription);
@@ -132,37 +138,37 @@ export class CourseSearch implements OnInit {
 
   canSelectCourse(course: Course): boolean {
     if (this.isSelected(course)) return true;
-    
+
     if (this.isSelectedElsewhere(course)) return false;
 
     if (this.isCourseLimitReached) return false;
-    
+
     // Vérifier toutes les restrictions via le service
     const canSelect = this.courseStateService.canSearchCourseBeSelected(
       course.sigle,
       this.currentModuleTitle,
       this.currentSubmoduleTitle
     );
-    
+
     if (!canSelect.canSelect) return false;
-    
+
     // Vérifier la limite de crédits (si maxCredits > 0)
     if (this.maxCredits > 0 && this.selectedCredits + course.credits > this.maxCredits) {
       return false;
     }
-    
+
     return true;
   }
 
   getStatusMessage(course: Course): string {
     if (this.isSelectedElsewhere(course)) {
       const state = this.courseStateService.getCourseState(course.sigle);
-      const location = state.selectedInSubmodule 
+      const location = state.selectedInSubmodule
         ? `${state.selectedInModule} > ${state.selectedInSubmodule}`
         : state.selectedInModule;
       return `Déjà sélectionné dans: ${location}`;
     }
-    
+
     // Vérifier la limite de nombre de cours
     if (this.isCourseLimitReached && !this.isSelected(course)) {
       return `Limite de cours atteinte (${this.selectedCourses.length}/${this.maxCourses})`;
@@ -174,15 +180,15 @@ export class CourseSearch implements OnInit {
       this.currentModuleTitle,
       this.currentSubmoduleTitle
     );
-    
+
     if (!canSelect.canSelect && canSelect.reason) {
       return canSelect.reason;
     }
-    
+
     if (this.maxCredits > 0 && this.selectedCredits + course.credits > this.maxCredits) {
       return `Dépasserait la limite de crédits de la section (${this.selectedCredits + course.credits}/${this.maxCredits})`;
     }
-    
+
     return '';
   }
 
@@ -196,7 +202,7 @@ export class CourseSearch implements OnInit {
     }
 
     const isCurrentlySelected = this.isSelected(course);
-    
+
     if (isCurrentlySelected) {
       this.removeCourse(course);
     } else {
@@ -210,7 +216,7 @@ export class CourseSearch implements OnInit {
       this.courseSelectionChange.emit({ course, selected: true });
       return;
     }
-    
+
     // Ajouter le cours aux états si pas déjà présent
     this.courseStateService.addCourseToStates(course);
 
@@ -230,5 +236,41 @@ export class CourseSearch implements OnInit {
 
   numSequence(n: number): Array<number> {
     return Array(n).fill(0).map((x, i) => i + 1);
+  }
+
+  addManualCourse(): void {
+    this.manualCourseError = null;
+
+    const sigle = (this.manualCourseSigle || '').trim().toUpperCase();
+    const name = (this.manualCourseName || '').trim();
+    const rawCredits = this.manualCourseCredits;
+
+    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
+      this.manualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
+      return;
+    }
+
+    const credits = Number(rawCredits);
+    if (!Number.isFinite(credits) || credits <= 0) {
+      this.manualCourseError = 'Les crédits doivent être un nombre positif.';
+      return;
+    }
+
+    if (this.allCourses.some((c) => c.sigle.toUpperCase() === sigle)) {
+      this.manualCourseError = 'Ce sigle est déjà présent dans la liste des cours.';
+      return;
+    }
+
+    const course: Course = { sigle, name, credits, trimester: [] };
+
+    this.addCourse(course);
+    this.courseSelectionChange.emit({ course, selected: true });
+
+    this.allCourses = [course, ...this.allCourses];
+    this.filteredCourses = [course, ...this.filteredCourses];
+
+    this.manualCourseSigle = '';
+    this.manualCourseName = '';
+    this.manualCourseCredits = null;
   }
 }

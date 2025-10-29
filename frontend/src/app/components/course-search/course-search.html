@@ -11,41 +11,41 @@
     <div class="search-header">
       <h4>Recherche de cours</h4>
     </div>
-    
+
     <div class="search-input-container">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
         placeholder="Rechercher par sigle ou nom de cours..."
         class="search-input"
         (input)="filterCourses()">
       <div class="search-icon">🔍</div>
     </div>
-    
+
     <div class="filters">
       <select [(ngModel)]="creditFilter" (change)="filterCourses()" class="filter-select">
         <option value="">Tous les crédits</option>
         <option *ngFor="let item of numSequence(maxCredits)" [value]="item">{{ item }} crédit{{ item > 1 ? 's' : '' }}</option>
       </select>
     </div>
-    
+
     <div class="courses-results" [class.expanded]="isExpanded">
       <div class="results-header" (click)="toggleExpanded()">
         <span>{{ filteredCourses.length }} cours trouvés</span>
         <span class="expand-icon" [class.rotated]="isExpanded">▼</span>
       </div>
-      
+
       <!-- DÉPLACER LA PAGINATION À L'INTÉRIEUR DU CONTENEUR -->
       <div class="results-list-container" *ngIf="isExpanded">
         <div class="results-list">
-          <div class="course-item" 
+          <div class="course-item"
                *ngFor="let course of paginatedCourses"
                [class.selected]="!pickMode && isSelected(course)"
                [class.disabled]="!pickMode && !canSelectCourse(course)"
                [class.already-selected-elsewhere]="isSelectedElsewhere(course)"
                (click)="toggleCourse(course)">
             <div class="course-checkbox">
-              <input *ngIf="showCheckboxes" type="checkbox" 
+              <input *ngIf="showCheckboxes" type="checkbox"
                      [checked]="isSelected(course)"
                      [disabled]="!canSelectCourse(course)"
                      (click)="$event.stopPropagation()">
@@ -63,22 +63,22 @@
             </div>
           </div>
         </div>
-        
+
         <!-- PAGINATION DÉPLACÉE ICI -->
         <div class="pagination" *ngIf="filteredCourses.length > coursesPerPage">
-          <button class="page-btn" 
+          <button class="page-btn"
                   [disabled]="currentPage === 0"
                   (click)="changePage(-1)">‹ Précédent</button>
           <span class="page-info">
             {{ currentPage + 1 }} / {{ totalPages }}
           </span>
-          <button class="page-btn" 
+          <button class="page-btn"
                   [disabled]="currentPage >= totalPages - 1"
                   (click)="changePage(1)">Suivant ›</button>
         </div>
       </div>
     </div>
-    
+
     <div class="selected-courses" *ngIf="showSelectedList && selectedCourses.length > 0">
       <h5>Cours sélectionnés :</h5>
       <div class="selected-list">
@@ -90,5 +90,34 @@
         </div>
       </div>
     </div>
+    <!-- 🆕 Manual course entry (only if allowed) -->
+    <div class="manual-course" *ngIf="allowManualInput">
+      <span class="manual-course-title">Ajouter un cours manuellement</span>
+      <div class="manual-fields">
+        <input
+          type="text"
+          placeholder="Sigle (ex. ABC1234)"
+          [(ngModel)]="manualCourseSigle"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <input
+          type="text"
+          placeholder="Titre du cours"
+          [(ngModel)]="manualCourseName"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <input
+          type="number"
+          min="0"
+          step="1"
+          placeholder="Crédits"
+          [(ngModel)]="manualCourseCredits"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <button class="btn-secondary manual-add" (click)="addManualCourse()">Ajouter</button>
+      </div>
+      <div class="manual-error" *ngIf="manualCourseError">{{ manualCourseError }}</div>
+    </div>
+
   </ng-container>
 </div>

@@ -9,7 +9,6 @@ import { ApiService } from '@app/services/api/api-service';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { StudyPlanEntry } from '@common/study-plan';
-import { Loading } from '@app/components/loading/loading';
 import { RouterModule } from '@angular/router';
 import { User } from '@common/user';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -25,7 +24,6 @@ import { ProgramService } from '@app/services/program/program-service';
     MatSelectModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    Loading,
     RouterModule,
   ],
   templateUrl: './archive.html',
@@ -110,7 +108,7 @@ export class Archive implements OnInit, AfterViewInit {
 
   onRowClick(row: StudyPlanEntry) {
     this.selectedRow = row;
-    this.sPS.resetPlan();
+    this.sPS.resetStudyPlan();
     this.pS.reset();
     this.sPS.loadStudyPlan(row.studyPlanId);
     this.dialogRef.close();

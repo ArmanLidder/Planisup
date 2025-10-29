@@ -26,31 +26,27 @@
     }
   </div>
   <div class="container-right">
-    <div *ngIf="!this.isStudent() " class="action-buttons">
-      <button class="btn-action btn-validate" (click)="onValidate()">Valider</button>
-      <button class="btn-action btn-refuse" (click)="onRefuse()">Refuser</button>
+    <div *ngIf="!this.authentificationService.isStudent() && !this.isArchivedStudyPlan()" class="action-buttons">
+      <button class="btn-action btn-validate" (click)="this.sPS.approveStudyPlan() ">Valider</button>
+      <button class="btn-action btn-refuse" (click)="this.sPS.refuseStudyPlan()">Refuser</button>
     </div>
-    <div *ngIf="this.authentificationService.isStudent()" class="action-buttons">
+    <div *ngIf="this.authentificationService.isStudent()  && !this.isArchivedStudyPlan()" class="action-buttons">
+      <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
       <button
-        *ngIf="this.sPS.needsCorrectionStudyPlan()  && !this.isArchivedStudyPlan()"
+        *ngIf="this.sPS.needsCorrectionStudyPlan()"
         class="btn-action btn-validate"
         (click)="this.sPS.updateStudyPlan()"
       >
         Soumettre
       </button>
-      <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
-      <ng-container *ngIf="studyPlan$ | async as studyPlan">
+    </div>
+     <div *ngIf="this.isArchivedStudyPlan()" class="action-buttons">
         <button
-          *ngIf="
-            this.sPS.studyPlanStatusValidated() &&
-            (this.authentificationService.isStudent() || this.authentificationService.isRegistrar())
-          "
           class="btn-action btn-validate"
           (click)="exportPDF()"
         >
           Exporter en PDF
         </button>
-      </ng-container>
     </div>
     <app-chat *ngIf="!this.isArchivedStudyPlan()"></app-chat>
   </div>

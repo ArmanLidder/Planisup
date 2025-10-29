@@ -48,6 +48,7 @@ export class ProgramModulesEditor implements OnChanges {
   subManualCourseError: string | null = null;
 
   availableCourses: Course[] = [];
+  structureType: 'sections' | 'submodules' = 'sections';
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['modules']) {
@@ -102,18 +103,15 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   hasSections(m: Module): boolean {
-    return !!m.courses && !m.subModules;
+    return !!m && Array.isArray((m as any).courses) && (m as any).courses.length > 0;
   }
 
   hasSubModules(m: Module): boolean {
-    return !!m.subModules && !m.courses;
+    return !!m && Array.isArray((m as any).subModules) && (m as any).subModules.length > 0;
   }
 
   isStructureSections(): boolean {
-    if (!this.editTemp) return false;
-    if (this.editTemp.courses) return true;
-    if (this.editTemp.subModules) return false;
-    return true;
+    return this.structureType === 'sections';
   }
 
   setStructure(index: number, kind: 'sections' | 'submodules'): void {
@@ -135,16 +133,13 @@ export class ProgramModulesEditor implements OnChanges {
   startEdit(index: number): void {
     this.editingIndex = index;
     this.editTemp = JSON.parse(JSON.stringify(this.draftModules[index]));
-    // Normalize structure on load: prefer Sections when both exist; default to Sections when none
-    if (this.editTemp) {
-      const hasCourses = !!this.editTemp.courses;
-      const hasSubs = !!this.editTemp.subModules;
-      if (hasCourses && hasSubs) {
-        this.editTemp.subModules = undefined as any;
-      } else if (!hasCourses && !hasSubs) {
-        this.editTemp.courses = [] as any;
-      }
-    }
+    if (!this.editTemp) return;
+    // ✅ Ensure arrays (prevents *ngFor crashes)
+    this.editTemp.courses = Array.isArray(this.editTemp.courses) ? this.editTemp.courses : [];
+    this.editTemp.subModules = Array.isArray(this.editTemp.subModules) ? this.editTemp.subModules : [];
+
+    const hasSubs= this.editTemp.subModules.length > 0;
+    this.structureType = hasSubs ? 'submodules' : 'sections';
     this.subEditingIndex = null;
     this.subEditTemp = null;
     this.secEditingIndex = null;
@@ -628,5 +623,22 @@ return null;
   private ensureCoursesLoaded(): void {
     if (this.availableCourses.length > 0) return;
     this.api.getCourses().subscribe(c => this.availableCourses = c || []);
+  }
+
+  subModulesSectionsCount(m: Module): number {
+    if (!Array.isArray(m?.subModules)) return 0;
+    return m.subModules.reduce((acc, sm) => {
+      const count = Array.isArray(sm?.courses) ? sm.courses.length : 0;
+      return acc + count;
+    }, 0);
+  }
+
+  subModulesCoursesCount(m: Module): number {
+    if (!Array.isArray(m?.subModules)) return 0;
+    return m.subModules.reduce((acc, sm) => {
+      if (!Array.isArray(sm?.courses)) return acc;
+      const inSm = sm.courses.reduce((a, sec) => a + (Array.isArray(sec?.courses) ? sec.courses.length : 0), 0);
+      return acc + inSm;
+    }, 0);
   }
 }

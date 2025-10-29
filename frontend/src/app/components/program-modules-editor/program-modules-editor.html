@@ -25,8 +25,17 @@
     <!-- View mode -->
     <div *ngIf="editingIndex !== i" class="module-view">
       <div class="vrow"><div class="vlabel">Description</div><div class="vvalue scroll-3">{{ (m.description || []).join('\n') }}</div></div>
-      <div class="vrow"><div class="vlabel subtle">Structure</div><div class="vvalue subtle">{{ hasSections(m) ? 'Sections' : (hasSubModules(m) ? 'Sous-modules' : '-') }}</div></div>
-      <ng-container *ngIf="m.courses && m.courses.length > 0">
+      <div class="vrow">
+        <div class="vlabel subtle">Structure</div>
+        <div class="vvalue subtle">
+          {{ hasSubModules(m) ? 'Sous-modules' : (hasSections(m) ? 'Sections' : '-') }}
+        </div>
+      </div>
+      <div class="vrow" *ngIf="(m.rules || []).length > 0">
+        <div class="vlabel">Règles</div>
+        <div class="vvalue">{{ formatRules(m.rules) }}</div>
+      </div>
+      <ng-container *ngIf="!hasSubModules(m) && m.courses && m.courses.length > 0">
         <div class="vrow">
           <div class="vlabel">Synthèse</div>
           <div class="vvalue">Sections: {{ m.courses.length }} - Cours: {{ moduleCoursesCount(m) }}</div>
@@ -34,6 +43,33 @@
         <div class="vrow" *ngFor="let s of m.courses | slice:0:2">
           <div class="vlabel">- {{ s.description }}</div>
           <div class="vvalue small">{{ sectionCourseCount(s) }} cours - {{ formatRules(s.rules) }}</div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="hasSubModules(m)">
+        <div class="vrow">
+          <div class="vlabel">Synthèse</div>
+          <div class="vvalue">
+            Sous-modules: {{ m.subModules?.length }}
+            <span class="subtle">— Sections: {{ subModulesSectionsCount(m) }} — Cours: {{ subModulesCoursesCount(m) }}</span>
+          </div>
+        </div>
+
+        <div class="vrow" *ngFor="let sm of m.subModules | slice:0:3">
+          <div class="vlabel">• {{ sm.title }}</div>
+          <div class="vvalue small">
+            <div class="muted" *ngIf="(sm.description || []).length">
+              {{ (sm.description || []).join('\n') }}
+            </div>
+            <div *ngIf="(sm.rules || []).length > 0">
+              {{ formatRules(sm.rules) }}
+            </div>
+            <div *ngIf="sm.courses && sm.courses.length > 0">
+              <div class="section-line" *ngFor="let sec of sm.courses | slice:0:2">
+                — {{ sec.description }}
+                <span class="subtle"> ({{ (sec.courses.length || 0) }} cours)</span>
+              </div>
+            </div>
+          </div>
         </div>
       </ng-container>
     </div>

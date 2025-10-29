@@ -57,7 +57,7 @@
           <button
             mat-flat-button
             (click)="saveProgram()"
-            [disabled]="isSaving || !isDraftDifferentThanOriginal()"
+            [disabled]="isSaving"
           >
             {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
           </button>

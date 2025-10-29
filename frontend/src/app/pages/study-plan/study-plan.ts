@@ -45,6 +45,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
   currentPlan: StudyPlanInterface | null = null;
   private programSubscription: Subscription | null = null;
+  private readonly AVANTAGE_POLY_MAX_CREDITS = 15;
 
   constructor(
     private programService: ProgramService,
@@ -374,6 +375,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     if (this.selectedCredits > this.totalCredits) {
       errors.push('Le total des crédits ne peut pas dépasser le maximum autorisé.');
+    }
+
+    if (this.courseStateService.getAvantagePolyCredit() > this.AVANTAGE_POLY_MAX_CREDITS) {
+      errors.push(`Le total de crédits d'avantage Poly ne peut pas dépasser 15 (actuellement: ${this.courseStateService.getAvantagePolyCredit()})`);
+    }
+
+    if (!this.courseStateService.isAllAvantagePolyGrade()) {
+      errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
     }
 
     if (errors.length > 0) {

@@ -36,8 +36,6 @@ export class CourseStateService {
   public exclusiveSubModuleRules: ExclusiveSubModuleRule[] = [];
   private modules: Module[] = [];
 
-  private readonly AVANTAGE_POLY_MAX_CREDITS = 15;
-
   /**
    * Sérialise le courseState en objet simple pour l'envoi au serveur
    */
@@ -793,5 +791,26 @@ export class CourseStateService {
     state.course.alreadyDone = alreadyDone
 
     if (grade) state.course.grade = grade;
+  }
+
+  getAvantagePolyCredit(): number {
+    let credits = 0;
+    this.courseStates.forEach((state) => {
+      if (state.course.alreadyDone && state.selected) {
+        credits += state.credits;
+      }
+    });
+    return credits;
+  }
+
+  isAllAvantagePolyGrade() {
+    let isGrade = true;
+    this.courseStates.forEach((state) => {
+      if (state.course.alreadyDone && state.selected && !state.course.grade) {
+        isGrade = false;
+      }
+    });
+
+    return isGrade;
   }
 }

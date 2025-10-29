@@ -223,6 +223,12 @@ export class ProgramController {
           if (r && typeof r.type === "string") r.type = r.type.trim();
           if (r && r.value != null) r.value = Number(r.value);
         }
+
+        for (const c of s.courses) {
+            if (!Array.isArray(c.trimester)) {
+                  c.trimester = [];
+            }
+        }
       }
 
       // submodules
@@ -244,6 +250,11 @@ export class ProgramController {
             if (r && typeof r.type === "string") r.type = r.type.trim();
             if (r && r.value != null) r.value = Number(r.value);
           }
+            for (const c of ss.courses) {
+                if (!Array.isArray(c.trimester)) {
+                    c.trimester = [];
+                }
+            }
         }
       }
     }

@@ -179,6 +179,9 @@ export class PdfService {
         this.setTextField(form, `sigle_cours_obligatoire_${pdfIndex}`, course.sigle || '');
         this.setTextField(form, `titre_cours_obligatoire_${pdfIndex}`, course.name || '');
         this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
+        if (course.alreadyDone) {
+          this.setTextField(form, `av_${pdfIndex}`, 'A.P');
+        }
         this.setTextField(
           form,
           `crédits_cours_obligatoire_${pdfIndex}`,
@@ -199,22 +202,27 @@ export class PdfService {
         creditsTotal += course.credits || 0;
         const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
-        this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
-        this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
-        this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
-        this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
-        this.setTextField(
-          form,
-          `catégorie_cours_complémentaire_${pdfIndex}`,
-          course.moduleType || ''
-        );
-        this.setTextField(
-          form,
-          `crédits_cours_complémentaire_${pdfIndex}`,
-          course.credits?.toString() || ''
-        );
-        if (pdfIndex === allCourses.length) {
-          this.setTextField(form, `credits_total_2`, creditsTotal.toString());
+        if (pdfIndex <= 9) {
+          this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
+          this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
+          this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
+          this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
+          if (course.alreadyDone) {
+            this.setTextField(form, `av_complémentaire_${pdfIndex}`, 'A.P');
+          }
+          this.setTextField(
+            form,
+            `catégorie_cours_complémentaire_${pdfIndex}`,
+            course.moduleType || ''
+          );
+          this.setTextField(
+            form,
+            `crédits_cours_complémentaire_${pdfIndex}`,
+            course.credits?.toString() || ''
+          );
+          if (pdfIndex === allCourses.length) {
+            this.setTextField(form, `credits_total_2`, creditsTotal.toString());
+          }
         }
       });
     }

@@ -37,16 +37,6 @@ export class ProgramModulesEditor implements OnChanges {
     exclusive_submodules: 'Sous-modules exclusifs',
   };
 
-  manualCourseSigle = '';
-  manualCourseName = '';
-  manualCourseCredits: number | null = null;
-  manualCourseError: string | null = null;
-
-  subManualCourseSigle = '';
-  subManualCourseName = '';
-  subManualCourseCredits: number | null = null;
-  subManualCourseError: string | null = null;
-
   availableCourses: Course[] = [];
   structureType: 'sections' | 'submodules' = 'sections';
 
@@ -146,8 +136,6 @@ export class ProgramModulesEditor implements OnChanges {
     this.secEditTemp = null;
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
-    this.resetManualSectionCourseInputs();
-    this.resetSubManualCourseInputs();
     this.ensureCoursesLoaded();
   }
 
@@ -247,14 +235,14 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.editTemp?.subModules) return;
     this.subEditingIndex = j;
     this.subEditTemp = JSON.parse(JSON.stringify(this.editTemp.subModules[j]));
-    this.resetSubManualCourseInputs();
+
     this.ensureCoursesLoaded();
   }
 
   cancelSubEdit(): void {
     this.subEditingIndex = null;
     this.subEditTemp = null;
-    this.resetSubManualCourseInputs();
+
   }
 
   saveSubEdit(): void {
@@ -264,7 +252,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, subModules: list };
     this.subEditingIndex = null;
     this.subEditTemp = null;
-    this.resetSubManualCourseInputs();
+
   }
 
   subOnTitleChange(val: string): void {
@@ -322,14 +310,12 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.editTemp?.courses) return;
     this.secEditingIndex = k;
     this.secEditTemp = JSON.parse(JSON.stringify(this.editTemp.courses[k]));
-    this.resetManualSectionCourseInputs();
     this.ensureCoursesLoaded();
   }
 
   cancelSecEdit(): void {
     this.secEditingIndex = null;
     this.secEditTemp = null;
-    this.resetManualSectionCourseInputs();
   }
 
   saveSecEdit(): void {
@@ -339,7 +325,6 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, courses: list };
     this.secEditingIndex = null;
     this.secEditTemp = null;
-    this.resetManualSectionCourseInputs();
   }
 
   secOnDescriptionChange(val: string): void {
@@ -393,13 +378,13 @@ export class ProgramModulesEditor implements OnChanges {
     if (!this.subEditTemp?.courses) return;
     this.subSecEditingIndex = k;
     this.subSecEditTemp = JSON.parse(JSON.stringify(this.subEditTemp.courses[k]));
-    this.resetSubManualCourseInputs();
+
     this.ensureCoursesLoaded();
   }
   subCancelSecEdit(): void {
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
-    this.resetSubManualCourseInputs();
+
   }
   subSaveSecEdit(): void {
     if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
@@ -408,7 +393,7 @@ export class ProgramModulesEditor implements OnChanges {
     this.subEditTemp = { ...this.subEditTemp, courses: list };
     this.subSecEditingIndex = null;
     this.subSecEditTemp = null;
-    this.resetSubManualCourseInputs();
+
   }
   subSecOnDescriptionChange(val: string): void {
     if (!this.subSecEditTemp) return;
@@ -510,65 +495,10 @@ return null;
     return m.courses.reduce((sum, sec) => sum + (sec.courses?.length || 0), 0);
   }
 
-  addManualCourseToSection(): void {
-    if (!this.secEditTemp) return;
-    this.manualCourseError = null;
-    const sigle = (this.manualCourseSigle || '').trim().toUpperCase();
-    const name = (this.manualCourseName || '').trim();
-    const rawCredits = this.manualCourseCredits;
-    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
-      this.manualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
-      return;
-    }
-    const credits = Number(rawCredits);
-    if (!Number.isFinite(credits) || credits <= 0) {
-      this.manualCourseError = 'Les crédits doivent être un nombre positif.';
-      return;
-    }
-    const courses = [...(this.secEditTemp.courses || [])];
-    if (courses.some((c) => c.sigle.toUpperCase() === sigle)) {
-      this.manualCourseError = 'Ce sigle est déjà présent dans cette section.';
-      return;
-    }
-    const course: Course = { sigle, name, credits, trimester: 'N/A' };
-    courses.push(course);
-    this.secEditTemp = { ...this.secEditTemp, courses };
-    this.includeCourseInAvailableList(course);
-    this.resetManualSectionCourseInputs();
-  }
-
   commitDrafts(): void {
     this.modulesChange.emit(JSON.parse(JSON.stringify(this.draftModules)));
   }
 
-  addManualCourseToSubSection(): void {
-    if (!this.subSecEditTemp) return;
-    this.subManualCourseError = null;
-    const sigle = (this.subManualCourseSigle || '').trim().toUpperCase();
-    const name = (this.subManualCourseName || '').trim();
-    const rawCredits = this.subManualCourseCredits;
-    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
-      this.subManualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
-      return;
-    }
-    const credits = Number(rawCredits);
-    if (!Number.isFinite(credits) || credits <= 0) {
-      this.subManualCourseError = 'Les crédits doivent être un nombre positif.';
-      return;
-    }
-    const courses = [...(this.subSecEditTemp.courses || [])];
-    if (courses.some((c) => c.sigle.toUpperCase() === sigle)) {
-      this.subManualCourseError = 'Ce sigle est déjà présent dans cette section.';
-      return;
-    }
-    const course: Course = { sigle, name, credits, trimester: 'N/A' };
-    courses.push(course);
-    this.subSecEditTemp = { ...this.subSecEditTemp, courses };
-    this.includeCourseInAvailableList(course);
-    this.resetSubManualCourseInputs();
-  }
-
-  // Courses selection handlers
   onModuleSectionCourseChange(ev: { course: Course; selected: boolean }): void {
     if (!this.secEditTemp) return;
     const list = [...(this.secEditTemp.courses || [])];
@@ -597,27 +527,6 @@ return null;
     if (!this.subSecEditTemp) return;
     const list = (this.subSecEditTemp.courses || []).filter(c => c.sigle !== sigle);
     this.subSecEditTemp = { ...this.subSecEditTemp, courses: list };
-  }
-
-  private resetManualSectionCourseInputs(): void {
-    this.manualCourseSigle = '';
-    this.manualCourseName = '';
-    this.manualCourseCredits = null;
-    this.manualCourseError = null;
-  }
-
-  private resetSubManualCourseInputs(): void {
-    this.subManualCourseSigle = '';
-    this.subManualCourseName = '';
-    this.subManualCourseCredits = null;
-    this.subManualCourseError = null;
-  }
-
-  private includeCourseInAvailableList(course: Course): void {
-    if (this.availableCourses.some((c) => c.sigle.toUpperCase() === course.sigle.toUpperCase())) {
-      return;
-    }
-    this.availableCourses = [...this.availableCourses, course];
   }
 
   private ensureCoursesLoaded(): void {

@@ -6,12 +6,14 @@ import { StudyPlan } from '@common/study-plan';
 import { lastValueFrom } from 'rxjs';
 import { StudyPlanService } from '../study-plan/study-plan-service';
 import { ProgramService } from '../program/program-service';
+import { Trimester } from '@common/program';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PdfService {
   private members: User[] = [];
+  private readonly masterResearchCourses: string[] = ['CAP7002', 'CAP7005', 'CAP7002E', 'CAP7005E'];
   private firstNameFile: string = '';
   private lastNameFile: string = '';
 
@@ -156,14 +158,38 @@ export class PdfService {
   }
 
   private async fillAdditionalWorkShops(form: PDFForm, studyPlan: StudyPlan) {
-    // Remplir les ateliers complémentaires si c'est une maitrise de recherche
-    // this.setCheckBox(form, 'CAP7002');
-    // this.setCheckBox(form, 'CAP7002E');
-    // this.setCheckBox(form, 'CAP7005');
-    // this.setCheckBox(form, 'CAP7005E');
-    // Remplir les trimestres pour les ateliers si c'est une maitrise de recherche
-    // this.setTextField(form, 'trimestre_atelier_1', 'Automne 2024'); // À adapter
-    // this.setTextField(form, 'trimestre_atelier_2', 'Hiver 2025'); // À adapter
+    if (
+      this.studyPlanService.isProgramMaster() &&
+      this.programService.program?.degree.includes('recherche')
+    ) {
+      for (const course of this.masterResearchCourses) {
+        if (
+          studyPlan.courseState[course] &&
+          studyPlan.courseState[course].selected &&
+          Array.isArray(studyPlan.courseState[course].course.trimester)
+        ) {
+          const formattedTrimester = this.formatTrimester(
+            studyPlan.courseState[course].course.trimester[0]
+          );
+
+          if (
+            studyPlan.courseState[course].course.sigle === 'CAP7002' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7002E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_1', `${formattedTrimester}`);
+          } else if (
+            studyPlan.courseState[course].course.sigle === 'CAP7005' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7005E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_2', `${formattedTrimester}`);
+          }
+
+          this.setCheckBox(form, course);
+        } else {
+          continue;
+        }
+      }
+    }
   }
 
   private async fillMandatoryCourses(form: PDFForm, studyPlan: StudyPlan) {
@@ -179,6 +205,9 @@ export class PdfService {
         this.setTextField(form, `sigle_cours_obligatoire_${pdfIndex}`, course.sigle || '');
         this.setTextField(form, `titre_cours_obligatoire_${pdfIndex}`, course.name || '');
         this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
+        if (course.alreadyDone) {
+          this.setTextField(form, `av_${pdfIndex}`, 'A.P');
+        }
         this.setTextField(
           form,
           `crédits_cours_obligatoire_${pdfIndex}`,
@@ -199,22 +228,27 @@ export class PdfService {
         creditsTotal += course.credits || 0;
         const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
-        this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
-        this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
-        this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
-        this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
-        this.setTextField(
-          form,
-          `catégorie_cours_complémentaire_${pdfIndex}`,
-          course.moduleType || ''
-        );
-        this.setTextField(
-          form,
-          `crédits_cours_complémentaire_${pdfIndex}`,
-          course.credits?.toString() || ''
-        );
-        if (pdfIndex === allCourses.length) {
-          this.setTextField(form, `credits_total_2`, creditsTotal.toString());
+        if (pdfIndex <= 9) {
+          this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
+          this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
+          this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
+          this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
+          if (course.alreadyDone) {
+            this.setTextField(form, `av_complémentaire_${pdfIndex}`, 'A.P');
+          }
+          this.setTextField(
+            form,
+            `catégorie_cours_complémentaire_${pdfIndex}`,
+            course.moduleType || ''
+          );
+          this.setTextField(
+            form,
+            `crédits_cours_complémentaire_${pdfIndex}`,
+            course.credits?.toString() || ''
+          );
+          if (pdfIndex === allCourses.length) {
+            this.setTextField(form, `credits_total_2`, creditsTotal.toString());
+          }
         }
       });
     }
@@ -232,7 +266,7 @@ export class PdfService {
     }
   }
 
-  private formatTrimester(trimester: any): string {
+  private formatTrimester(trimester: Trimester): string {
     if (!trimester) {
       return 'Non spécifié';
     }
@@ -245,12 +279,12 @@ export class PdfService {
     return 'Format inconnu';
   }
 
-  private extractAllCourses(studyPlan: any) {
+  private extractAllCourses(studyPlan: StudyPlan) {
     const allCourses: any[] = [];
     if (studyPlan.coursesSelection.modules) {
-      studyPlan.coursesSelection.modules.forEach((module: any) => {
-        if (module.courses && Array.isArray(module.courses)) {
-          module.courses.forEach((course: any) => {
+      studyPlan.coursesSelection.modules.forEach((module) => {
+        if (module.courses) {
+          module.courses.forEach((course) => {
             allCourses.push({
               ...course,
               module: module.title,
@@ -267,7 +301,7 @@ export class PdfService {
     if (moduleTitle.includes('(A)')) return 'A';
     if (moduleTitle.includes('(B)')) return 'B';
     if (moduleTitle.includes('(C)')) return 'C';
-    return 'autre';
+    return '';
   }
 
   private setTextField(form: PDFForm, fieldName: string, value?: string) {

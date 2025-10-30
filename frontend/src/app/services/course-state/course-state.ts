@@ -140,6 +140,7 @@ export class CourseStateService {
         course: course
       });
     }
+    console.log(this.courseStates)
   }
 
   private isSubModuleExcluded(

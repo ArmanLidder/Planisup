@@ -1,22 +1,20 @@
 <div class="study-section" 
-     [class.rule-section]="isFirstInRuleGroup"
-     [class.rule-group-section]="isInRuleGroup && !isFirstInRuleGroup"
      [class.director-approval-section]="isDirectorApprovalSection"
-     [class.minimum-rule-section]="isMinimumRuleSection">
+     [class.minimum-rule-section]="isMinimumRuleSection"
+     [class.rule-section]="isRuleExact">
   <div class="section-header" *ngIf="section.description">
-    <h3 [class.rule-title]="isFirstInRuleGroup" 
-        [class.group-section-title]="isInRuleGroup && !isFirstInRuleGroup"
-        [class.director-approval-title]="isDirectorApprovalSection"
-        [class.minimum-rule-title]="isMinimumRuleSection">
+    <h3 [class.director-approval-title]="isDirectorApprovalSection"
+        [class.minimum-rule-title]="isMinimumRuleSection"
+        [class.rule-title]="isRuleExact">
       {{ section.description }}
     </h3>
     
     <!-- Affichage du statut seulement pour la première section du groupe -->
     <!-- Ne pas afficher pour les sections credits_minimum -->
     <!-- Ne pas afficher en mode view -->
-    <div class="section-status" *ngIf="!isViewMode && isFirstInRuleGroup && hasRequiredCredits && !isMinimumRuleSection">
+    <div class="section-status" *ngIf="!isViewMode && hasRequiredCredits && !isMinimumRuleSection">
       <div class="credits-info">
-        <span class="credits-count">{{ sectionStatus.selectedCredits }} / {{ sectionStatus.requiredCredits }}</span>
+        <span class="credits-count">{{ selectedCredits }} / {{ requiredCredits }}</span>
         <span class="credits-label">crédits</span>
       </div>
       
@@ -47,8 +45,8 @@
   <div class="director-approval-search" *ngIf="!isViewMode && isDirectorApprovalSection">
     <app-course-search
       [allCourses]="allCourses"
-      [maxCredits]="sectionRule?.requiredCredits || 0"
-      [maxCourses]="isDirectorApprovalSingleSection ? 1 : 999"
+      [maxCredits]="requiredCredits || 0"
+      [maxCourses]="999"
       [currentModuleTitle]="currentModuleTitle"
       [currentSubmoduleTitle]="currentSubmoduleTitle"
       [currentSectionDescription]="section.description"

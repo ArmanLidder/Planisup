@@ -42,14 +42,14 @@ export class StudyModule implements OnInit {
   }
 
   initialization() {
-    const creditMatch = this.module.title.match(/\((\d+)\s*crédits\)/i);
-    if (creditMatch) {
-      this.credits = parseInt(creditMatch[1], 10);
-      this.title = this.module.title.replace(creditMatch[0], '').trim();
+    const titleMatch = this.module.title.match(/\((\d+)\s*crédits\)/i);
+    const rule = this.module.rules?.find(rule => rule.type === 'credits_exact');
+    if (titleMatch) {
+      this.title = this.module.title.replace(titleMatch[0], '').trim();
     } else {
       this.title = this.module.title;
-      this.credits = 0;
     }
+    this.credits = rule?.value ? rule.value : 0 ;
   }
 
   toggleModule() {
@@ -84,13 +84,7 @@ export class StudyModule implements OnInit {
   }
 
   calculateSelectedCredits() {
-    this.selectedCredits = 0;
-    
-    this.courseStateService.courseStates.forEach((state, courseSigle) => {
-      if (state.selected && state.selectedInModule === this.module.title) {
-        this.selectedCredits += state.credits;
-      }
-    });
+    this.selectedCredits = this.courseStateService.getModuleSelectedCredits(this.module.title);
   }
 
   getModuleProgressStyle(): any {

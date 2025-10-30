@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Course } from '@common/program';
@@ -10,7 +10,7 @@ import { CourseStateService } from '@app/services/course-state/course-state';
   templateUrl: './course-search.html',
   styleUrl: './course-search.scss'
 })
-export class CourseSearch implements OnInit {
+export class CourseSearch implements OnInit, OnChanges {
   @Input() allCourses: Course[] = [];
   @Input() maxCredits: number = 0;
   @Input() currentModuleTitle!: string;
@@ -20,7 +20,7 @@ export class CourseSearch implements OnInit {
   @Input() pickMode: boolean = false;
   @Input() showSelectedList: boolean = true;
   @Input() showCheckboxes: boolean = true;
-  @Input() allowManualInput: boolean = false;
+  @Input() allowManualInput: boolean = true;
 
   @Output() courseSelectionChange = new EventEmitter<{
     course: Course;
@@ -47,7 +47,14 @@ export class CourseSearch implements OnInit {
 
   ngOnInit() {
     this.filteredCourses = [...this.allCourses];
-    this.loadAlreadySelectedCourses();
+    this.loadSelectedCourses();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['allCourses']) {
+      this.filteredCourses = [...this.allCourses];
+      this.loadSelectedCourses();
+    }
   }
 
   get isCourseLimitReached(): boolean {
@@ -55,7 +62,6 @@ export class CourseSearch implements OnInit {
   }
 
   get isExcludedBySubModuleRule(): boolean {
-    // Créer un cours fictif pour tester l'exclusion
     const testResult = this.courseStateService.canSearchCourseBeSelected(
       'TEST',
       this.currentModuleTitle,
@@ -75,7 +81,8 @@ export class CourseSearch implements OnInit {
     return testResult.reason || '';
   }
 
-  loadAlreadySelectedCourses() {
+  // Charger les cours sélectionnés depuis le service d'état
+  loadSelectedCourses() {
     this.selectedCourses = [];
     this.selectedCredits = 0;
 
@@ -143,7 +150,6 @@ export class CourseSearch implements OnInit {
 
     if (this.isCourseLimitReached) return false;
 
-    // Vérifier toutes les restrictions via le service
     const canSelect = this.courseStateService.canSearchCourseBeSelected(
       course.sigle,
       this.currentModuleTitle,
@@ -152,7 +158,6 @@ export class CourseSearch implements OnInit {
 
     if (!canSelect.canSelect) return false;
 
-    // Vérifier la limite de crédits (si maxCredits > 0)
     if (this.maxCredits > 0 && this.selectedCredits + course.credits > this.maxCredits) {
       return false;
     }
@@ -169,12 +174,10 @@ export class CourseSearch implements OnInit {
       return `Déjà sélectionné dans: ${location}`;
     }
 
-    // Vérifier la limite de nombre de cours
     if (this.isCourseLimitReached && !this.isSelected(course)) {
       return `Limite de cours atteinte (${this.selectedCourses.length}/${this.maxCourses})`;
     }
 
-    // Vérifier les restrictions du module et de l'exclusivité
     const canSelect = this.courseStateService.canSearchCourseBeSelected(
       course.sigle,
       this.currentModuleTitle,
@@ -212,17 +215,18 @@ export class CourseSearch implements OnInit {
 
   addCourse(course: Course) {
     if (!this.canSelectCourse(course)) return;
+    console.log("je suiss la")
     if (this.pickMode) {
       this.courseSelectionChange.emit({ course, selected: true });
       return;
     }
 
-    // Ajouter le cours aux états si pas déjà présent
     this.courseStateService.addCourseToStates(course);
 
     this.selectedCourses.push(course);
     this.selectedCredits += course.credits;
     this.courseSelectionChange.emit({ course, selected: true });
+    console.log("je suis la en bas")
   }
 
   removeCourse(course: Course) {
@@ -263,11 +267,10 @@ export class CourseSearch implements OnInit {
 
     const course: Course = { sigle, name, credits, trimester: [] };
 
-    this.addCourse(course);
-    this.courseSelectionChange.emit({ course, selected: true });
-
     this.allCourses = [course, ...this.allCourses];
     this.filteredCourses = [course, ...this.filteredCourses];
+
+    this.addCourse(course);
 
     this.manualCourseSigle = '';
     this.manualCourseName = '';

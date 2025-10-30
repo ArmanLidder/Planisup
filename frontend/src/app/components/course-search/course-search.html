@@ -79,7 +79,7 @@
       </div>
     </div>
 
-    <div class="selected-courses" *ngIf="showSelectedList && selectedCourses.length > 0">
+    <!-- <div class="selected-courses" *ngIf="showSelectedList && selectedCourses.length > 0">
       <h5>Cours sélectionnés :</h5>
       <div class="selected-list">
         <div class="selected-item" *ngFor="let course of selectedCourses">
@@ -89,7 +89,7 @@
           <button class="remove-btn" (click)="removeCourse(course)">×</button>
         </div>
       </div>
-    </div>
+    </div> -->
     <!-- 🆕 Manual course entry (only if allowed) -->
     <div class="manual-course" *ngIf="allowManualInput">
       <span class="manual-course-title">Ajouter un cours manuellement</span>

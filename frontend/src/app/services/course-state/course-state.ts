@@ -286,6 +286,7 @@ export class CourseStateService {
         course: course
       });
     }
+    console.log(this.courseStates)
   }
 
   // Vérifier si un sous-module est exclu par la règle d'exclusivité

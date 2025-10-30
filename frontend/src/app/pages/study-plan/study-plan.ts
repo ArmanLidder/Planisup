@@ -321,6 +321,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return creditMatch ? parseInt(creditMatch[1], 10) : 0;
   }
 
+  getModuleCreditRequired(module: Module): number {
+    const rule = module.rules?.find(rule => rule.type === 'credits_exact');
+    return rule?.value || 0;
+  }
+
   /**
    * Enleve le nombre de crédit dans le titre du module
    */

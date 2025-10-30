@@ -14,7 +14,7 @@
 
     <div class="conditions" *ngIf="program.modules.length > 0">
       <p *ngFor="let module of program.modules">
-        <strong>{{ extractCreditsFromTitle(module.title) }} crédits</strong> -
+        <strong>{{ getModuleCreditRequired(module) }} crédits</strong> -
         {{ getModuleTitleWithoutCredits(module.title) }}
       </p>
     </div>

@@ -17,7 +17,12 @@ export interface User {
     currentPlan: string;
     plans: [string];
     departement?: string;
+    // Those properties are linked to the student role only
+    programId?: string
+    directorId?: string
+    codirectorsIds?: string[];
 }
+
 export interface LoginRequest {
     usercode: string;
     firstName: string;

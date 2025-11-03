@@ -85,4 +85,34 @@ export class UserService {
       throw new Error('Failed to fetch user');
     }
   }
+
+  async createStudent(student: Partial<User>): Promise<User | null> {
+    try {
+
+      const existing = await UserModel.findOne({ usercode: student.usercode });
+      if (existing) {
+        this.logger.warn(`User with code ${student.usercode} already exists`);
+        return null
+      }
+      
+      const newUser = new UserModel({
+        usercode: student.usercode,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        role: UserRole.Etudiant,
+        currentPlan: '',
+        plans: [],
+        department: student.departement || '',
+        programId: student.programId || '',
+        directorId: student.directorId || '',
+        codirectorsIds: student.codirectorsIds || [],
+      });
+
+      const savedUser = await newUser.save();
+      return convertUserInterface(savedUser);
+    } catch (error) {
+      this.logger.error(`Error creating student user ${student.usercode}: ${error}`);
+      throw new Error('Failed to create student user');
+    } 
+  }
 }

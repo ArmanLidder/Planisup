@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { Service } from 'typedi';
 import { UserService } from '@app/services/user.service/user.service';
 import { Logger } from '@app/services/logger.service/logger.service';
-import { UserRole } from '@common/user';
+import { UserRole, User } from '@common/user';
 
 @Service()
 export class UserController {
@@ -26,6 +26,7 @@ export class UserController {
     this.router.patch('/:id/role', this.updateUserRole.bind(this));
     this.router.delete('/:id', this.deleteUser.bind(this));
     this.router.get('/employees/directors-coordinators', this.getDirectorsAndCoordonnateurs.bind(this));
+    this.router.post('/student', this.createStudentUser.bind(this));
   }
 
   // private requireAdmin(req: Request, res: Response, next: Function): void {
@@ -159,6 +160,32 @@ export class UserController {
       res.status(500).json({
         success: false,
         message: 'Failed to fetch directors and coordinators'
+      });
+    }
+  }
+
+  private async createStudentUser(req: Request, res: Response): Promise<void> {
+     try {
+      const user = req.body as Partial<User>;
+      const newStudent = await this.userService.createStudent({ ...user, role: UserRole.Etudiant });
+
+      if (!newStudent) {
+        res.status(409).json({
+          success: false,
+          message: 'User already exists or invalid fields provided',
+        });
+        return;
+      }
+
+      res.status(201).json({
+        success: true,
+        user: newStudent,
+      });
+    } catch (error: any) {
+      this.logger.error(`Create student user failed: ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create student user',
       });
     }
   }

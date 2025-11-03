@@ -64,10 +64,20 @@ export class GsupMenu {
     return this.currentUser?.role === UserRole.Etudiant;
   }
 
+  public isRegistrar(): boolean {
+    return this.currentUser?.role === UserRole.Registrar;
+  }
+
   public isValidationForStudent(): boolean {
     const statusOngoingOrValidated = this.sPS.studyPlan?.status === StudyPlanStatus.VALIDATED
       || this.sPS.studyPlan?.status === StudyPlanStatus.LIVE;
     return this.isStudent() && statusOngoingOrValidated;
+  }
+
+  public redirectAddUserPage(): void {
+    this.isMenuOpen = false;
+    console.log('Redirect to add user page');
+    // this.router.navigate(['/add-student']);
   }
 
   @HostListener('document:click', ['$event'])

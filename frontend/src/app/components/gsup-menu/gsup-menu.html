@@ -5,6 +5,10 @@
       <img src="./../../../assets/home.png" alt="" />
       <p class="text">Accueil</p>
     </div>
+    <div *ngIf="isRegistrar()" class="dropdown-option" (click)="redirectAddUserPage()">
+      <img src="./../../../assets/add_student.png" alt="" />
+      <p class="text">Ajouter un étudiant</p>
+    </div>
     <div *ngIf="!isStudent() && !isAdmin()" class="dropdown-option" (click)="openArchive()">
       <img src="./../../../assets/archive.png" alt="" />
       <p class="text">Archive</p>

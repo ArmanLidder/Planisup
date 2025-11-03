@@ -7,6 +7,7 @@ import { StudyPlan } from '@app/pages/study-plan/study-plan';
 import { Admin } from '@app/pages/admin/admin';
 import { ViewPlan } from '@app/pages/view-plan/view-plan';
 import { ProgramResolver } from './resolvers/program.resolver';
+import { AddStudentPage } from './pages/add-student/add-student';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -21,7 +22,7 @@ export const routes: Routes = [
   { path: 'study-plan', component: StudyPlan },
   { path: 'view-plan', component: ViewPlan },
   { path: ':type', component: Program },
-  { path: 'add-student', component: StudyPlan },
+  { path: 'add-student', component: AddStudentPage },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 

@@ -21,6 +21,8 @@ export const routes: Routes = [
   { path: 'study-plan', component: StudyPlan },
   { path: 'view-plan', component: ViewPlan },
   { path: ':type', component: Program },
+  { path: 'add-student', component: StudyPlan },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
+
 ];

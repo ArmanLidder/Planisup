@@ -76,8 +76,7 @@ export class GsupMenu {
 
   public redirectAddUserPage(): void {
     this.isMenuOpen = false;
-    console.log('Redirect to add user page');
-    // this.router.navigate(['/add-student']);
+    this.router.navigate(['/add-student']);
   }
 
   @HostListener('document:click', ['$event'])

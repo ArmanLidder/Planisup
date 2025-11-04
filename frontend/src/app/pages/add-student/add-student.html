@@ -1,26 +1,29 @@
 <div class="add-student-container">
   <div class="container-left">
     <div class="left-header">
-      <div class="header-search-program">
+      <div class="header-search-student">
         <input
+          #searchInput
           type="text"
-          placeholder="Rechercher un étudiant..."
+          placeholder="Rechercher un étudiant par nom ou prénom..."
           (input)="onSearch($event.target.value)"
+          [ngStyle]="{ width: selectedStudentId ? '80%' : '100%' }"
         />
+      </div>
+      <div class="header-delete-student" *ngIf="selectedStudentId" (click)="onDelete()">
+        <img src="./../../../assets/image_delete.png" alt="" />
       </div>
     </div>
     <div class="student-list">
       <div
-        *ngFor="let option of allStudents$ | async | keyvalue"
+        *ngFor="let student of students"
         class="student-item"
-        [class.selected]="selectedProgramId === option.key"
-        (click)="selectProgram(option.key)"
+        [class.selected]="selectedStudentId === student._id"
+        (click)="selectStudent(student._id)"
       >
-        {{ option.value }}
+        {{ student.firstName }} - {{ student.lastName }} - {{ student.departement }}
       </div>
-      <p class="no-student-message" *ngIf="allStudents.getValue().size === 0">
-        Aucun étudiant trouvé
-      </p>
+      <p class="no-student-message" *ngIf="students.length === 0">Aucun étudiant trouvé</p>
     </div>
   </div>
   <div class="container-right">
@@ -81,9 +84,9 @@
               mat-flat-button
               color="primary"
               type="submit"
-              [disabled]="form.invalid || submitting"
+              [disabled]="form.invalid || isSubmitting"
             >
-              {{ submitting ? 'Envoi…' : 'Créer' }}
+              {{ isSubmitting ? 'Envoi…' : 'Créer' }}
             </button>
           </mat-card-actions>
         </mat-card-content>

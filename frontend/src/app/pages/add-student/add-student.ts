@@ -38,22 +38,22 @@ export class AddStudentPage implements OnInit {
   protected readonly allStudents = new BehaviorSubject<Map<string, string>>(new Map());
   allStudents$ = this.allStudents.asObservable();
 
-  private allProgramsOriginal = new Map<string, string>();
+  private allStudentsOriginal = new Map<string, string>();
   selectedProgramId: string | null = null;
 
   constructor(
     private formService: AddStudentFormService,
-    private api: ApiService,
-    private readonly route: ActivatedRoute
+    private apiService: ApiService,
+    private readonly activatedRoute: ActivatedRoute
   ) {
-    this.api.getAllPrograms().subscribe((reducedPrograms: ReducedProgram[]) => {
+    this.apiService.getAllPrograms().subscribe((reducedPrograms: ReducedProgram[]) => {
       this.programs = reducedPrograms;
     });
 
-    this.api.getStudentsWithUnsubmittedPlans().subscribe((respobnse) => {
-      console.log(respobnse);
+    this.apiService.getStudentsWithUnsubmittedPlans().subscribe((students) => {
+      console.log(students);
     });
-    const dirAndCoor = this.route.snapshot.data['dirAndCoor'] || {};
+    const dirAndCoor = this.activatedRoute.snapshot.data['dirAndCoor'] || {};
     this.directors = dirAndCoor.directors || [];
     this.coDirectors = dirAndCoor.coDirectors || [];
   }
@@ -61,7 +61,7 @@ export class AddStudentPage implements OnInit {
   ngOnInit(): void {
     this.form = this.formService.buildForm();
 
-    this.api.getDirectorsAndCoordinators().subscribe({
+    this.apiService.getDirectorsAndCoordinators().subscribe({
       next: (users) => {
         this.directors = users.directors;
         this.coDirectors = users.directors;
@@ -74,7 +74,7 @@ export class AddStudentPage implements OnInit {
     if (this.form.invalid) return;
     this.submitting = true;
 
-    this.api.createStudent(this.form.value).subscribe({
+    this.apiService.createStudent(this.form.value).subscribe({
       next: (user) => {
         if (!user) {
           console.error("L'étudiant existe déjà");

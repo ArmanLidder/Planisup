@@ -465,4 +465,10 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     const c = this.coordinators.find((co) => co._id === id);
     return c ? `${c.firstName} ${c.lastName}` : null;
   }
+
+  getTypeDirector(): string {
+    return (this.program.type == "doctorat" || this.program.degree.includes("recherche")) 
+      ? "Directeur de recherche" 
+      : "Directeur d'étude";
+  }
 }

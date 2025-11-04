@@ -21,7 +21,7 @@
 
     <div class="selectors">
       <div class="form-group">
-        <label for="director">Directeur du programme :</label>
+        <label for="director">{{ getTypeDirector() }}</label>
         @if (isViewMode) {
           <p class="readonly-text">
             {{ getDirectorName(directorId) || '—' }}

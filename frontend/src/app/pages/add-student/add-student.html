@@ -11,29 +11,92 @@
     </div>
     <div class="student-list">
       <div
-        *ngFor="let option of list"
+        *ngFor="let option of allStudents$ | async | keyvalue"
         class="student-item"
         [class.selected]="selectedProgramId === option.key"
         (click)="selectProgram(option.key)"
       >
         {{ option.value }}
       </div>
-      <div *ngIf="!selectedProgramId" class="no-student-selected">
-        <img src="./../../../assets/image_select.png" alt="" />
-        <h3>
-          Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
-        </h3>
-        <h3>
-          Appuyez sur le bouton d'ajout situé à droite de la barre de recherche pour ajouter un
-          programme.
-        </h3>
-      </div>
-      <p class="no-student-message" *ngIf="allPrograms.getValue().size === 0">
-        Aucun programme trouvé
+      <p class="no-student-message" *ngIf="allStudents.getValue().size === 0">
+        Aucun étudiant trouvé
       </p>
     </div>
   </div>
   <div class="container-right">
-    <app-add-student-form></app-add-student-form>
+    <!--<div *ngIf="!selectedProgramId" class="no-student-selected">
+      <img src="./../../../assets/image_select.png" alt="" />
+      <h3>Sélectionnez un étudiant dans la liste affichée afin d'interagir avec un étudiant.</h3>
+      <h3>
+        Appuyez sur le bouton de suppression situé à droite de de l'étudiant pour le supprimer de la
+        liste.
+      </h3>
+    </div>-->
+    <form class="student-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>Créer un étudiant</mat-card-title>
+          <mat-card-subtitle>Renseignez les informations</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="grid">
+            <mat-form-field>
+              <mat-label>Prénom</mat-label>
+              <input matInput formControlName="firstName" />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="lastName" />
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>Code utilisateur</mat-label>
+              <input matInput formControlName="usercode" />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Programme</mat-label>
+              <mat-select formControlName="programId">
+                <mat-option *ngFor="let p of programs" [value]="p._id">
+                  {{ p.degree }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Directeur</mat-label>
+              <mat-select formControlName="directorId">
+                <mat-option *ngFor="let d of directors" [value]="d._id">
+                  {{ d.firstName }} {{ d.lastName }} {{ d.departement }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>Co-directeurs</mat-label>
+              <mat-select formControlName="codirectorsIds" multiple>
+                <mat-option *ngFor="let c of coDirectors" [value]="c._id">
+                  {{ c.firstName }} {{ c.lastName }} {{ c.departement }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+          <button mat-stroked-button type="button" (click)="form.reset()">Réinitialiser</button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || submitting"
+          >
+            {{ submitting ? 'Envoi…' : 'Créer' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
   </div>
 </div>

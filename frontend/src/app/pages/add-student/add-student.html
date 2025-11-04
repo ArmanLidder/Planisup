@@ -1,1 +1,39 @@
-<app-add-student-form></app-add-student-form>
+<div class="add-student-container">
+  <div class="container-left">
+    <div class="left-header">
+      <div class="header-search-program">
+        <input
+          type="text"
+          placeholder="Rechercher un étudiant..."
+          (input)="onSearch($event.target.value)"
+        />
+      </div>
+    </div>
+    <div class="student-list">
+      <div
+        *ngFor="let option of list"
+        class="student-item"
+        [class.selected]="selectedProgramId === option.key"
+        (click)="selectProgram(option.key)"
+      >
+        {{ option.value }}
+      </div>
+      <div *ngIf="!selectedProgramId" class="no-student-selected">
+        <img src="./../../../assets/image_select.png" alt="" />
+        <h3>
+          Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
+        </h3>
+        <h3>
+          Appuyez sur le bouton d'ajout situé à droite de la barre de recherche pour ajouter un
+          programme.
+        </h3>
+      </div>
+      <p class="no-student-message" *ngIf="allPrograms.getValue().size === 0">
+        Aucun programme trouvé
+      </p>
+    </div>
+  </div>
+  <div class="container-right">
+    <app-add-student-form></app-add-student-form>
+  </div>
+</div>

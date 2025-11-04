@@ -22,7 +22,7 @@
 
 /* Decorative horizontal bar */
 .form-card::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 40px; /* slight offset to the left */

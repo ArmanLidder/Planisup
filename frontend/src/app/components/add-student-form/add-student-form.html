@@ -7,26 +7,26 @@
 
     <mat-card-content>
       <div class="grid">
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Prénom</mat-label>
           <input matInput formControlName="firstName" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Nom</mat-label>
           <input matInput formControlName="lastName" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="span-2">
+        <mat-form-field class="span-2">
           <mat-label>Code utilisateur</mat-label>
           <input matInput formControlName="usercode" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Programme</mat-label>
           <mat-select formControlName="programId">
-            <mat-option *ngFor="let p of programs" [value]="p.id">
-              {{ p.label }}
+            <mat-option *ngFor="let p of programs" [value]="p._id">
+              {{ p.degree }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -34,17 +34,17 @@
         <mat-form-field appearance="outline">
           <mat-label>Directeur</mat-label>
           <mat-select formControlName="directorId">
-            <mat-option *ngFor="let d of directors" [value]="d.id">
-              {{ d.name }}
+            <mat-option *ngFor="let d of directors" [value]="d._id">
+              {{ d.firstName }} {{ d.lastName }} {{ d.departement}}
             </mat-option>
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="span-2">
+        <mat-form-field class="span-2">
           <mat-label>Co-directeurs</mat-label>
           <mat-select formControlName="codirectorsIds" multiple>
-            <mat-option *ngFor="let c of coDirectors" [value]="c.id">
-              {{ c.name }}
+            <mat-option *ngFor="let c of coDirectors" [value]="c._id">
+              {{ c.firstName }} {{ c.lastName }} {{ c.departement}}
             </mat-option>
           </mat-select>
         </mat-form-field>

@@ -1,62 +1,59 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { AddStudentFormService } from '@app/services/add-student-form/add-student-form';
 import { ApiService } from '@app/services/api/api-service';
-import { User } from '@common/user';
-import { Program } from '@common/program';
-import { MatFormField, MatLabel } from "@angular/material/form-field";
-import { MatCardContent, MatCardSubtitle, MatCardHeader, MatCard, MatCardTitle, MatCardActions } from "@angular/material/card";
-import { MatSelect, MatOption } from "@angular/material/select";
 import { ActivatedRoute } from '@angular/router';
+import { Program } from '@common/program';
+import { User } from '@common/user';
 
 @Component({
   standalone: true,
   selector: 'app-add-student-form',
   imports: [
-    MatFormField,
-    MatCardContent,
-    MatCardSubtitle,
-    MatCardHeader,
-    MatCard,
-    MatCardTitle,
-    MatLabel,
-    MatSelect,
-    MatOption,
-    MatCardActions,
+    CommonModule,
     ReactiveFormsModule,
-    FormsModule
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+    MatButtonModule,
   ],
   templateUrl: './add-student-form.html',
-  styleUrls: ['./add-student-form.scss']
+  styleUrls: ['./add-student-form.scss'],
 })
-export class AddStudentForm {
+export class AddStudentForm implements OnInit {
   form!: FormGroup;
   programs: Program[] = [];
   directors: User[] = [];
   coDirectors: User[] = [];
   submitting = false;
 
-
   constructor(
     private formService: AddStudentFormService,
     private api: ApiService,
-    private readonly activatedRoute: ActivatedRoute,
+    private readonly route: ActivatedRoute
   ) {
-    this.programs = this.activatedRoute.snapshot.data['programs'];
-    this.directors = this.activatedRoute.snapshot.data['dirAndCoor'].directors;
-    this.coDirectors = this.activatedRoute.snapshot.data['dirAndCoor'].coDirectors;
+    this.programs = this.route.snapshot.data['programs'] || [];
+    const dirAndCoor = this.route.snapshot.data['dirAndCoor'] || {};
+    this.directors = dirAndCoor.directors || [];
+    this.coDirectors = dirAndCoor.coDirectors || [];
   }
 
   ngOnInit(): void {
     this.form = this.formService.buildForm();
+
     this.api.getDirectorsAndCoordinators().subscribe({
       next: (users) => {
         this.directors = users.directors;
         this.coDirectors = users.directors;
       },
-      error: (err) => {
-        console.error('Erreur lors de la récupération des directeurs et coordonnateurs', err);
-      }
+      error: (err) => console.error('Erreur chargement directeurs', err),
     });
   }
 
@@ -67,19 +64,16 @@ export class AddStudentForm {
     this.api.createStudent(this.form.value).subscribe({
       next: (user) => {
         if (!user) {
-          // Gérer ce cas avec l'apparition d'un snackbar erreur
-          console.error("L'étudiant existe déjà")
+          console.error("L'étudiant existe déjà");
           this.submitting = false;
           return;
         }
         this.form.reset();
         this.submitting = false;
-        // Gérer ce cas positif avec l'apparition d'un snackbar
       },
       error: (err) => {
         console.error(err);
         this.submitting = false;
-        // Gérer ce cas positif avec l'apparition d'un snackbar
       },
     });
   }

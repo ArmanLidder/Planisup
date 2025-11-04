@@ -89,6 +89,7 @@ input {
   transition: all 0.3s ease;
   font-size: clamp(8px, 1vw, 12px);
   box-shadow: 0 5px 3px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 
   &:hover {
     background: #e3f2fd;
@@ -103,6 +104,13 @@ input {
     border-color: #3498db;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
   }
+}
+
+.student-item p {
+  color: #1a237e;
+  font-weight: bold;
+  font-size: 16px;
+  overflow: hidden;
 }
 
 .no-student-message {

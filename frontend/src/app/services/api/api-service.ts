@@ -143,7 +143,6 @@ export class ApiService {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/archive/${id}`);
   }
 
-
   getProcessMembersByIdStudyPlan(id: string): Observable<User[]> {
     return this.http.get<User[]>(`${environment.serverUrl}/study-plan/members/${id}`);
   }

@@ -21,7 +21,7 @@
         [class.selected]="selectedStudentId === student._id"
         (click)="selectStudent(student._id)"
       >
-        {{ student.firstName }} - {{ student.lastName }} - {{ student.departement }}
+        <p>{{ student.firstName }} {{ student.lastName }}</p>
       </div>
       <p class="no-student-message" *ngIf="students.length === 0">Aucun étudiant trouvé</p>
     </div>
@@ -30,7 +30,7 @@
     <form class="student-form" [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-card class="form-card">
         <mat-card-header>
-          <mat-card-title>Informations de l'étudiant à ajouter</mat-card-title>
+          <mat-card-title>Informations de l'étudiant admis aux cycles supérieurs</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>

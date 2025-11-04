@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AddStudentFormService } from '@app/services/add-student-form/add-student-form';
 import { ApiService } from '@app/services/api/api-service';
 import { ActivatedRoute } from '@angular/router';
-import { Program } from '@common/program';
+import { Program, ReducedProgram } from '@common/program';
 import { User } from '@common/user';
 
 @Component({
@@ -29,7 +29,7 @@ import { User } from '@common/user';
 })
 export class AddStudentForm implements OnInit {
   form!: FormGroup;
-  programs: Program[] = [];
+  programs: ReducedProgram[] = [];
   directors: User[] = [];
   coDirectors: User[] = [];
   submitting = false;
@@ -39,7 +39,10 @@ export class AddStudentForm implements OnInit {
     private api: ApiService,
     private readonly route: ActivatedRoute
   ) {
-    this.programs = this.route.snapshot.data['programs'] || [];
+    this.api.getAllPrograms().subscribe((reducedPrograms: ReducedProgram[]) => {
+      this.programs = reducedPrograms;
+      console.log('Salam:', this.programs);
+    });
     const dirAndCoor = this.route.snapshot.data['dirAndCoor'] || {};
     this.directors = dirAndCoor.directors || [];
     this.coDirectors = dirAndCoor.coDirectors || [];

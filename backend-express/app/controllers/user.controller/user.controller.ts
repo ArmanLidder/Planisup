@@ -27,6 +27,7 @@ export class UserController {
     this.router.delete('/:id', this.deleteUser.bind(this));
     this.router.get('/employees/directors-coordinators', this.getDirectorsAndCoordonnateurs.bind(this));
     this.router.post('/student', this.createStudentUser.bind(this));
+    this.router.get('/students/unsubmitted-plans', this.getStudentsWithUnsubmittedPlans.bind(this));
   }
 
   // private requireAdmin(req: Request, res: Response, next: Function): void {
@@ -186,6 +187,21 @@ export class UserController {
       res.status(500).json({
         success: false,
         message: 'Failed to create student user',
+      });
+    }
+  }
+
+  private async getStudentsWithUnsubmittedPlans(req: Request, res: Response): Promise<void> {
+    try {
+      this.logger.info(`Fetching students with unsubmitted study plans`);
+      const students = await this.userService.getStudentsWithUnsubmittedStudyPlan();
+      this.logger.info(`Found ${students.length} students with unsubmitted plans`);
+      res.status(200).json(students);
+    } catch (error: any) {
+      this.logger.error(`Fetch students with unsubmitted plans failed: ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch students with unsubmitted plans',
       });
     }
   }

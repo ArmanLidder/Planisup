@@ -168,4 +168,10 @@ export class ApiService {
       headers: this.getAuthHeaders(),
     });
   }
+
+  getStudentsWithUnsubmittedPlans(): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.serverUrl}/users/students/unsubmitted-plans`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
 }

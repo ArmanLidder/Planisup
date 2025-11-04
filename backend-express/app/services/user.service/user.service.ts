@@ -94,7 +94,7 @@ export class UserService {
         this.logger.warn(`User with code ${student.usercode} already exists`);
         return null
       }
-      
+
       const newUser = new UserModel({
         usercode: student.usercode,
         firstName: student.firstName,
@@ -114,5 +114,19 @@ export class UserService {
       this.logger.error(`Error creating student user ${student.usercode}: ${error}`);
       throw new Error('Failed to create student user');
     } 
+  }
+
+  async getStudentsWithUnsubmittedStudyPlan(): Promise<User[]> {
+    try {
+      const students = await UserModel.find({ 
+        role: UserRole.Etudiant,
+        currentPlan: '',
+        programId: { $ne: '' }
+      }).select('-__v').lean<IUser[]>();
+      return students.map(student => convertUserInterface(student));
+    } catch (error) {
+      this.logger.error(`Error fetching students with unsubmitted study plans: ${error}`);
+      throw new Error('Failed to fetch students');
+    }
   }
 }

@@ -162,4 +162,10 @@ export class ApiService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  createStudent(student: Partial<User>): Observable<User | null> {
+    return this.http.post<User | null>(`${environment.serverUrl}/users/student`, student, {
+      headers: this.getAuthHeaders(),
+    });
+  }
 }

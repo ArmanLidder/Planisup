@@ -1,0 +1,74 @@
+/* Root container */
+.student-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 24px;
+  background: transparent;
+}
+
+/* Main card */
+.form-card {
+  position: relative;
+  max-width: 900px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  padding: 24px 32px 16px 32px;
+  overflow: hidden;
+}
+
+/* Decorative horizontal bar */
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 32px; /* ✅ slight offset to the left */
+  width: 120px; /* horizontal length of the accent */
+  height: 5px;
+  border-radius: 5px;
+  background-color: #3f51b5; /* Material Indigo */
+}
+
+/* Grid layout for form fields */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+/* Buttons */
+mat-card-actions {
+  margin-top: 16px;
+}
+
+button[mat-flat-button] {
+  min-width: 100px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-card {
+    padding: 20px;
+  }
+
+  .form-card::before {
+    left: 16px;
+    width: 80px;
+  }
+}

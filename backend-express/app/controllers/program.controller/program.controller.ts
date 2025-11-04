@@ -3,7 +3,8 @@ import { Service } from "typedi";
 import {
   ProgramModel,
   IProgram,
-  convertToReduceProgram
+  convertToReduceProgram,
+  convertToReducePrograms
 } from "@app/models/program.model/program.model";
 import { Logger } from "@app/services/logger.service/logger.service";
 import { ReducedProgram } from "@common/program";
@@ -70,6 +71,16 @@ export class ProgramController {
         return res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    this.router.get("/all", async (req, res) => {
+      try {
+        const programs = await ProgramModel.find().exec();
+        return res.status(200).json(convertToReducePrograms(programs));
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
     
     this.router.get("/:id", async (req, res) => {
       try {
@@ -81,16 +92,6 @@ export class ProgramController {
         }
 
         return res.status(200).json(program);
-      } catch (error) {
-        this.logger.warn(error);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-    });
-
-    this.router.get("/", async (req, res) => {
-      try {
-        const programs = await ProgramModel.find().exec();
-        return res.status(200).json(programs);
       } catch (error) {
         this.logger.warn(error);
         return res.status(500).json({ error: "Internal Server Error" });

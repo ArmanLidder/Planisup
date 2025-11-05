@@ -21,6 +21,7 @@ export interface User {
   programId?: string;
   directorId?: string;
   codirectorsIds?: string[];
+  matricule?: string;
 }
 
 export interface LoginRequest {

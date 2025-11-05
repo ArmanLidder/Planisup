@@ -13,6 +13,7 @@ export interface IUser extends Document {
     programId?: string
     directorId?: string
     codirectorsIds?: string[];
+    matricule?: string;
 }
 
 const UserSchema = new Schema({
@@ -30,6 +31,7 @@ const UserSchema = new Schema({
     programId: { type: String },
     directorId: { type: String },
     codirectorsIds: { type: [String] },
+    matricule: { type: String },
 }, {collection: 'User'});
 
 export const UserModel = model<IUser>('User', UserSchema);
@@ -47,6 +49,7 @@ export const convertUserInterface = (user: IUser) => {
         programId: user.programId || '',
         directorId: user.directorId || '',
         codirectorsIds: user.codirectorsIds || [],
+        matricule: user.matricule || '',   
     }
 }
 

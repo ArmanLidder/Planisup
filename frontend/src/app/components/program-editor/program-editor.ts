@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Program } from '@common/program';
 import { ProgramModulesEditor } from '@app/components/program-modules-editor/program-modules-editor';
 import { MatIconModule } from '@angular/material/icon';
+import { ApiService } from '@app/services/api/api-service';
+import { User } from '@common/user';
 
 @Component({
   selector: 'app-program-editor',
@@ -12,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './program-editor.html',
   styleUrl: './program-editor.scss',
 })
-export class ProgramEditor implements OnChanges {
+export class ProgramEditor implements OnChanges, OnInit {
   @Input() program!: Program;
   @Input() isNew = false;
   @Output() programChange = new EventEmitter<Program>();
@@ -23,14 +25,27 @@ export class ProgramEditor implements OnChanges {
   allowedTypes: string[] = ['dess', 'maitrise', 'doctorat', 'dess,maitrise'];
   metadataEditing = false;
   private newModeInitialized = false;
+  coordinators: User[] = [];
 
-  constructor(private readonly fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder, private readonly apiService: ApiService) {
     this.form = this.fb.group({
       degree: ['', [Validators.required]],
       option: [''],
       type: ['', [Validators.required]],
       department: ['', [Validators.required]],
       description: [''],
+      coordonatorId: [''],
+    });
+  }
+
+  ngOnInit(): void {
+    this.apiService.getDirectorsAndCoordinators().subscribe({
+      next: (response) => {
+        this.coordinators = response.coordinators;
+      },
+      error: (error) => {
+        console.error('Failed to load coordinators for program editor:', error);
+      },
     });
   }
 
@@ -64,6 +79,7 @@ export class ProgramEditor implements OnChanges {
       return;
     }
     const value = this.form.value;
+    const coordonatorId = value.coordonatorId ? value.coordonatorId : null;
     const updated: Program = {
       ...this.program,
       degree: value.degree,
@@ -71,6 +87,7 @@ export class ProgramEditor implements OnChanges {
       type: value.type,
       department: value.department,
       description: value.description,
+      coordonatorId,
     } as Program;
     this.programChange.emit(updated);
     this.metadataEditing = false;
@@ -78,6 +95,7 @@ export class ProgramEditor implements OnChanges {
 
   onModulesChange(mods: Program['modules']): void {
     const value = this.form.value;
+    const coordonatorId = value.coordonatorId ? value.coordonatorId : null;
     const updated: Program = {
       ...this.program,
       degree: value.degree,
@@ -85,6 +103,7 @@ export class ProgramEditor implements OnChanges {
       type: value.type,
       department: value.department,
       description: value.description,
+      coordonatorId,
       modules: mods,
     } as Program;
     this.programChange.emit(updated);
@@ -104,6 +123,7 @@ export class ProgramEditor implements OnChanges {
         type: this.program.type,
         department: this.program.department,
         description: this.program.description || '',
+        coordonatorId: this.program.coordonatorId ?? '',
       },
       { emitEvent: false }
     );
@@ -114,4 +134,11 @@ export class ProgramEditor implements OnChanges {
     this.metadataEditing = true;
     this.newModeInitialized = true;
   }
+
+  getCoordinatorName(id: string | null | undefined): string {
+    if (!id) return '-';
+    const coordinator = this.coordinators.find((user) => user._id === id);
+    return coordinator ? `${coordinator.firstName} ${coordinator.lastName}` : id;
+  }
 }
+

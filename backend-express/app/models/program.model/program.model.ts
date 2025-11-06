@@ -12,6 +12,7 @@ export interface IProgram extends Document {
     type: string[];
     department: string;
     description: string;
+    coordonatorId?: string | null;
     modules: IModule[];
 }
 
@@ -105,6 +106,7 @@ const ProgramSchema: Schema = new mongoose.Schema({
   },
   department: { type: String, required: true },
   description: { type: String, default: '' },
+  coordonatorId: { type: String, ref: "User" },
   modules: { type: [ModuleSchema], default: [] }
 }, { collection: 'Program' });
 
@@ -118,5 +120,8 @@ export const convertToReduceProgram = (program: IProgram) => {
       option: program.option,
       type: program.type,
       department: program.department,
+      coordonatorId: program.coordonatorId ?? null,
     };
 }
+
+

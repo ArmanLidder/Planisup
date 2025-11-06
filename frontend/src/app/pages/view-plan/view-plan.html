@@ -14,8 +14,8 @@
   <div class="container-middle">
     @if (studyPlan$ | async; as studyPlan) { @if (isStudyPlanLoaded && studyPlan) {
     <app-study-plan
-      [state]="'viewValidation'"
-      [isViewMode]="true"
+      [state]="isDisplayCorrection ? 'correction' : 'viewValidation'"
+      [isViewMode]="!isDisplayCorrection"
       [directorId]="studyPlan.directorId"
       [coordonatorId]="studyPlan.coordonatorId"
     >
@@ -39,13 +39,13 @@
       class="action-buttons"
     >
       <button class="btn-action btn-cancel" (click)="this.sPS.cancelStudyPlan()">Abandonner</button>
-      <button
+      <!-- <button
         *ngIf="this.sPS.needsCorrectionStudyPlan()"
         class="btn-action btn-validate"
         (click)="this.sPS.updateStudyPlan()"
       >
         Soumettre
-      </button>
+      </button> -->
     </div>
     <div
       *ngIf="this.sPS.studyPlanStatusValidated() && this.isArchivedStudyPlan()"

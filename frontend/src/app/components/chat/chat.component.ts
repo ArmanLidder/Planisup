@@ -86,7 +86,6 @@ export class ChatComponent {
   }
 
   formatSentDate(date: Date | undefined): string {
-    console.log("date", date);
     if (!date) return 'karim';
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }

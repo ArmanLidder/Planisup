@@ -48,14 +48,17 @@
       </app-study-module>
     </div>
 
-    <div
-      class="actions"
-      *ngIf="!isViewMode && this.state !== 'viewAdmin' && this.authService.currentUser"
-    >
+    <div class="actions" *ngIf="!isViewMode && this.state === 'modifyStudent' && this.authService.currentUser">
       <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
     </div>
+
     <div class="actions" *ngIf="this.state === 'viewAdmin' && this.authService.currentUser">
       <button (click)="modifyPlan()" class="btn-primary">Modifier le plan d'études</button>
     </div>
+
+    <div class="actions" *ngIf="state === 'correction' && this.authService.currentUser">
+      <button (click)="validatePlan()" class="btn-primary">Soumettre</button>
+    </div>
+
   </div>
 </div>

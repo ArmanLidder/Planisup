@@ -179,4 +179,8 @@ export class ViewPlan implements OnInit, OnDestroy {
     if (this.authentificationService.currentUser?.role === UserRole.Etudiant && this.sPS.studyPlan?.registrarValidationDate) return !isCancelled
     return false;
   }
+
+  get isDisplayCorrection(): boolean {
+    return this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
+  }
 }

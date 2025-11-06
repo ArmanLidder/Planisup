@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./study-plan.scss'],
 })
 export class StudyPlan implements OnInit, OnDestroy, OnChanges {
-  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' = 'modifyStudent';
+  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'correction' = 'modifyStudent';
   @Input() programOverride?: Program;
   @Input() isViewMode: boolean = false;
   totalCredits: number = 0;
@@ -115,7 +115,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private initializeWithProgram(program: Program) {
+  private async initializeWithProgram(program: Program) {
     this.program = program;
 
     // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
@@ -144,7 +144,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
 
     // Charger tous les cours depuis le backend
-    this.loadAllCourses();
+    await this.loadAllCourses();
 
     this.calculateTotalCredits();
   }
@@ -252,12 +252,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
    * Met tous les cours du API dans le allCourse
    * A enlever pour juste utiliser le service dans le courseSearch
    */
-  loadAllCourses() {
+  async loadAllCourses() {
+    this.courseService.getCourses();
     if (this.courseService.courses.length > 0) {
       this.allCourses = this.courseService.courses;
     } else {
-      console.error('Erreur lors du chargement des cours:');
-      this.allCourses = this.extractCoursesFromProgram();
+      await this.apiService.getCourses().subscribe((listCourses) => {
+        this.allCourses = listCourses;
+      });
     }
   }
 
@@ -443,7 +445,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    this.submitStudyPlan();
+    if (this.state === 'modifyStudent') this.submitStudyPlan();
+    else this.sPS.updateStudyPlan();
   }
 
   private submitStudyPlan() {

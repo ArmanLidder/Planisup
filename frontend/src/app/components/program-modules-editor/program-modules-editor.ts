@@ -59,12 +59,18 @@ export class ProgramModulesEditor implements OnChanges {
     this.draftModules = [...this.draftModules, newModule];
   }
 
-  removeModule(index: number): void {
-    this.draftModules = this.draftModules.filter((_, i) => i !== index);
-    if (this.editingIndex === index) {
-      this.editingIndex = null;
-      this.editTemp = null;
+  async removeModule(index: number): Promise<void> {
+    const target = this.draftModules[index];
+    if (!target) return;
+    const hasContent =
+      (target.courses && target.courses.length > 0) ||
+      (target.subModules && target.subModules.length > 0);
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Supprimer ce module ? Les sections et sous-modules seront perdus.');
+      if (!confirmed) return;
     }
+    this.draftModules = this.draftModules.filter((_, i) => i !== index);
+    if (this.editingIndex === index) this.resetVariables();
   }
 
   moveUp(index: number): void {
@@ -249,8 +255,18 @@ export class ProgramModulesEditor implements OnChanges {
 
   }
 
-  removeSubModule(j: number): void {
+  async removeSubModule(j: number): Promise<void> {
     if (!this.editTemp?.subModules) return;
+    const target = this.editTemp.subModules[j];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.description && target.description.length > 0) ||
+      (target.rules && target.rules.length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Supprimer ce sous-module et toutes ses sections ?');
+      if (!confirmed) return;
+    }
     const list = this.editTemp.subModules.filter((_, i) => i !== j);
     this.editTemp = { ...this.editTemp, subModules: list };
     this.subEditingIndex = null;
@@ -336,8 +352,18 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, courses: list };
   }
 
-  removeSection(k: number): void {
+  async removeSection(k: number): Promise<void> {
     if (!this.editTemp?.courses) return;
+    const target = this.editTemp.courses[k];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.rules && target.rules.length > 0) ||
+      (!!target.description && target.description.trim().length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Supprimer cette section et tous ses cours ?');
+      if (!confirmed) return;
+    }
     const list = this.editTemp.courses.filter((_, i) => i !== k);
     this.editTemp = { ...this.editTemp, courses: list };
     if (this.secEditingIndex === k) { this.secEditingIndex = null; this.secEditTemp = null; }
@@ -400,8 +426,18 @@ export class ProgramModulesEditor implements OnChanges {
     list.push({ description: 'Nouvelle section', courses: [], rules: [] });
     this.subEditTemp = { ...this.subEditTemp, courses: list };
   }
-  subRemoveSection(k: number): void {
+  async subRemoveSection(k: number): Promise<void> {
     if (!this.subEditTemp?.courses) return;
+    const target = this.subEditTemp.courses[k];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.rules && target.rules.length > 0) ||
+      (!!target.description && target.description.trim().length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Supprimer cette section du sous-module et tous ses cours ?');
+      if (!confirmed) return;
+    }
     const list = this.subEditTemp.courses.filter((_, i) => i !== k);
     this.subEditTemp = { ...this.subEditTemp, courses: list };
     if (this.subSecEditingIndex === k) { this.subSecEditingIndex = null; this.subSecEditTemp = null; }
@@ -624,4 +660,18 @@ return null;
     this.subEditingIndex = null;
     this.subEditTemp = null;
   }
+
+  private async confirmRemoval(message: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message,
+        firstButton: 'Annuler',
+        secondButton: 'Supprimer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
 }

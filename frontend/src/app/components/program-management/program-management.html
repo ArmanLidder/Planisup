@@ -1,16 +1,20 @@
 <div class="programs-container">
   <div class="container-left">
     <div class="left-header">
-      <div class="header-search-program">
-        <input
-          type="text"
-          placeholder="Rechercher un programme..."
-          (input)="onSearch($event.target.value)"
-        />
+      <div class="left-title-block">
+        <h2>Programmes</h2>
       </div>
-      <div class="header-add-program" (click)="createProgram()">
-        <img src="./../../../assets/image_add.png" alt="" />
-      </div>
+      <button type="button" class="add-program-btn" (click)="createProgram()">
+        <span class="icon-plus">+</span>
+        Nouveau programme
+      </button>
+    </div>
+    <div class="search-bar">
+      <input
+        type="search"
+        placeholder="Rechercher un programme..."
+        (input)="onSearch($event.target.value)"
+      />
     </div>
     <div class="programs-list">
       <div
@@ -33,7 +37,7 @@
         Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
       </h3>
       <h3>
-        Appuyez sur le bouton d'ajout situé à droite de la barre de recherche pour ajouter un
+        Appuyez sur le bouton d'ajout pour ajouter un
         programme.
       </h3>
     </div>

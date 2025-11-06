@@ -95,6 +95,7 @@ export class Login {
                 this.sPS.loadStudyPlan(response.user.currentPlan, user.role === UserRole.Etudiant);
               } else if (!response.user.currentPlan && response.user.programId) {
                 this.pS.loadProgram(response.user.programId);
+                this.pS
               } else {
                 this.router.navigate(['/accueil']);
               }

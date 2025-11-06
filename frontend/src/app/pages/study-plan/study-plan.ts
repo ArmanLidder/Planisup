@@ -309,9 +309,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     const errors: string[] = [];
 
-    if (this.directorId === '') {
-      errors.push('Vous devez selectionner un Directeur');
-    }
+
+    // No need everything director selected during creation and coordonnator during program creation
+
+    // if (this.directorId === '') {
+    //   errors.push('Vous devez selectionner un Directeur');
+    // }
 
     if (this.coordonatorId === '') {
       errors.push('Vous devez selectionner un Coordonateur');
@@ -402,16 +405,17 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
-      directorId: this.directorId,
+      directorId: this.authService.currentUser?.directorId || '',
       coordonatorId: this.coordonatorId,
       programId: this.program._id!,
-      programType: this.programService.type as ProgramType,
+      programType: this.programService.program?.type[0] as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,
       stepValidation: StepValidationStatus.IN_PROGRESS,
       courseState: this.courseStateService.serializeCourseState(),
       coursesSelection: {
         modules: this.courseStateService.getSelectedCoursesByModule(),
       },
+      codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
     };
 
     console.log("Plan d'études validé:", this.currentPlan);

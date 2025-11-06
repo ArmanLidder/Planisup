@@ -224,7 +224,7 @@ export class StudyPlanService {
   }
 
   private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
-    this.logger.info("Saving new study plan");
+    this.logger.info("Saving new study plan: " + JSON.stringify(studyPlan));
     try {
       // Will have to add ProgramType.MatrisePro
       if (studyPlan.programType === ProgramType.DESS)

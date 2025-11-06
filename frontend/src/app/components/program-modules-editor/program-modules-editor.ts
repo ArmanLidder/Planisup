@@ -106,16 +106,24 @@ export class ProgramModulesEditor implements OnChanges {
 
   setStructure(index: number, kind: 'sections' | 'submodules'): void {
     if (this.editingIndex !== index || !this.editTemp) return;
+    this.structureType = kind;
     const m = { ...this.editTemp } as Module;
     if (kind === 'sections') {
+      m.courses = Array.isArray(m.courses) ? m.courses : [];
       m.subModules = undefined;
-      m.courses = (m.courses || []) as Section[];
       // Remove exclusive_submodules rule if present
       m.rules = (m.rules || []).filter((r) => r.type !== 'exclusive_submodules');
+      this.subEditingIndex = null;
+      this.subEditTemp = null;
+      this.subSecEditingIndex = null;
+      this.subSecEditTemp = null;
     } else {
+      m.subModules = Array.isArray(m.subModules) ? m.subModules : [];
       m.courses = undefined;
-      m.subModules = (m.subModules || []) as SubModule[];
-
+      this.secEditingIndex = null;
+      this.secEditTemp = null;
+      this.subSecEditingIndex = null;
+      this.subSecEditTemp = null;
     }
     this.editTemp = m;
   }

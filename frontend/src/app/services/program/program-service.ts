@@ -144,7 +144,7 @@ export class ProgramService {
   }
 
   /** Navigate to study plan */
-  private loadProgram(id: string): void {
+  loadProgram(id: string): void {
     this.loadingSubject.next(true);
     this.api.getProgram(id).subscribe({
       next: (program: Program) => {

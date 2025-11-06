@@ -13,6 +13,7 @@ import { UserRole, LoginRequest, User } from '@common/user';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Loading } from '@app/components/loading/loading';
 import { CourseService } from '@app/services/course/course-service';
+import { ProgramService } from '@app/services/program/program-service';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +43,8 @@ export class Login {
     private readonly authentificationService: AuthentificationService,
     private readonly router: Router,
     private readonly sPS: StudyPlanService,
-    private readonly coursesService: CourseService
+    private readonly coursesService: CourseService,
+    private readonly pS: ProgramService,
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
@@ -91,6 +93,9 @@ export class Login {
             else {
               if (response.user.currentPlan) {
                 this.sPS.loadStudyPlan(response.user.currentPlan, user.role === UserRole.Etudiant);
+              } else if (!response.user.currentPlan && response.user.programId) {
+                this.pS.loadProgram(response.user.programId);
+                this.pS
               } else {
                 this.router.navigate(['/accueil']);
               }

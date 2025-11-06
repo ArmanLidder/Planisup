@@ -200,6 +200,8 @@ export class ProgramManagement implements OnInit {
   }
 
   async saveProgram(): Promise<void> {
+    const ready = await this.ensureNoUnappliedChanges();
+    if (!ready) return;
     this.programEditorComponent?.flushModulesToProgram();
     const program = this.editingDraft;
     if (!program) return;
@@ -231,6 +233,31 @@ export class ProgramManagement implements OnInit {
       },
 
     });
+  }
+
+  private async ensureNoUnappliedChanges(): Promise<boolean> {
+    const editor = this.programEditorComponent;
+    if (!editor) return true;
+    if (!editor.hasPendingEdits()) return true;
+
+    const proceed = await this.confirmPendingEdits();
+    if (!proceed) return false;
+
+    const applied = editor.applyPendingEdits();
+    return applied;
+  }
+
+  private async confirmPendingEdits(): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message: "Certaines modifications n'ont pas été appliquées. Voulez-vous les appliquer avant d'enregistrer ?",
+        firstButton: 'Retour',
+        secondButton: 'Appliquer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   private enterEditMode(): void {

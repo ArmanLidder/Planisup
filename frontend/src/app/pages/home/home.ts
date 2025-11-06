@@ -7,7 +7,6 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { VerifyPlans } from '@app/components/verify-plans/verify-plans';
 import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
-import { CourseService } from '@app/services/course/course-service';
 import { MatIconModule } from '@angular/material/icon';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 
@@ -27,7 +26,6 @@ export class Home implements OnInit {
     private readonly router: Router,
     private readonly programService: ProgramService,
     private readonly studyPlanService: StudyPlanService,
-    private readonly courseService: CourseService,
     public authentificationService: AuthentificationService
   ) {}
 

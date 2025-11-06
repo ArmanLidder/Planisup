@@ -27,7 +27,7 @@ export class AuthController {
       if (!loginData.usercode) {
         res.status(400).json({
           success: false,
-          message: 'Usercode is required'
+          message: "Usercode is required",
         });
         return;
       }
@@ -35,25 +35,32 @@ export class AuthController {
       const user = await this.authService.authenticateUser(loginData);
 
       if (!user) {
-        this.logger.info(`Failed login ${loginData.usercode}: Attempt to login as student with no registered account`);
-        res.status(401).redirect('/connexion-denied');
+        this.logger.info(
+          `Failed login ${loginData.usercode}: Attempt to login as student with no registered account`
+        );
+        res.status(200).json({
+          success: false,
+          message: "Usercode is required",
+        });
         return;
       }
 
-      this.logger.info(`Successful login for ${user.usercode} with role ${user.role}`);
+      this.logger.info(
+        `Successful login for ${user.usercode} with role ${user.role}`
+      );
 
       res.status(200).json({
         success: true,
-        user
+        user,
       });
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       this.logger.error(`Login failed: ${errorMessage}`);
 
       res.status(500).json({
         success: false,
-        message: 'Authentication failed'
+        message: "Authentication failed",
       });
     }
   }

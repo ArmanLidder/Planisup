@@ -47,6 +47,10 @@ export class GsupHeader implements OnInit {
   }
 
   isStudentHasToCompleteStudyPlan(): boolean {
-    return this.currentUser?.role === UserRole.Etudiant && this.currentUser.currentPlan === '' && this.currentUser.programId !== '';
+    return (
+      this.currentUser?.role === UserRole.Etudiant &&
+      this.currentUser.currentPlan === '' &&
+      this.currentUser.programId !== ''
+    );
   }
 }

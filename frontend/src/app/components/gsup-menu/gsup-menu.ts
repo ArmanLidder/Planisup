@@ -25,7 +25,7 @@ export class GsupMenu {
     private readonly router: Router,
     private readonly authentificationService: AuthentificationService,
     private readonly dialog: MatDialog,
-    private readonly sPS: StudyPlanService,
+    private readonly sPS: StudyPlanService
   ) {}
 
   public openMenu(): void {
@@ -68,9 +68,14 @@ export class GsupMenu {
     return this.currentUser?.role === UserRole.Registrar;
   }
 
+  public isEmployee(): boolean {
+    return this.currentUser?.role === UserRole.Employe;
+  }
+
   public isValidationForStudent(): boolean {
-    const statusOngoingOrValidated = this.sPS.studyPlan?.status === StudyPlanStatus.VALIDATED
-      || this.sPS.studyPlan?.status === StudyPlanStatus.LIVE;
+    const statusOngoingOrValidated =
+      this.sPS.studyPlan?.status === StudyPlanStatus.VALIDATED ||
+      this.sPS.studyPlan?.status === StudyPlanStatus.LIVE;
     return this.isStudent() && statusOngoingOrValidated;
   }
 

@@ -53,7 +53,7 @@
             <mat-label>Programme</mat-label>
             <mat-select formControlName="programId">
               <mat-option *ngFor="let p of programs" [value]="p._id">
-                {{ p.degree }}
+                {{ p.degree }} - {{ p.option }}
               </mat-option>
             </mat-select>
           </mat-form-field>

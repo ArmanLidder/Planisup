@@ -147,6 +147,10 @@ export class ApiService {
     return this.http.get<User[]>(`${environment.serverUrl}/study-plan/members/${id}`);
   }
 
+  getProcessCodirectorsByIdStudyPlan(id: string): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.serverUrl}/study-plan/codirectors/${id}`);
+  }
+
   getChat(chatId: string): Observable<any> {
     return this.http.get<any>(`${environment.serverUrl}/chat/${chatId}`);
   }

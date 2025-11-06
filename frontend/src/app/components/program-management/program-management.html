@@ -1,16 +1,21 @@
 <div class="programs-container">
   <div class="container-left">
     <div class="left-header">
-      <div class="header-search-program">
-        <input
-          type="text"
-          placeholder="Rechercher un programme..."
-          (input)="onSearch($event.target.value)"
-        />
+      <div class="left-title-block">
+        <h2>Programmes</h2>
       </div>
-      <div class="header-add-program" (click)="createProgram()">
-        <img src="./../../../assets/image_add.png" alt="" />
-      </div>
+      <button mat-flat-button
+              class="palette-primary" (click)="createProgram()">
+        <span class="icon-plus">+</span>
+        Nouveau programme
+      </button>
+    </div>
+    <div class="search-bar">
+      <input
+        type="search"
+        placeholder="Rechercher un programme..."
+        (input)="onSearch($event.target.value)"
+      />
     </div>
     <div class="programs-list">
       <div
@@ -33,7 +38,7 @@
         Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
       </h3>
       <h3>
-        Appuyez sur le bouton d'ajout situé à droite de la barre de recherche pour ajouter un
+        Appuyez sur le bouton d'ajout pour ajouter un
         programme.
       </h3>
     </div>
@@ -41,23 +46,24 @@
     <ng-container *ngIf="selectedProgramId && (programService.program || editingDraft)">
       <div class="right-toolbar" *ngIf="isEditing">
         <div class="toolbar-left">
-          <button class="btn-danger" *ngIf="!isCreatingNew" (click)="confirmDeleteProgram()">
+          <button mat-flat-button class="palette-danger" *ngIf="!isCreatingNew" (click)="confirmDeleteProgram()">
             Supprimer le programme
           </button>
         </div>
 
         <div class="toolbar-right">
-          <button mat-stroked-button (click)="togglePreview()">
+          <button mat-stroked-button class="palette-warning" (click)="togglePreview()">
             {{ isPreviewing ? 'Revenir à l’édition' : 'Prévisualiser le plan' }}
           </button>
           <button
             mat-flat-button
+            class="palette-primary"
             (click)="saveProgram()"
             [disabled]="isSaving"
           >
             {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
           </button>
-          <button mat-flat-button (click)="requestExit()">Quitter l'édition</button>
+          <button mat-flat-button class="palette-danger" (click)="requestExit()">Quitter l'édition</button>
         </div>
       </div>
 
@@ -80,3 +86,4 @@
     </ng-container>
   </div>
 </div>
+

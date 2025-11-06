@@ -6,6 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { CourseSearch } from '@app/components/course-search/course-search';
 import { ApiService } from '@app/services/api/api-service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-program-modules-editor',
@@ -58,12 +59,18 @@ export class ProgramModulesEditor implements OnChanges {
     this.draftModules = [...this.draftModules, newModule];
   }
 
-  removeModule(index: number): void {
-    this.draftModules = this.draftModules.filter((_, i) => i !== index);
-    if (this.editingIndex === index) {
-      this.editingIndex = null;
-      this.editTemp = null;
+  async removeModule(index: number): Promise<void> {
+    const target = this.draftModules[index];
+    if (!target) return;
+    const hasContent =
+      (target.courses && target.courses.length > 0) ||
+      (target.subModules && target.subModules.length > 0);
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Êtes-vous sûr de vouloir supprimer ce module ?');
+      if (!confirmed) return;
     }
+    this.draftModules = this.draftModules.filter((_, i) => i !== index);
+    if (this.editingIndex === index) this.resetVariables();
   }
 
   moveUp(index: number): void {
@@ -104,20 +111,58 @@ export class ProgramModulesEditor implements OnChanges {
     return this.structureType === 'sections';
   }
 
-  setStructure(index: number, kind: 'sections' | 'submodules'): void {
+  async setStructure(index: number, kind: 'sections' | 'submodules'): Promise<void> {
     if (this.editingIndex !== index || !this.editTemp) return;
+    if (this.structureType === kind) return;
+
+    const hasSections = Array.isArray(this.editTemp.courses) && this.editTemp.courses.length > 0;
+    const hasSubModules = Array.isArray(this.editTemp.subModules) && this.editTemp.subModules.length > 0;
+
+    const willEraseSections = kind === 'submodules' && hasSections;
+    const willEraseSubModules = kind === 'sections' && hasSubModules;
+
+    if (willEraseSections || willEraseSubModules) {
+      const confirmed = await this.confirmStructureSwap(kind);
+      if (!confirmed) return;
+    }
+
+    this.structureType = kind;
     const m = { ...this.editTemp } as Module;
     if (kind === 'sections') {
+      m.courses = Array.isArray(m.courses) ? m.courses : [];
       m.subModules = undefined;
-      m.courses = (m.courses || []) as Section[];
       // Remove exclusive_submodules rule if present
       m.rules = (m.rules || []).filter((r) => r.type !== 'exclusive_submodules');
+      this.subEditingIndex = null;
+      this.subEditTemp = null;
+      this.subSecEditingIndex = null;
+      this.subSecEditTemp = null;
     } else {
+      m.subModules = Array.isArray(m.subModules) ? m.subModules : [];
       m.courses = undefined;
-      m.subModules = (m.subModules || []) as SubModule[];
-
+      this.secEditingIndex = null;
+      this.secEditTemp = null;
+      this.subSecEditingIndex = null;
+      this.subSecEditTemp = null;
     }
     this.editTemp = m;
+  }
+
+  private async confirmStructureSwap(target: 'sections' | 'submodules'): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const message =
+      target === 'sections'
+        ? 'Basculer vers les sections effacera tous les sous-modules existants. Continuer ?'
+        : 'Basculer vers les sous-modules effacera toutes les sections existantes. Continuer ?';
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message,
+        firstButton: 'Annuler',
+        secondButton: 'Continuer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   startEdit(index: number): void {
@@ -145,6 +190,9 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveEdit(): void {
+    this.applyPendingModuleSectionEdit();
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
     if (this.editingIndex === null || !this.editTemp) return;
     const arr = [...this.draftModules];
     arr[this.editingIndex] = this.editTemp;
@@ -207,8 +255,18 @@ export class ProgramModulesEditor implements OnChanges {
 
   }
 
-  removeSubModule(j: number): void {
+  async removeSubModule(j: number): Promise<void> {
     if (!this.editTemp?.subModules) return;
+    const target = this.editTemp.subModules[j];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.description && target.description.length > 0) ||
+      (target.rules && target.rules.length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval(' Êtes-vous sûr de vouloir supprimer ce sous-module?');
+      if (!confirmed) return;
+    }
     const list = this.editTemp.subModules.filter((_, i) => i !== j);
     this.editTemp = { ...this.editTemp, subModules: list };
     this.subEditingIndex = null;
@@ -246,13 +304,8 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveSubEdit(): void {
-    if (this.subEditingIndex === null || !this.subEditTemp || !this.editTemp?.subModules) return;
-    const list = [...this.editTemp.subModules];
-    list[this.subEditingIndex] = this.subEditTemp;
-    this.editTemp = { ...this.editTemp, subModules: list };
-    this.subEditingIndex = null;
-    this.subEditTemp = null;
-
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
   }
 
   subOnTitleChange(val: string): void {
@@ -299,8 +352,18 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, courses: list };
   }
 
-  removeSection(k: number): void {
+  async removeSection(k: number): Promise<void> {
     if (!this.editTemp?.courses) return;
+    const target = this.editTemp.courses[k];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.rules && target.rules.length > 0) ||
+      (!!target.description && target.description.trim().length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Êtes-vous sûr de vouloir supprimer cette section?');
+      if (!confirmed) return;
+    }
     const list = this.editTemp.courses.filter((_, i) => i !== k);
     this.editTemp = { ...this.editTemp, courses: list };
     if (this.secEditingIndex === k) { this.secEditingIndex = null; this.secEditTemp = null; }
@@ -319,12 +382,7 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveSecEdit(): void {
-    if (this.secEditingIndex === null || !this.secEditTemp || !this.editTemp?.courses) return;
-    const list = [...this.editTemp.courses];
-    list[this.secEditingIndex] = this.secEditTemp;
-    this.editTemp = { ...this.editTemp, courses: list };
-    this.secEditingIndex = null;
-    this.secEditTemp = null;
+    this.applyPendingModuleSectionEdit();
   }
 
   secOnDescriptionChange(val: string): void {
@@ -368,8 +426,18 @@ export class ProgramModulesEditor implements OnChanges {
     list.push({ description: 'Nouvelle section', courses: [], rules: [] });
     this.subEditTemp = { ...this.subEditTemp, courses: list };
   }
-  subRemoveSection(k: number): void {
+  async subRemoveSection(k: number): Promise<void> {
     if (!this.subEditTemp?.courses) return;
+    const target = this.subEditTemp.courses[k];
+    const hasContent = !!target && (
+      (target.courses && target.courses.length > 0) ||
+      (target.rules && target.rules.length > 0) ||
+      (!!target.description && target.description.trim().length > 0)
+    );
+    if (hasContent) {
+      const confirmed = await this.confirmRemoval('Supprimer cette section du sous-module et tous ses cours ?');
+      if (!confirmed) return;
+    }
     const list = this.subEditTemp.courses.filter((_, i) => i !== k);
     this.subEditTemp = { ...this.subEditTemp, courses: list };
     if (this.subSecEditingIndex === k) { this.subSecEditingIndex = null; this.subSecEditTemp = null; }
@@ -387,13 +455,7 @@ export class ProgramModulesEditor implements OnChanges {
 
   }
   subSaveSecEdit(): void {
-    if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
-    const list = [...this.subEditTemp.courses];
-    list[this.subSecEditingIndex] = this.subSecEditTemp;
-    this.subEditTemp = { ...this.subEditTemp, courses: list };
-    this.subSecEditingIndex = null;
-    this.subSecEditTemp = null;
-
+    this.applyPendingSubModuleSectionEdit();
   }
   subSecOnDescriptionChange(val: string): void {
     if (!this.subSecEditTemp) return;
@@ -550,4 +612,66 @@ return null;
       return acc + inSm;
     }, 0);
   }
+
+  hasPendingEdits(): boolean {
+    return (
+      this.editingIndex !== null ||
+      this.subEditingIndex !== null ||
+      this.secEditingIndex !== null ||
+      this.subSecEditingIndex !== null
+    );
+  }
+
+  applyAllPendingEdits(): void {
+    this.applyPendingModuleSectionEdit();
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
+    if (this.editingIndex !== null && this.editTemp) {
+      const arr = [...this.draftModules];
+      arr[this.editingIndex] = this.editTemp;
+      this.draftModules = arr;
+      this.resetVariables();
+    }
+  }
+
+  private applyPendingModuleSectionEdit(): void {
+    if (this.secEditingIndex === null || !this.secEditTemp || !this.editTemp?.courses) return;
+    const list = [...this.editTemp.courses];
+    list[this.secEditingIndex] = this.secEditTemp;
+    this.editTemp = { ...this.editTemp, courses: list };
+    this.secEditingIndex = null;
+    this.secEditTemp = null;
+  }
+
+  private applyPendingSubModuleSectionEdit(): void {
+    if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
+    const list = [...this.subEditTemp.courses];
+    list[this.subSecEditingIndex] = this.subSecEditTemp;
+    this.subEditTemp = { ...this.subEditTemp, courses: list };
+    this.subSecEditingIndex = null;
+    this.subSecEditTemp = null;
+  }
+
+  private applyPendingSubModuleEdit(): void {
+    if (this.subEditingIndex === null || !this.subEditTemp || !this.editTemp?.subModules) return;
+    const list = [...this.editTemp.subModules];
+    list[this.subEditingIndex] = this.subEditTemp;
+    this.editTemp = { ...this.editTemp, subModules: list };
+    this.subEditingIndex = null;
+    this.subEditTemp = null;
+  }
+
+  private async confirmRemoval(message: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message,
+        firstButton: 'Annuler',
+        secondButton: 'Supprimer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
 }

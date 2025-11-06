@@ -168,6 +168,18 @@ export class StudyPlanService {
     return members;
   }
 
+  async getProcessCodirectors(id: string) {
+    const studyPlan = await this.getStudyPlan(id);
+    const codirectors: Record<string, any>[] = [];
+
+    for (const codirectorId of studyPlan.codirectorsIds) {
+      const codirector = await UserModel.findById(codirectorId);
+      codirectors.push(codirector);
+    }
+
+    return codirectors;
+  }
+
   private async convertToStudyPlanEntries(plans: IStudyPlan[]) {
     const entries: StudyPlanEntry[] = [];
     for (const plan of plans) {
@@ -278,7 +290,7 @@ export class StudyPlanService {
 
         await savedPlan.save();
 
-        return savedPlan
+        return savedPlan;
       }
 
       const savedPlan = await StudyPlanModel.findOneAndUpdate(

@@ -42,14 +42,14 @@ export class StudyPlanController {
     });
 
     this.router.get("/archive/:id", async (req: Request, res: Response) => {
-        const id = req.params.id;
-        try {
-            const isArchive = true;
-            const entries = await this.sPS.getStudyPlans(id, isArchive);
-            return entries ? res.status(201).json(entries) : res.sendStatus(500);
-        } catch(e) {
-            return res.status(500).json(e)
-        }
+      const id = req.params.id;
+      try {
+        const isArchive = true;
+        const entries = await this.sPS.getStudyPlans(id, isArchive);
+        return entries ? res.status(201).json(entries) : res.sendStatus(500);
+      } catch (e) {
+        return res.status(500).json(e);
+      }
     });
 
     this.router.get("/members/:id", async (req: Request, res: Response) => {
@@ -58,6 +58,19 @@ export class StudyPlanController {
       try {
         const members = await this.sPS.getProcessMembers(id);
         return members ? res.status(201).json(members) : res.sendStatus(500);
+      } catch (e) {
+        return res.status(500).json(e);
+      }
+    });
+
+    this.router.get("/codirectors/:id", async (req: Request, res: Response) => {
+      const id = req.params.id;
+      this.logger.info(`Requête reçue pour les membres du study plan ${id}`);
+      try {
+        const codirectors = await this.sPS.getProcessCodirectors(id);
+        return codirectors
+          ? res.status(201).json(codirectors)
+          : res.sendStatus(500);
       } catch (e) {
         return res.status(500).json(e);
       }

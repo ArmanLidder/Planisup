@@ -136,7 +136,7 @@ export class ProgramEditor implements OnChanges, OnInit {
   }
 
   getCoordinatorName(id: string | null | undefined): string {
-    if (!id) return '-';
+    if (!id) return 'Aucun coordonnateur';
     const coordinator = this.coordinators.find((user) => user._id === id);
     return coordinator ? `${coordinator.firstName} ${coordinator.lastName}` : id;
   }

@@ -261,9 +261,11 @@ export class StudyPlanService {
     try {
       if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION) {
         const step = studyPlan.programType[0] === "dess" ? StudyPlanStep.ADMIN_AGENT : StudyPlanStep.DIRECTOR;
+        studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
+        studyPlan.studyPlanStep = step;
         const savedPlan = await StudyPlanModel.findOneAndUpdate(
           { _id: studyPlan._id },
-          { $set: { stepValidation: StepValidationStatus.IN_PROGRESS, studyPlanStep: step } },
+          studyPlan,
           { new: true }
         );
 

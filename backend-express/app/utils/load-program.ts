@@ -51,6 +51,7 @@ export async function loadPrograms(): Promise<IProgram[]> {
     type: extractProgramTypes(p.degree) || 'unknown', // Take first type or default
     department: findKeyByValue(p.degree, programKeywords) || 'Unknown',
     description: p.description,
+    coordonatorId: p.coordonatorId || undefined,
     modules: (p.modules || []).map((m: any) => ({
       title: m.title,
       description: m.texte_module || [],

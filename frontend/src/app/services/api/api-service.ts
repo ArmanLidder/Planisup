@@ -44,7 +44,7 @@ export class ApiService {
   }
 
   getAllPrograms(): Observable<ReducedProgram[]> {
-    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program`);
+    return this.http.get<ReducedProgram[]>(`${environment.serverUrl}/program/all`);
   }
 
   getProgram(id: string): Observable<Program> {
@@ -143,7 +143,6 @@ export class ApiService {
     return this.http.get<any[]>(`${environment.serverUrl}/study-plan/archive/${id}`);
   }
 
-
   getProcessMembersByIdStudyPlan(id: string): Observable<User[]> {
     return this.http.get<User[]>(`${environment.serverUrl}/study-plan/members/${id}`);
   }
@@ -161,5 +160,17 @@ export class ApiService {
       `${environment.serverUrl}/users/${userId}`,
       { headers: this.getAuthHeaders() }
     );
+  }
+
+  createStudent(student: Partial<User>): Observable<User | null> {
+    return this.http.post<User | null>(`${environment.serverUrl}/users/student`, student, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  getStudentsWithUnsubmittedPlans(): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.serverUrl}/users/students/unsubmitted-plans`, {
+      headers: this.getAuthHeaders(),
+    });
   }
 }

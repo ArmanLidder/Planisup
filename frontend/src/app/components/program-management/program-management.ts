@@ -115,7 +115,7 @@ export class ProgramManagement implements OnInit {
       next: (program: Program) => {
         this.programService.program = program; // view mode
         this.originalProgram = program;
-        if (this.isEditing) this.editingDraft = JSON.parse(JSON.stringify(program));
+        this.editingDraft = JSON.parse(JSON.stringify(program));
       },
     });
   }
@@ -182,6 +182,7 @@ export class ProgramManagement implements OnInit {
       type: '',
       department: '',
       description: '',
+      coordonatorId: null,
       modules: [],
     } as Program;
     // Do not add to left list; keep selection internal
@@ -328,6 +329,7 @@ export class ProgramManagement implements OnInit {
       option: program.option,
       type: types,
       department: program.department,
+      coordonatorId: program.coordonatorId ?? null,
     };
   }
 
@@ -352,9 +354,18 @@ export class ProgramManagement implements OnInit {
           type: ed.type || '',
           department: ed.department || '',
           description: ed.description || '',
+          coordonatorId: ed.coordonatorId ?? null,
           modules: ed.modules || [],
         });
-        const blank = JSON.stringify({ degree: '', option: '', type: '', department: '', description: '', modules: [] });
+        const blank = JSON.stringify({
+          degree: '',
+          option: '',
+          type: '',
+          department: '',
+          description: '',
+          coordonatorId: null,
+          modules: [],
+        });
         return normalized !== blank;
       } catch {
         return true;
@@ -426,3 +437,6 @@ export class ProgramManagement implements OnInit {
 
 
 }
+
+
+

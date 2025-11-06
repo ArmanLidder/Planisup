@@ -11,23 +11,16 @@ export class AuthService {
     const { usercode } = loginData;
     this.logger.info(`Login attempt for usercode: ${usercode}`);
 
+    // Check if account already exists and connect
     const existingUser = await UserModel.findOne({ usercode });
-
     if (existingUser) {
       this.logger.info(`${usercode} already exists`);
       return convertUserInterface(existingUser);
     }
-
-    const userData = this.prepareUserData(loginData);
-
-    try {
-      const newUser = await UserModel.create(userData);
-      this.logger.info(`${usercode} account newly created with role: ${userData.role}`);
-      return convertUserInterface(newUser);
-    } catch (error) {
-      this.logger.error(`Failed to create user account for ${usercode}: ${error}`);
-      throw new Error('Failed to create user account');
-    }
+    // For employees account creation
+    const isEmployee = this.determineUserRole(usercode) === UserRole.Employe;
+    if (isEmployee) return this.createEmployeeAccount(loginData);
+    return null;
   }
 
   private prepareUserData(loginData: LoginRequest): Partial<IUser> {
@@ -55,5 +48,17 @@ export class AuthService {
       return UserRole.Employe;
     }
     return UserRole.Etudiant;
+  }
+
+  private async createEmployeeAccount(loginData: LoginRequest): Promise<User> {
+    try {
+      const userData = this.prepareUserData(loginData);
+      const newUser = await UserModel.create(userData);
+      this.logger.info(`${loginData.usercode} account newly created with role: ${userData.role}`);
+      return convertUserInterface(newUser);
+    } catch (error) {
+      this.logger.error(`Failed to create user account for ${loginData.usercode}: ${error}`);
+      throw new Error('Failed to create user account');
+    }
   }
 }

@@ -40,6 +40,12 @@
         <div class="vlabel">Description</div>
         <div class="vvalue text-wrap scroll-4">{{ program.description }}</div>
       </div>
+      <div class="vrow">
+        <div class="vlabel">Coordonnateur</div>
+        <div class="vvalue">
+          {{ getCoordinatorName(program.coordonatorId)}}
+        </div>
+      </div>
     </div>
   </div>
 
@@ -69,6 +75,16 @@
     <div class="form-row">
       <label for="description">Description</label>
       <textarea id="description" rows="4" formControlName="description"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label for="coordinator">Coordonnateur</label>
+      <select id="coordinator" formControlName="coordonatorId">
+        <option value="">-- Aucun coordonnateur --</option>
+        <option *ngFor="let coordinator of coordinators" [value]="coordinator._id">
+          {{ coordinator.firstName }} {{ coordinator.lastName }}
+        </option>
+      </select>
     </div>
 
     <div class="editor-actions">

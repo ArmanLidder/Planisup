@@ -3,7 +3,8 @@ import { Service } from "typedi";
 import {
   ProgramModel,
   IProgram,
-  convertToReduceProgram
+  convertToReduceProgram,
+  convertToReducePrograms
 } from "@app/models/program.model/program.model";
 import { Logger } from "@app/services/logger.service/logger.service";
 import { ReducedProgram } from "@common/program";
@@ -70,6 +71,16 @@ export class ProgramController {
         return res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    this.router.get("/all", async (req, res) => {
+      try {
+        const programs = await ProgramModel.find().exec();
+        return res.status(200).json(convertToReducePrograms(programs));
+      } catch (error) {
+        this.logger.warn(error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
     
     this.router.get("/:id", async (req, res) => {
       try {
@@ -87,16 +98,6 @@ export class ProgramController {
       }
     });
 
-    this.router.get("/", async (req, res) => {
-      try {
-        const programs = await ProgramModel.find().exec();
-        return res.status(200).json(programs);
-      } catch (error) {
-        this.logger.warn(error);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-    });
-
     this.router.post("/", this.createProgram);
     this.router.put("/:id", this.updateProgram);
     this.router.delete("/:id", this.deleteProgram);
@@ -107,6 +108,10 @@ export class ProgramController {
     try {
       const payload = this.normalizeProgramShape(req.body);
       this.validateProgramEmpty(payload);
+
+      if (Object.prototype.hasOwnProperty.call(req.body, "coordonatorId") && payload.coordonatorId === null) {
+        delete payload.coordonatorId;
+      }
 
       const created = await ProgramModel.create(payload);
       this.logger.info(`Program with ID : ${created._id} created successfully `);
@@ -143,9 +148,17 @@ export class ProgramController {
       const payload = this.normalizeProgramShape(req.body);
       this.validateProgramEmpty(payload);
 
+      const updateDoc: any = { $set: payload };
+      if (Object.prototype.hasOwnProperty.call(req.body, "coordonatorId")) {
+        if (payload.coordonatorId === null) {
+          updateDoc.$unset = { ...(updateDoc.$unset || {}), coordonatorId: "" };
+          delete updateDoc.$set.coordonatorId;
+        }
+      }
+
       const updated = await ProgramModel.findByIdAndUpdate(
         id,
-        { $set: payload },
+        updateDoc,
         { new: true, runValidators: true },
       ).exec();
 
@@ -198,6 +211,21 @@ export class ProgramController {
       p.type = p.type.map((t: any) => String(t).trim()).filter(Boolean);
     } else {
       p.type = null;
+    }
+
+    const hasCoordonatorField = Object.prototype.hasOwnProperty.call(input, "coordonatorId");
+    if (hasCoordonatorField) {
+      if (typeof p.coordonatorId === "string") {
+        const trimmed = p.coordonatorId.trim();
+        p.coordonatorId = trimmed.length > 0 ? trimmed : null;
+      } else if (p.coordonatorId == null) {
+        p.coordonatorId = null;
+      } else {
+        const coerced = String(p.coordonatorId).trim();
+        p.coordonatorId = coerced.length > 0 ? coerced : null;
+      }
+    } else {
+      delete p.coordonatorId;
     }
 
     p.modules = Array.isArray(p.modules) ? p.modules : [];
@@ -269,3 +297,6 @@ export class ProgramController {
     //etc...
   }
 }
+
+
+

@@ -5,6 +5,7 @@ export interface Program {
   type: string;
   department: string;
   description: string;
+  coordonatorId?: string | null;
   modules: Module[];
 }
 
@@ -76,6 +77,7 @@ export interface ReducedProgram {
   option?: string;
   type: string[];
   department: string;
+  coordonatorId?: string | null;
 }
 
 export enum Grade {

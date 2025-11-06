@@ -34,6 +34,12 @@ export class AuthController {
 
       const user = await this.authService.authenticateUser(loginData);
 
+      if (!user) {
+        this.logger.info(`Failed login ${loginData.usercode}: Attempt to login as student with no registered account`);
+        res.status(401).redirect('/connexion-denied');
+        return;
+      }
+
       this.logger.info(`Successful login for ${user.usercode} with role ${user.role}`);
 
       res.status(200).json({

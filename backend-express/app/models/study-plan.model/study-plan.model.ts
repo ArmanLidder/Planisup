@@ -42,6 +42,7 @@ export interface IStudyPlan extends Document {
     agentId?: string,
     registrarValidationDate?: Date,
     registrarId?: string, 
+    codirectorsIds?: string[];
 }
 
 const TrimesterSchema: Schema = new mongoose.Schema({
@@ -100,6 +101,7 @@ const StudyPlanSchema: Schema = new mongoose.Schema(
     agentId: { type: String, ref: "User" },
     registrarValidationDate: { type: Date },
     registrarId: { type: String, ref: "User" },
+    codirectorsIds: { type: [String], ref: "User" },
   },
   { collection: "StudyPlan" }
 );
@@ -138,5 +140,6 @@ export const convertToStudyPLan = (studyPlan: IStudyPlan) => {
         agentId: studyPlan.agentId,
         registrarValidationDate: studyPlan.registrarValidationDate,
         registrarId: studyPlan.registrarId,
+        codirectorsIds: studyPlan.codirectorsIds || [],
     };
 }

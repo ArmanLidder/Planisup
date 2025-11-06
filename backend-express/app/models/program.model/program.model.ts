@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Grade } from "@common/program";
+import { Grade, ReducedProgram } from "@common/program";
 
 export interface IRuleDefinition extends Document {
   type: string;       // 'credits_exact' | 'credits_minimum' | 'credits_maximum' | 'director_approval' | 'exclusive_submodules'
@@ -12,6 +12,7 @@ export interface IProgram extends Document {
     type: string[];
     department: string;
     description: string;
+    coordonatorId?: string | null;
     modules: IModule[];
 }
 
@@ -105,6 +106,7 @@ const ProgramSchema: Schema = new mongoose.Schema({
   },
   department: { type: String, required: true },
   description: { type: String, default: '' },
+  coordonatorId: { type: String, ref: "User" },
   modules: { type: [ModuleSchema], default: [] }
 }, { collection: 'Program' });
 
@@ -118,5 +120,21 @@ export const convertToReduceProgram = (program: IProgram) => {
       option: program.option,
       type: program.type,
       department: program.department,
+      coordonatorId: program.coordonatorId ?? null,
     };
 }
+
+export const convertToReducePrograms = (programs: IProgram[]) => {
+    const reducedPrograms: ReducedProgram[] = [];
+    programs.forEach((program: IProgram) => {
+        reducedPrograms.push({
+          _id: program._id,
+          degree: program.degree,
+          option: program.option,
+          type: program.type,
+          department: program.department,
+          coordonatorId: program.coordonatorId ?? null,
+        } as ReducedProgram);
+    });
+    return reducedPrograms;
+} 

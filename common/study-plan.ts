@@ -57,6 +57,7 @@ export interface StudyPlan {
     agentId?: string,
     registrarValidationDate?: Date,
     registrarId?: string,
+    codirectorsIds?: string[];
 }
 
 export interface StudyPlanEntry {

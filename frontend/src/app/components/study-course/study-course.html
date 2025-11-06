@@ -2,6 +2,7 @@
      [class.selected]="isSelected" 
      [class.disabled]="isDisabled"
      [class.view-mode]="isViewMode"
+     [class.director-approval-highlight]="isViewMode && isSelected && isSectionHighlight"
      [class.credits-limit-reached]="isDisabled && !isSelected">
   <label class="course-checkbox" [class.disabled-label]="!canBeToggled()">
     <!-- En mode view, pas de checkbox -->
@@ -12,6 +13,11 @@
              (change)="onSelectionChange($any($event.target).checked)">
       <span class="checkmark" [class.disabled-checkmark]="!canBeToggled()"></span>
     </ng-container>
+    
+    <!-- Badge pour indiquer l'approbation du directeur en mode view -->
+    <span class="director-badge" *ngIf="isViewMode && isSelected && isSectionHighlight">
+      👨‍💼
+    </span>
     
     <span class="course-code">{{ course.sigle }}</span>
     <span class="course-name" [class.disabled-text]="!canBeToggled()">{{ course.name }}</span>

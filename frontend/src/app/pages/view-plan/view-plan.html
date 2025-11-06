@@ -14,6 +14,7 @@
   <div class="container-middle">
     @if (studyPlan$ | async; as studyPlan) { @if (isStudyPlanLoaded && studyPlan) {
     <app-study-plan
+      [state]="'viewValidation'"
       [isViewMode]="true"
       [directorId]="studyPlan.directorId"
       [coordonatorId]="studyPlan.coordonatorId"

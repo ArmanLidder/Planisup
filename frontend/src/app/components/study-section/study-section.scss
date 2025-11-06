@@ -27,9 +27,7 @@
     border-left: 4px solid #4caf50;
     padding: 15px;
     margin: 0;
-    border-radius: 8px 8px 0 0;
-    border-bottom: 1px dashed rgba(76, 175, 80, 0.3);
-    padding-bottom: 10px;
+    border-radius: 8px;
     
     .section-header {
       .minimum-rule-title {
@@ -46,31 +44,24 @@
     }
   }
   
-  // Style unifié pour toutes les sections d'un même groupe de règles
-  &.rule-section,
-  &.rule-group-section {
+  // Style pour les sections avec règle credits_exact
+  &.rule-section {
     background-color: rgba(52, 152, 219, 0.05);
     border-left: 4px solid #3498db;
     padding: 15px;
-    margin: 0; // Supprimer les marges pour un regroupement visuel
+    border-radius: 8px;
     
-    // Première section du groupe (celle avec la règle)
-    &.rule-section {
-      border-radius: 8px 8px 0 0;
-      border-bottom: 1px dashed rgba(52, 152, 219, 0.3);
-      padding-bottom: 10px;
-    }
-    
-    // Sections suivantes du groupe
-    &.rule-group-section {
-      border-radius: 0;
-      border-top: none;
-      padding-top: 10px;
-      
-      // Dernière section du groupe (vous pourriez ajouter une classe .last-in-group)
-      &.last-in-group {
-        border-radius: 0 0 8px 8px;
-        border-bottom: none;
+    .section-header {
+      .rule-title {
+        color: #2c3e50;
+        font-weight: bold;
+        position: relative;
+        
+        &:before {
+          content: "📋";
+          margin-right: 8px;
+          font-size: 14px;
+        }
       }
     }
     
@@ -79,11 +70,38 @@
     }
   }
   
-  // Style spécifique pour les sections avec règle de minimum
-  &.rule-section.minimum-rule-section,
-  &.rule-group-section.minimum-rule-section {
+  // Combinaison: section avec règle exact ET minimum
+  &.rule-section.minimum-rule-section {
     background-color: rgba(76, 175, 80, 0.05);
     border-left: 4px solid #4caf50;
+    
+    .section-header {
+      .rule-title.minimum-rule-title {
+        color: #2e7d32;
+        
+        &:before {
+          content: "📊";
+        }
+      }
+    }
+  }
+  
+  // Combinaison: section avec règle exact ET director approval
+  &.rule-section.director-approval-section {
+    border: 2px dashed #17a2b8;
+    background-color: rgba(23, 162, 184, 0.05);
+    border-left: 4px solid #17a2b8;
+    
+    .section-header {
+      .rule-title.director-approval-title {
+        color: #17a2b8;
+        
+        &:before {
+          content: "👨‍💼";
+          font-size: 16px;
+        }
+      }
+    }
   }
   
   .section-header {
@@ -98,31 +116,6 @@
       font-weight: 600;
       color: #555;
       flex: 1;
-      
-      &.rule-title {
-        color: #2c3e50;
-        font-weight: bold;
-        position: relative;
-        
-        &:before {
-          content: "📋";
-          margin-right: 8px;
-          font-size: 14px;
-        }
-      }
-      
-      &.group-section-title {
-        color: #2c3e50; // Même couleur que le titre principal
-        font-size: 1rem; // Même taille que le titre principal
-        font-weight: 600; // Même poids que le titre principal
-        margin-left: 0; // Supprimer l'indentation
-        position: relative;
-        
-        // Supprimer l'indicateur de sous-section pour un look uniforme
-        &:before {
-          display: none;
-        }
-      }
     }
     
     .section-status {

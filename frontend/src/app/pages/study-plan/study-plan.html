@@ -1,6 +1,6 @@
 <div class="container">
   <header>
-    <h1>Plan d'Études - Planetude</h1>
+    <h1>Plan d'Études</h1>
     <div class="total-credits">
       <span class="credits-count">{{ selectedCredits }} / {{ totalCredits }}</span>
       <span class="credits-label">Crédits sélectionnés</span>
@@ -14,45 +14,25 @@
 
     <div class="conditions" *ngIf="program.modules.length > 0">
       <p *ngFor="let module of program.modules">
-        <strong>{{ extractCreditsFromTitle(module.title) }} crédits</strong> -
+        <strong>{{ getModuleCreditRequired(module) }} crédits</strong> -
         {{ getModuleTitleWithoutCredits(module.title) }}
       </p>
     </div>
 
     <div class="selectors" *ngIf="this.authService.currentUser">
       <div class="form-group">
-        <label for="director">Directeur du programme :</label>
-        @if (isViewMode) {
-        <p class="readonly-text">
-          {{ getDirectorName(directorId) || '—' }}
-        </p>
-        } @else {
-        <select id="director" [(ngModel)]="directorId">
-          <option [value]="getDirectorName(directorId) || '-'" disabled>
-            -- Sélectionnez un directeur --
-          </option>
-          <option *ngFor="let director of directors" [value]="director._id">
-            {{ director.firstName }} {{ director.lastName }}
-          </option>
-        </select>
-        }
+        <label for="director">{{ getTypeDirector() }}</label>
+        <p class="readonly-text">{{ director.firstName }} {{ director.lastName }}</p>
       </div>
       <div class="form-group">
-        <label for="coordinator">Coordonnateur :</label>
-        @if (isViewMode) {
-        <p class="readonly-text">
-          {{ getCoordinatorName(coordonatorId) || '—' }}
+        <label for="coordinator">Coodirecteurs :</label>
+        <p class="readonly-text" *ngFor="let codirector of codirectors">
+          {{ codirector.firstName }} {{ codirector.lastName }}
         </p>
-        } @else {
-        <select id="coordinator" [(ngModel)]="coordonatorId">
-          <option [value]="getCoordinatorName(coordonatorId) || '-'" disabled>
-            -- Sélectionnez un coordonnateur --
-          </option>
-          <option *ngFor="let coordinator of coordinators" [value]="coordinator._id">
-            {{ coordinator.firstName }} {{ coordinator.lastName }}
-          </option>
-        </select>
-        }
+      </div>
+      <div class="form-group">
+        <label for="coordinator">Coodonateur :</label>
+        <p class="readonly-text">{{ coodonator.firstName }} {{ coodonator.lastName }}</p>
       </div>
     </div>
 

@@ -150,4 +150,12 @@ export class StudySection {
            this.requiredCredits !== undefined && 
            this.requiredCredits > 0;
   }
+
+
+  /**
+   * Vérifie si la section nécessite l'approbation du directeur
+   */
+  get isSectionHighlight (): boolean {
+    return this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'director_approval');
+  }
 }

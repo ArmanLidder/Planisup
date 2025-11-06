@@ -106,11 +106,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.selectedCredits = 0;
 
     // faire sa avec la regle de module credit exact avec le value
-    for (const module of this.program.modules) {
-      // this.totalCredits += this.extractCreditsFromTitle(module.title);
-      const rule = module.rules?.find(rule => rule.type === 'credits_exact');
-      this.totalCredits += rule?.value ? rule.value : 0 ;
-    }
+    if (this.program.type == "dess") this.totalCredits = 30;
+    if (this.program.type == "maitrise") this.totalCredits = 45;
+    if (this.program.type == "doctorat") this.totalCredits = 90;
+    // for (const module of this.program.modules) {
+    //   // this.totalCredits += this.extractCreditsFromTitle(module.title);
+    //   const rule = module.rules?.find(rule => rule.type === 'credits_exact');
+    //   this.totalCredits += rule?.value ? rule.value : 0 ;
+    // }
 
     // Initialiser le service avec les modules
     if (!this.isViewMode) {
@@ -321,16 +324,22 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return creditMatch ? parseInt(creditMatch[1], 10) : 0;
   }
 
-  getModuleCreditRequired(module: Module): number {
-    const rule = module.rules?.find(rule => rule.type === 'credits_exact');
-    return rule?.value || 0;
+  getModuleCreditRequired(module: Module): string {
+    const ruleExact = module.rules?.find(rule => rule.type === 'credits_exact');
+    if (ruleExact) return (ruleExact?.value || 0).toString();
+    else {
+      const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
+      const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
+      return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString()
+    }
   }
 
   /**
    * Enleve le nombre de crédit dans le titre du module
    */
   getModuleTitleWithoutCredits(title: string): string {
-    return title.replace(/\(\d+\s*crédits\)/i, '').trim();
+    const creditsPattern = /\(\s*\d+\s*(?:à\s*\d+\s*)?crédits?\s*\)/gi;
+    return title.replace(creditsPattern, '').trim();
   }
 
   validatePlan() {

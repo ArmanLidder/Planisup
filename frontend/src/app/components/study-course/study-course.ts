@@ -15,6 +15,7 @@ export class StudyCourse {
   @Input() currentSubmoduleTitle: string | null = null;
   @Input() currentSectionDescription!: string;
   @Input() isViewMode: boolean = false;
+  @Input() isSectionHighlight: boolean = false;
   @Output() selectionChange = new EventEmitter<{courseSigle: string, selected: boolean}>();
 
   showGradeDropdown: boolean = false;

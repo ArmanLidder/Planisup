@@ -491,14 +491,14 @@ export class CourseStateService {
         }
         break;
       
-      case 'director_approval':
-        if (currentCredits + courseCredits > (rule.value || 0)) {
-          return {
-            canSelect: false,
-            reason: `Limite de crédits avec approbation atteinte (${currentCredits}/${rule.value})`
-          };
-        }
-        break;
+      // case 'director_approval':
+      //   if (currentCredits + courseCredits > (rule.value || 0)) {
+      //     return {
+      //       canSelect: false,
+      //       reason: `Limite de crédits avec approbation atteinte (${currentCredits}/${rule.value})`
+      //     };
+      //   }
+      //   break;
     }
 
     return { canSelect: true };
@@ -522,9 +522,9 @@ export class CourseStateService {
     // Vérifier les règles de module
     if (module.rules) {
       for (const rule of module.rules) {
-        if (rule.type !== 'exclusive_submodules') {
+        if (rule.type !== 'exclusive_submodules' && rule.type !== 'credits_minimum') {
           const currentCredits = this.getCreditsForScope(moduleTitle, null, null);
-          if (currentCredits + courseCredits > (rule.value || 0)) {
+          if ((currentCredits >= (rule.value || 0)) || (currentCredits + courseCredits > (rule.value || 0))) {
             return {
               canSelect: false,
               reason: `Limite de crédits du module atteinte (${currentCredits}/${rule.value})`

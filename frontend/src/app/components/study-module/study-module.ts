@@ -42,14 +42,14 @@ export class StudyModule implements OnInit {
   }
 
   initialization() {
-    const titleMatch = this.module.title.match(/\((\d+)\s*crédits\)/i);
-    const rule = this.module.rules?.find(rule => rule.type === 'credits_exact');
-    if (titleMatch) {
-      this.title = this.module.title.replace(titleMatch[0], '').trim();
-    } else {
-      this.title = this.module.title;
+    const ruleExact = this.module.rules?.find(rule => rule.type === 'credits_exact');
+    if (ruleExact) this.credits = ruleExact?.value || 0;
+    else {
+      const ruleMax = this.module.rules?.find(rule => rule.type === 'credits_maximum');
+      this.credits = ruleMax?.value || 0
     }
-    this.credits = rule?.value ? rule.value : 0 ;
+    const creditsPattern = /\(\s*\d+\s*(?:à\s*\d+\s*)?crédits?\s*\)/gi;
+    this.title = this.module.title.replace(creditsPattern, '').trim();
   }
 
   toggleModule() {

@@ -17,6 +17,31 @@
     border-color: #3498db;
   }
 
+  // Style pour les cours avec approbation du directeur en mode validation
+  &.director-approval-highlight {
+    background: linear-gradient(135deg, #fff9e6 0%, #ffe8b3 100%);
+    border: 2px solid #ffc107;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    animation: pulse-highlight 2s ease-in-out infinite;
+    
+    .course-code {
+      color: #f57c00;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    
+    .course-name {
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .director-badge {
+      font-size: 20px;
+      margin-right: 8px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+  }
+
   // Style quand Avantage Poly est activé
   &.avantage-poly-active {
     background: linear-gradient(135deg, #f8f9fa 0%, #f0e5ff 100%);
@@ -91,6 +116,12 @@
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
       }
+    }
+    
+    .director-badge {
+      flex-shrink: 0;
+      margin-right: 8px;
+      font-size: 18px;
     }
     
     .course-code {
@@ -233,6 +264,25 @@
     &.error-info {
       color: #e74c3c;
     }
+  }
+}
+
+// Animations pour le highlight
+@keyframes pulse-highlight {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.5);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
   }
 }
 

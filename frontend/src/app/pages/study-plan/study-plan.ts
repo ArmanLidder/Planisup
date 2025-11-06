@@ -51,7 +51,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private programService: ProgramService,
     private courseStateService: CourseStateService,
     private courseService: CourseService,
-    private authService: AuthentificationService,
+    protected authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
     private router: Router
@@ -308,7 +308,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     if (this.isViewMode) return;
 
     const errors: string[] = [];
-
 
     // No need everything director selected during creation and coordonnator during program creation
 

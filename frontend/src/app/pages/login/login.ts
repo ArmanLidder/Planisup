@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
-import { UserRole, LoginRequest, User } from '@common/user';
+import { UserRole, LoginRequest } from '@common/user';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Loading } from '@app/components/loading/loading';
 import { CourseService } from '@app/services/course/course-service';
@@ -45,6 +45,7 @@ export class Login {
     private readonly sPS: StudyPlanService,
     private readonly coursesService: CourseService,
     private readonly pS: ProgramService,
+    private readonly activatedRoute: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       usercode: ['', [Validators.required, Validators.minLength(3)]],
@@ -68,8 +69,13 @@ export class Login {
       };
 
       this.authentificationService.login(loginRequest).subscribe({
-        next: (response: any) => {
+        next: (response) => {
           this.isLoading = false;
+          console.log(response);
+          if (!response.success) {
+            this.router.navigate(['/portail']);
+            return;
+          }
 
           // Handle the new response format with success flag
           if (response.success && response.user) {
@@ -95,9 +101,13 @@ export class Login {
                 this.sPS.loadStudyPlan(response.user.currentPlan, user.role === UserRole.Etudiant);
               } else if (!response.user.currentPlan && response.user.programId) {
                 this.pS.loadProgram(response.user.programId);
-                this.pS
-              } else {
+              } else if (
+                this.authentificationService.currentUser &&
+                response.user.role !== UserRole.Etudiant
+              ) {
                 this.router.navigate(['/accueil']);
+              } else {
+                this.router.navigate(['/portail']);
               }
             }
           } else {

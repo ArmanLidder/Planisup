@@ -1,4 +1,4 @@
-<div class="home-container" *ngIf="this.authentificationService.currentUser?.role === role[0]">
+<div class="home-container" *ngIf="!this.authentificationService.currentUser">
   <div class="container-left">
     <div class="container-content">
       <img src="./../../../assets/image_diplomees.png" />
@@ -79,6 +79,7 @@
 
 <app-verify-plans
   *ngIf="
+    this.authentificationService.currentUser &&
     this.authentificationService.currentUser?.role !== role[0] &&
     this.authentificationService.currentUser?.role !== UserRole.Employe &&
     this.authentificationService.currentUser?.role !== UserRole.Administrateur

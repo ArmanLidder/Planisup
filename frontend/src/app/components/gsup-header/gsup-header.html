@@ -7,9 +7,11 @@
         this.router.url === '/accueil' ||
         this.router.url === '/login' ||
         this.router.url === '/admin' ||
+        this.router.url === '/portail' ||
         this.isStudentWithActiveStudy() ||
         this.isStudentHasToCompleteStudyPlan()
       "
+      alt=""
     />
     <img
       src="assets/back_arrow.png"
@@ -18,14 +20,19 @@
         this.router.url !== '/accueil' &&
         this.router.url !== '/login' &&
         this.router.url !== '/admin' &&
+        this.router.url !== '/portail' &&
         !this.isStudentWithActiveStudy() &&
         !this.isStudentHasToCompleteStudyPlan()
       "
+      alt=""
       (click)="goBack()"
     />
     <p class="title">PlaniSup</p>
   </div>
   <div class="right-container">
-    <app-gsup-menu *ngIf="this.router.url !== '/login'" [currentUser]="currentUser"></app-gsup-menu>
+    <app-gsup-menu
+      *ngIf="this.router.url !== '/login' && this.router.url !== '/portail'"
+      [currentUser]="currentUser"
+    ></app-gsup-menu>
   </div>
 </div>

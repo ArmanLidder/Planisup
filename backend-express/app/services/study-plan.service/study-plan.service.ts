@@ -56,6 +56,7 @@ export class StudyPlanService {
         ? this.generateArchiveQuery(role, userId)
         : this.generateQuery(role, userId);
       const studyPlans: IStudyPlan[] = await StudyPlanModel.find(query).exec();
+      console.log(JSON.stringify(query, null, 2));
       if (isArchive) return this.convertToStudyPlanEntries(studyPlans);
       if (role !== UserRole.Agent && role !== UserRole.Registrar)
         return this.convertToStudyPlanEntries(studyPlans);
@@ -167,6 +168,18 @@ export class StudyPlanService {
     return members;
   }
 
+  async getProcessCodirectors(id: string) {
+    const studyPlan = await this.getStudyPlan(id);
+    const codirectors: Record<string, any>[] = [];
+
+    for (const codirectorId of studyPlan.codirectorsIds) {
+      const codirector = await UserModel.findById(codirectorId);
+      codirectors.push(codirector);
+    }
+
+    return codirectors;
+  }
+
   private async convertToStudyPlanEntries(plans: IStudyPlan[]) {
     const entries: StudyPlanEntry[] = [];
     for (const plan of plans) {
@@ -258,6 +271,34 @@ export class StudyPlanService {
   private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
     this.logger.info("Update study plan");
     try {
+      if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION) {
+        const step =
+          studyPlan.programType[0] === "dess"
+            ? StudyPlanStep.ADMIN_AGENT
+            : StudyPlanStep.DIRECTOR;
+        const savedPlan = await StudyPlanModel.findOneAndUpdate(
+          { _id: studyPlan._id },
+          {
+            $set: {
+              stepValidation: StepValidationStatus.IN_PROGRESS,
+              studyPlanStep: step,
+            },
+          },
+          { new: true }
+        );
+
+        savedPlan.directorValidationDate = undefined;
+        savedPlan.coordonatorValidationDate = undefined;
+        savedPlan.agentValidationDate = undefined;
+        savedPlan.agentId = undefined;
+        savedPlan.registrarValidationDate = undefined;
+        savedPlan.registrarId = undefined;
+
+        await savedPlan.save();
+
+        return savedPlan;
+      }
+
       const savedPlan = await StudyPlanModel.findOneAndUpdate(
         { _id: studyPlan._id },
         { $set: { stepValidation: StepValidationStatus.IN_PROGRESS } },

@@ -9,10 +9,12 @@ import { ViewPlan } from '@app/pages/view-plan/view-plan';
 import { ProgramResolver } from './resolvers/program.resolver';
 import { AddStudentPage } from './pages/add-student/add-student';
 import { DirectorResolvers } from './resolvers/director.resolver';
+import { Portal } from './pages/portal/portal';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
-  { path: 'accueil', component: Home, canActivate: [AuthGuard] },
+  { path: 'accueil', component: Home },
+  { path: 'portail', component: Portal },
   { path: 'admin', component: Admin, canActivate: [AuthGuard] },
   {
     path: 'admin/:section',
@@ -20,15 +22,15 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     resolve: { programs: ProgramResolver },
   },
-  { path: 'study-plan', component: StudyPlan, canActivate: [AuthGuard] },
+  { path: 'study-plan', component: StudyPlan },
   { path: 'view-plan', component: ViewPlan, canActivate: [AuthGuard] },
   {
     path: 'add-student',
     component: AddStudentPage,
     canActivate: [AuthGuard],
-    resolve: { dirAndCoor: DirectorResolvers }
+    resolve: { dirAndCoor: DirectorResolvers },
   },
   { path: ':type', component: Program },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' },
+  { path: '', redirectTo: 'accueil', pathMatch: 'full' },
+  { path: '**', redirectTo: 'accueil' },
 ];

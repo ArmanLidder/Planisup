@@ -27,21 +27,23 @@ import { Router } from '@angular/router';
   styleUrls: ['./study-plan.scss'],
 })
 export class StudyPlan implements OnInit, OnDestroy, OnChanges {
-  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' =
-    'modifyStudent';
+  @Input() state: 'viewValidation' | 'viewAdmin' | 'modifyStudent' | 'modifyAdmin' = 'modifyStudent';
   @Input() programOverride?: Program;
   @Input() isViewMode: boolean = false;
   totalCredits: number = 0;
   selectedCredits: number = 0;
   program!: Program;
   modules: Module[] = [];
-  allCourses: Course[] = []; // Tous les cours disponibles pour la recherche
+  allCourses: Course[] = [];
 
   // Selection des directeur et coordonateurs
   directors: User[] = [];
   coordinators: User[] = [];
   @Input() directorId: string = '';
   @Input() coordonatorId: string = '';
+  director: User = {} as User;
+  codirectors: User[] = [];
+  coodonator: User = {} as User;
 
   currentPlan: StudyPlanInterface | null = null;
   private programSubscription: Subscription | null = null;
@@ -51,13 +53,15 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private programService: ProgramService,
     private courseStateService: CourseStateService,
     private courseService: CourseService,
-    private authService: AuthentificationService,
+    protected authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
     private router: Router
   ) {}
 
   ngOnInit() {
+    this.courseService.getCourses();
+
     if (this.programOverride) {
       this.initializeWithProgram(this.programOverride);
     } else {
@@ -77,6 +81,26 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
         console.error('Erreur lors du chargement des directeurs et coordonnateurs:', error);
       },
     });
+
+    if (this.authService.currentUser?.directorId) {
+      this.apiService.getUserById(this.authService.currentUser?.directorId).subscribe((res) => {
+        this.director = res.user;
+      });
+    }
+
+    if (this.authService.currentUser?.codirectorsIds) {
+      this.authService.currentUser?.codirectorsIds.forEach((id) => {
+        this.apiService.getUserById(id).subscribe((res) => {
+          this.codirectors.push(res.user)
+      });
+      })
+    }
+
+    if (this.programService.program?.coordonatorId) {
+      this.apiService.getUserById(this.programService.program?.coordonatorId).subscribe((res) => {
+        this.coodonator = res.user;
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -104,9 +128,15 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.totalCredits = 0;
     this.selectedCredits = 0;
 
-    for (const module of this.program.modules) {
-      this.totalCredits += this.extractCreditsFromTitle(module.title);
-    }
+    // faire sa avec la regle de module credit exact avec le value
+    if (this.program.type == "dess") this.totalCredits = 30;
+    if (this.program.type == "maitrise") this.totalCredits = 45;
+    if (this.program.type == "doctorat") this.totalCredits = 90;
+    // for (const module of this.program.modules) {
+    //   // this.totalCredits += this.extractCreditsFromTitle(module.title);
+    //   const rule = module.rules?.find(rule => rule.type === 'credits_exact');
+    //   this.totalCredits += rule?.value ? rule.value : 0 ;
+    // }
 
     // Initialiser le service avec les modules
     if (!this.isViewMode) {
@@ -218,6 +248,10 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return subModule.courses.some((section) => section.courses.length > 0);
   }
 
+  /**
+   * Met tous les cours du API dans le allCourse
+   * A enlever pour juste utiliser le service dans le courseSearch
+   */
   loadAllCourses() {
     if (this.courseService.courses.length > 0) {
       this.allCourses = this.courseService.courses;
@@ -227,7 +261,10 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // Méthode fallback pour extraire les cours du programme actuel
+  /**
+   * Méthode fallback pour extraire les cours du programme actuel
+   * A enlever afin de juste demander a l utilisateur d'entrer manuellement le cours dans le courseSearch
+   */
   extractCoursesFromProgram(): Course[] {
     const courses: Course[] = [];
 
@@ -257,6 +294,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return uniqueCourses;
   }
 
+  /**
+   * Change le status du cours selectionner dans le programme
+   */
   onCourseSelectionChange(event: {
     courseSigle: string;
     moduleTitle: string;
@@ -282,10 +322,16 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.calculateTotalCredits();
   }
 
+  /**
+   * calcule les crédits totals selectionner dans le programme
+   */
   calculateTotalCredits() {
     this.selectedCredits = this.courseStateService.getSelectedCredits();
   }
 
+  /**
+   * le changement de la couleur de la barre de progression
+   */
   getProgressStyle(): any {
     const percentage =
       this.totalCredits > 0 ? Math.min((this.selectedCredits / this.totalCredits) * 100, 100) : 0;
@@ -295,13 +341,28 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     };
   }
 
+  // à enlever
   extractCreditsFromTitle(title: string): number {
     const creditMatch = title.match(/\((\d+)\s*crédits\)/i);
     return creditMatch ? parseInt(creditMatch[1], 10) : 0;
   }
 
+  getModuleCreditRequired(module: Module): string {
+    const ruleExact = module.rules?.find(rule => rule.type === 'credits_exact');
+    if (ruleExact) return (ruleExact?.value || 0).toString();
+    else {
+      const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
+      const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
+      return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString()
+    }
+  }
+
+  /**
+   * Enleve le nombre de crédit dans le titre du module
+   */
   getModuleTitleWithoutCredits(title: string): string {
-    return title.replace(/\(\d+\s*crédits\)/i, '').trim();
+    const creditsPattern = /\(\s*\d+\s*(?:à\s*\d+\s*)?crédits?\s*\)/gi;
+    return title.replace(creditsPattern, '').trim();
   }
 
   validatePlan() {
@@ -309,16 +370,15 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     const errors: string[] = [];
 
-
     // No need everything director selected during creation and coordonnator during program creation
 
     // if (this.directorId === '') {
     //   errors.push('Vous devez selectionner un Directeur');
     // }
 
-    if (this.coordonatorId === '') {
-      errors.push('Vous devez selectionner un Coordonateur');
-    }
+    // if (this.coordonatorId === '') {
+    //   errors.push('Vous devez selectionner un Coordonateur');
+    // }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();
@@ -327,66 +387,45 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
 
     // Validation de la règle d'exclusivité des sous-modules
-    this.courseStateService.exclusiveSubModuleRules.forEach((rule) => {
-      let selectedSubModulesInGroup: string[] = [];
+    this.program.modules.forEach(module => {
+      // Vérifier si le module a une règle d'exclusivité
+      const hasExclusiveRule = module.rules?.some(rule => rule.type === 'exclusive_submodules');
+      
+      if (hasExclusiveRule && module.subModules) {
+        const selectedSubModules: string[] = [];
 
-      // Trouver tous les sous-modules de ce groupe qui ont des cours sélectionnés
-      rule.subModuleTitles.forEach((subModuleTitle) => {
-        let hasSelection = false;
-        this.courseStateService.courseStates.forEach((state) => {
-          if (
-            state.selected &&
-            state.selectedInModule === rule.moduleTitle &&
-            state.selectedInSubmodule === subModuleTitle
-          ) {
-            hasSelection = true;
+        // Trouver tous les sous-modules avec des cours sélectionnés
+        module.subModules.forEach(subModule => {
+          const hasSelection = Array.from(this.courseStateService.courseStates.values()).some(
+            state => state.selected && 
+                     state.selectedInModule === module.title &&
+                     state.selectedInSubmodule === subModule.title
+          );
+
+          if (hasSelection) {
+            selectedSubModules.push(subModule.title);
           }
         });
-        if (hasSelection) {
-          selectedSubModulesInGroup.push(subModuleTitle);
-        }
-      });
 
-      // Valider qu'un seul sous-module a été choisi
-      if (selectedSubModulesInGroup.length === 0) {
-        const prefixes = rule.subModulePrefixes.join(', ');
-        errors.push(`Vous devez choisir un module parmi: ${prefixes}`);
-      } else if (selectedSubModulesInGroup.length > 1) {
-        const prefixes = selectedSubModulesInGroup
-          .map((title) => this.extractSubModulePrefix(title))
-          .join(', ');
-        errors.push(
-          `Vous ne pouvez choisir qu'un seul module parmi le groupe d'exclusivité. Actuellement sélectionnés: ${prefixes}`
-        );
+        // Valider qu'un seul sous-module a été choisi
+        if (selectedSubModules.length === 0) {
+          const subModuleTitles = module.subModules.map(sm => this.extractSubModulePrefix(sm.title)).join(', ');
+          errors.push(`Vous devez choisir un module parmi: ${subModuleTitles}`);
+        } else if (selectedSubModules.length > 1) {
+          const prefixes = selectedSubModules.map(title => this.extractSubModulePrefix(title)).join(', ');
+          errors.push(
+            `Vous ne pouvez choisir qu'un seul module parmi le groupe d'exclusivité. Actuellement sélectionnés: ${prefixes}`
+          );
+        }
       }
     });
 
-    // Validation des modules
-    this.modules.forEach((module) => {
-      let moduleCredits = 0;
-
-      // Calculer les crédits du module directement depuis courseStates
-      this.courseStateService.courseStates.forEach((state, courseSigle) => {
-        if (state.selected && state.selectedInModule === module.title) {
-          moduleCredits += state.credits;
-        }
-      });
-
-      const requiredCredits = this.extractCreditsFromTitle(module.title);
-
-      if (requiredCredits > 0 && moduleCredits < requiredCredits) {
-        errors.push(
-          `Le module ${this.getModuleTitleWithoutCredits(
-            module.title
-          )} nécessite au moins ${requiredCredits} crédits (actuellement: ${moduleCredits}).`
-        );
-      }
-    });
-
+    // Validation des crédits totaux
     if (this.selectedCredits > this.totalCredits) {
       errors.push('Le total des crédits ne peut pas dépasser le maximum autorisé.');
     }
 
+    // Validation Avantage Poly
     if (this.courseStateService.getAvantagePolyCredit() > this.AVANTAGE_POLY_MAX_CREDITS) {
       errors.push(
         `Le total de crédits d'avantage Poly ne peut pas dépasser 15 (actuellement: ${this.courseStateService.getAvantagePolyCredit()})`
@@ -397,16 +436,21 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
     }
 
+    // Afficher les erreurs ou soumettre le plan
     if (errors.length > 0) {
       alert('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
 
+    this.submitStudyPlan();
+  }
+
+  private submitStudyPlan() {
     this.currentPlan = {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
       directorId: this.authService.currentUser?.directorId || '',
-      coordonatorId: this.coordonatorId,
+      coordonatorId: this.coodonator._id || "",
       programId: this.program._id!,
       programType: this.programService.program?.type[0] as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,
@@ -418,13 +462,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
     };
 
-    console.log("Plan d'études validé:", this.currentPlan);
     if (this.sPS.studyPlan) {
       alert("Plan d'études déjà soumis!");
     } else {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
-          console.log("Plan d'études soumis avec succès:", response);
           this.sPS.loadStudyPlan(response._id, true);
           alert("Plan d'études soumis avec succès!");
         },
@@ -457,5 +499,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   getCoordinatorName(id: string): string | null {
     const c = this.coordinators.find((co) => co._id === id);
     return c ? `${c.firstName} ${c.lastName}` : null;
+  }
+
+  getTypeDirector(): string {
+    return (this.program.type == "doctorat" || this.program.degree.includes("recherche")) 
+      ? "Directeur de recherche" 
+      : "Directeur d'étude";
   }
 }

@@ -79,78 +79,60 @@ export class StudySection {
     return [...fixedCourses, ...searchCourses];
   }
 
-  get sectionStatus() {
-    if (this.isViewMode) {
-      return {
-        selectedCredits: 0,
-        requiredCredits: undefined,
-        isComplete: false,
-        hasRule: false,
-        isInGroup: false,
-        isGroupLeader: false,
-        isMinimum: false
-      };
-    }
-    
-    return this.courseStateService.getSectionStatus(
-      this.currentModuleTitle,
-      this.currentSubmoduleTitle,
-      this.section.description
-    );
+  get selectedCredits() {
+    return this.isViewMode ? 0 : this.courseStateService.getSectionSelectedCredits(this.currentModuleTitle, this.currentSubmoduleTitle, this.section.description);
   }
 
-  get sectionRule() {
-    if (this.isViewMode) {
-      return null;
-    }
-    
-    return this.courseStateService.getSectionRule(
-      this.currentModuleTitle,
-      this.currentSubmoduleTitle,
-      this.section.description
-    );
+  get requiredCredits() {
+    const rules = this.section.rules || [];
+
+    if (this.isViewMode) return undefined;
+
+    return rules.find(rule => rule.type === 'credits_exact')?.value ??
+         rules.find(rule => rule.type === 'credits_minimum')?.value ??
+         rules.find(rule => rule.type === 'credits_maximum')?.value;
   }
 
-  get isRuleSection(): boolean {
-    return !this.isViewMode && this.sectionRule?.type === 'credits_choice';
+  /**
+   * Vérifie si la section a une règle de type credits_exact
+   */
+  get isRuleExact(): boolean {
+    return !this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'credits_exact');
   }
 
-  get isDirectorApprovalSingleSection(): boolean {
-    return !this.isViewMode && this.sectionRule?.type === 'director_approval_single';
-  }
-
+  /**
+   * Vérifie si la section nécessite l'approbation du directeur
+   */
   get isDirectorApprovalSection(): boolean {
-    return !this.isViewMode && (this.sectionRule?.type === 'director_approval' || this.sectionRule?.type === 'director_approval_single');
+    return !this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'director_approval');
   }
 
+  /**
+   * Vérifie si la section a une règle de minimum de crédits
+   */
   get isMinimumRuleSection(): boolean {
-    return !this.isViewMode && this.sectionRule?.type === 'credits_minimum';
+    return !this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'credits_minimum');
   }
 
-  get isInRuleGroup(): boolean {
-    return !this.isViewMode && this.sectionRule?.groupSections !== undefined;
-  }
-
-  get isFirstInRuleGroup(): boolean {
-    return !this.isViewMode && 
-           this.sectionRule?.description === this.section.description && 
-           (this.sectionRule?.type === 'credits_choice' || 
-            this.sectionRule?.type === 'credits_minimum' || 
-            this.sectionRule?.type === 'director_approval');
+  /**
+   * Vérifie si la section a une règle de maximum de crédits
+   */
+  get isMaximumRuleSection(): boolean {
+    return !this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'credits_maximum');
   }
 
   get progressPercentage(): number {
     if (this.isViewMode || !this.hasRequiredCredits) return 0;
-    const percentage = (this.sectionStatus.selectedCredits / this.sectionStatus.requiredCredits!) * 100;
+    const percentage = (this.selectedCredits / this.requiredCredits!) * 100;
     return Math.min(percentage, 100);
   }
 
   getProgressColor(): string {
     if (this.isViewMode || !this.hasRequiredCredits) return '#e0e0e0';
     
-    const selected = this.sectionStatus.selectedCredits;
-    const required = this.sectionStatus.requiredCredits!;
-    const isMinimum = this.sectionStatus.isMinimum;
+    const selected = this.selectedCredits;
+    const required = this.requiredCredits!;
+    const isMinimum = this.isMinimumRuleSection;
     
     if (isMinimum) {
       if (selected >= required) return '#4caf50';
@@ -165,13 +147,15 @@ export class StudySection {
 
   get hasRequiredCredits(): boolean {
     return !this.isViewMode && 
-           this.sectionStatus.requiredCredits !== undefined && 
-           this.sectionStatus.requiredCredits > 0;
+           this.requiredCredits !== undefined && 
+           this.requiredCredits > 0;
   }
 
-  get isCreditsComplete(): boolean {
-    return !this.isViewMode && 
-           this.hasRequiredCredits && 
-           this.sectionStatus.selectedCredits >= this.sectionStatus.requiredCredits!;
+
+  /**
+   * Vérifie si la section nécessite l'approbation du directeur
+   */
+  get isSectionHighlight (): boolean {
+    return this.isViewMode && !!this.section.rules?.some(rule => rule.type === 'director_approval');
   }
 }

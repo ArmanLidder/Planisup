@@ -73,10 +73,10 @@ export class ProgramEditor implements OnChanges, OnInit {
     this.modulesEditor?.commitDrafts();
   }
 
-  saveMetadata(): void {
+  saveMetadata(): boolean {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;
+      return false;
     }
     const value = this.form.value;
     const coordonatorId = value.coordonatorId ? value.coordonatorId : null;
@@ -91,6 +91,7 @@ export class ProgramEditor implements OnChanges, OnInit {
     } as Program;
     this.programChange.emit(updated);
     this.metadataEditing = false;
+    return true;
   }
 
   onModulesChange(mods: Program['modules']): void {
@@ -139,6 +140,21 @@ export class ProgramEditor implements OnChanges, OnInit {
     if (!id) return 'Aucun coordonnateur';
     const coordinator = this.coordinators.find((user) => user._id === id);
     return coordinator ? `${coordinator.firstName} ${coordinator.lastName}` : id;
+  }
+
+  hasPendingEdits(): boolean {
+    const metadataPending = this.metadataEditing && this.form.dirty;
+    const modulesPending = this.modulesEditor?.hasPendingEdits() ?? false;
+    return metadataPending || modulesPending;
+  }
+
+  applyPendingEdits(): boolean {
+    if (this.metadataEditing && this.form.dirty) {
+      const saved = this.saveMetadata();
+      if (!saved) return false;
+    }
+    this.modulesEditor?.applyAllPendingEdits();
+    return true;
   }
 }
 

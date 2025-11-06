@@ -577,6 +577,27 @@ return null;
     }, 0);
   }
 
+  hasPendingEdits(): boolean {
+    return (
+      this.editingIndex !== null ||
+      this.subEditingIndex !== null ||
+      this.secEditingIndex !== null ||
+      this.subSecEditingIndex !== null
+    );
+  }
+
+  applyAllPendingEdits(): void {
+    this.applyPendingModuleSectionEdit();
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
+    if (this.editingIndex !== null && this.editTemp) {
+      const arr = [...this.draftModules];
+      arr[this.editingIndex] = this.editTemp;
+      this.draftModules = arr;
+      this.resetVariables();
+    }
+  }
+
   private applyPendingModuleSectionEdit(): void {
     if (this.secEditingIndex === null || !this.secEditTemp || !this.editTemp?.courses) return;
     const list = [...this.editTemp.courses];

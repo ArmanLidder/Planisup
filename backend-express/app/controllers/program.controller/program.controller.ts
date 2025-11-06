@@ -133,7 +133,7 @@ export class ProgramController {
 
         return res.status(400).json({
           error: "ValidationError",
-          message: "Program validation failed.",
+          message: "La validation du programme a échoué.",
           details: fieldErrors,
         });
       }
@@ -172,7 +172,17 @@ export class ProgramController {
     } catch (err: any) {
       this.logger.warn(err);
       if (err?.name === "ValidationError") {
-        return res.status(400).json({ error: "ValidationError", details: err.message });
+        const fieldErrors: Record<string, string> = {};
+        if (err.errors && typeof err.errors === "object") {
+          for (const [key, value] of Object.entries(err.errors)) {
+            fieldErrors[key] = (value as any)?.message || "Valeur invalide.";
+          }
+        }
+        return res.status(400).json({
+          error: "ValidationError",
+          message: "La validation du programme a échoué.",
+          details: Object.keys(fieldErrors).length > 0 ? fieldErrors : err.message,
+        });
       }
       return res.status(500).json({ error: "Internal Server Error" });
     }
@@ -245,7 +255,7 @@ export class ProgramController {
       // sections under module
       for (const s of m.courses) {
         s.description = typeof s.description === "string" ? s.description : (s.description ?? "");
-        s.courses = Array.isArray(s.courses) ? s.courses : [];  // (this ‘courses’ is actually a list of Course, your model allows it)
+        s.courses = Array.isArray(s.courses) ? s.courses : [];
         s.rules = Array.isArray(s.rules) ? s.rules : [];
         for (const r of s.rules) {
           if (r && typeof r.type === "string") r.type = r.type.trim();
@@ -291,12 +301,140 @@ export class ProgramController {
   }
 
   private validateProgramEmpty(_program: any): void {
-    // - credit rules have positive numbers
-    // - director_approval / exclusive_submodules have no value
-    // - no duplicate rule types within a single rules array
-    //etc...
+    if (!_program || typeof _program !== "object") return;
+
+    type Scope = "module" | "submodule" | "section";
+    const errors: Record<string, { message: string }> = {};
+    const addError = (path: string, message: string) => {
+      if (!errors[path]) {
+        errors[path] = { message };
+      }
+    };
+
+    const requirePositiveNumber = (value: any, path: string, label: string): number | null => {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        addError(path, `La règle ${label} nécessite une valeur numérique.`);
+        return null;
+      }
+      if (value <= 0) {
+        addError(path, `La règle ${label} doit être supérieure à 0.`);
+        return null;
+      }
+      return value;
+    };
+
+    const validateRuleSet = (rules: any[], path: string, scope: Scope) => {
+      if (!Array.isArray(rules) || rules.length === 0) return;
+
+      const seenTypes = new Set<string>();
+      let minValue: number | null = null;
+      let maxValue: number | null = null;
+
+      rules.forEach((rule, index) => {
+        const basePath = `${path}[${index}]`;
+
+        if (!rule || typeof rule.type !== "string" || !rule.type.trim()) {
+          addError(`${basePath}.type`, "Le type de règle est requis.");
+          return;
+        }
+
+        const type = rule.type.trim();
+
+        if (seenTypes.has(type)) {
+          addError(path, `La règle '${type}' est dupliquée et n'est pas permise.`);
+        } else {
+          seenTypes.add(type);
+        }
+
+        const hasValue = rule.value !== undefined && rule.value !== null;
+
+        if (type === "director_approval") {
+          if (scope !== "section") {
+            addError(basePath, "La règle 'director_approval' est permise uniquement sur les sections.");
+          }
+          if (hasValue) {
+            addError(basePath, "La règle 'director_approval' ne peut pas avoir de valeur.");
+          }
+          return;
+        }
+
+        if (type === "exclusive_submodules") {
+          if (scope !== "module") {
+            addError(basePath, "La règle 'exclusive_submodules' est permise uniquement sur les modules.");
+          }
+          if (hasValue) {
+            addError(basePath, "La règle 'exclusive_submodules' ne peut pas avoir de valeur.");
+          }
+          return;
+        }
+
+        if (type === "credits_exact") {
+          requirePositiveNumber(rule.value, `${basePath}.value`, "credits_exact");
+          return;
+        }
+
+        if (type === "credits_minimum") {
+          const value = requirePositiveNumber(rule.value, `${basePath}.value`, "credits_minimum");
+          if (value !== null) {
+            minValue = value;
+          }
+          return;
+        }
+
+        if (type === "credits_maximum") {
+          const value = requirePositiveNumber(rule.value, `${basePath}.value`, "credits_maximum");
+          if (value !== null) {
+            maxValue = value;
+          }
+          return;
+        }
+      });
+
+      if (minValue !== null && maxValue !== null && maxValue <= minValue) {
+        addError(path, "La règle 'credits_maximum' doit être supérieure à 'credits_minimum'.");
+      }
+    };
+
+    const validateSection = (section: any, path: string) => {
+      validateRuleSet(section?.rules ?? [], `${path}.rules`, "section");
+      const courses = Array.isArray(section?.courses) ? section.courses : [];
+      courses.forEach((course: any, idx: number) => {
+        const creditsPath = `${path}.courses[${idx}].credits`;
+        if (typeof course?.credits !== "number" || !Number.isFinite(course.credits)) {
+          addError(creditsPath, "Les crédits doivent être un nombre positif.");
+        } else if (course.credits <= 0) {
+          addError(creditsPath, "Les crédits doivent être supérieurs à 0.");
+        }
+      });
+    };
+
+    const modules = Array.isArray(_program.modules) ? _program.modules : [];
+    modules.forEach((module: any, moduleIndex: number) => {
+      const modulePath = `modules[${moduleIndex}]`;
+      validateRuleSet(module?.rules ?? [], `${modulePath}.rules`, "module");
+
+      const sections = Array.isArray(module?.courses) ? module.courses : [];
+      sections.forEach((section: any, sectionIndex: number) => {
+        validateSection(section, `${modulePath}.courses[${sectionIndex}]`);
+      });
+
+      const subModules = Array.isArray(module?.subModules) ? module.subModules : [];
+      subModules.forEach((subModule: any, subModuleIndex: number) => {
+        const subPath = `${modulePath}.subModules[${subModuleIndex}]`;
+        validateRuleSet(subModule?.rules ?? [], `${subPath}.rules`, "submodule");
+
+        const subSections = Array.isArray(subModule?.courses) ? subModule.courses : [];
+        subSections.forEach((section: any, sectionIndex: number) => {
+          validateSection(section, `${subPath}.courses[${sectionIndex}]`);
+        });
+      });
+    });
+
+    if (Object.keys(errors).length > 0) {
+      const validationError: any = new Error("La validation du programme a échoué.");
+      validationError.name = "ValidationError";
+      validationError.errors = errors;
+      throw validationError;
+    }
   }
 }
-
-
-

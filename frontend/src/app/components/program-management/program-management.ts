@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StudyPlan } from '@app/pages/study-plan/study-plan';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
@@ -32,7 +32,6 @@ export class ProgramManagement implements OnInit {
   isPreviewing = false;
   isSaving = false;
 
-  // Local editing state (single global draft while editing)
   private originalProgram: Program | null = null;
   protected editingDraft: Program | null = null;
   protected isCreatingNew = false;
@@ -185,7 +184,6 @@ export class ProgramManagement implements OnInit {
       coordonatorId: null,
       modules: [],
     } as Program;
-    // Do not add to left list; keep selection internal
     this.selectedProgramId = 'new-program';
     this.originalProgram = null;
     this.editingDraft = JSON.parse(JSON.stringify(draftProgram));
@@ -219,16 +217,17 @@ export class ProgramManagement implements OnInit {
     this.programService.saveProgram(program).subscribe({
       next: (saved) => {
         this.handleProgramSaved(saved, wasDraft);
-        alert(wasDraft ? 'Programme crée avec succès.' : 'Modifications enregistrées avec succès.');
+        alert(wasDraft ? 'Programme créé avec succès.' : 'Modifications enregistrées avec succès.');
         this.isSaving = false;
       },
       error: (error) => {
         console.error('Erreur lors de la sauvegarde du programme:', error);
-        const msg =
-          (error && error.error?.details)
-            ? JSON.stringify(error.error.details, null, 2)
-            : 'Une erreur est survenue lors de la sauvegarde.';
-        alert(msg);
+        const baseMessage = error?.error?.message || 'Une erreur est survenue lors de la sauvegarde.';
+        const formattedDetails = this.formatValidationDetails(error?.error?.details);
+        const fullMessage = formattedDetails
+          ? `${baseMessage}\n\nDétails :\n${formattedDetails}`
+          : baseMessage;
+        alert(fullMessage);
         this.isSaving = false;
       },
 
@@ -282,7 +281,6 @@ export class ProgramManagement implements OnInit {
     this.isEditing = false;
     this.isPreviewing = false;
     this.programService.setAdminEditing(false);
-    // Reset draft to original for persisted programs
     if (this.originalProgram) {
       this.editingDraft = JSON.parse(JSON.stringify(this.originalProgram));
     }
@@ -312,7 +310,6 @@ export class ProgramManagement implements OnInit {
 
   private handleProgramSaved(saved: Program, wasDraft: boolean): void {
     if (!saved._id) {
-      console.warn('Programme sauvegardé sans identifiant retourné.');
       return;
     }
     this.updateProgramLabel(saved);
@@ -320,7 +317,6 @@ export class ProgramManagement implements OnInit {
     this.isEditing = false;
     this.isPreviewing = false;
     this.programService.setAdminEditing(false);
-    // Sync persisted program into view and local draft
     this.programService.program = saved;
     this.selectedProgramId = saved._id!;
     this.originalProgram = saved;
@@ -434,7 +430,6 @@ export class ProgramManagement implements OnInit {
         this.isPreviewing = false;
         this.programService.setAdminEditing(false);
 
-        // ✅ Reload list from server to refresh left panel
         this.reloadProgramsList();
       },
 
@@ -446,7 +441,6 @@ export class ProgramManagement implements OnInit {
   }
 
   private reloadProgramsList(): void {
-    // Get all programs fresh from backend
     this.apiService.getAllPrograms().subscribe({
       next: (programs) => {
         const map = this.populateProgramMap(programs);
@@ -462,8 +456,60 @@ export class ProgramManagement implements OnInit {
     });
   }
 
+  private formatValidationDetails(details: unknown): string | null {
+    if (!details) return null;
 
+    if (typeof details === 'string') {
+      return details;
+    }
+
+    if (Array.isArray(details)) {
+      const lines = details.map((entry) => `- ${String(entry)}`);
+      return lines.join('\n');
+    }
+
+    if (typeof details === 'object') {
+      const entries = Object.entries(details as Record<string, unknown>);
+      if (entries.length === 0) return null;
+      const lines = entries.map(([path, message]) => {
+        const readablePath = this.humanizeErrorPath(path);
+        const textValue =
+          typeof message === 'string'
+            ? message
+            : (message as any)?.message || JSON.stringify(message);
+        return `- ${readablePath}: ${textValue}`;
+      });
+      return lines.join('\n');
+    }
+
+    return String(details);
+  }
+
+  private humanizeErrorPath(rawPath: string): string {
+    if (!rawPath) return 'Champ';
+    const dictionary: Record<string, string> = {
+      modules: 'Module',
+      subModules: 'Sous-module',
+      courses: 'Section',
+      rules: 'Règles',
+      title: 'Titre',
+      description: 'Description',
+      credits: 'Crédits',
+    };
+
+    return rawPath
+      .split('.')
+      .map((segment) => {
+        const match = /^([a-zA-Z_]+)(\[(\d+)\])?$/.exec(segment);
+        if (!match) return segment;
+        const [, name, , index] = match;
+        const label = dictionary[name] || name;
+        if (index !== undefined) {
+          const numericIndex = Number(index);
+          return Number.isNaN(numericIndex) ? label : `${label} ${numericIndex + 1}`;
+        }
+        return label;
+      })
+      .join(' > ');
+  }
 }
-
-
-

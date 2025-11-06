@@ -53,7 +53,7 @@ export interface ITrimester extends Document {
 }
 
 const RuleDefinitionSchema: Schema = new mongoose.Schema({
-  type: { type: String, required: true },
+  type: { type: String, required: [true, "Le type de règle est requis."] },
   value: { type: Number }
 });
 
@@ -64,9 +64,9 @@ const TrimesterSchema: Schema = new mongoose.Schema({
 });
 
 const CourseSchema: Schema = new mongoose.Schema({
-    sigle: { type: String, required: true },
+    sigle: { type: String, required: [true, "Le sigle du cours est requis."] },
     name: { type: String },
-    credits: { type: Number, required: true },
+    credits: { type: Number, required: [true, "Le nombre de crédits est requis."] },
     trimester: [TrimesterSchema],
     alreadyDone: { type: Boolean, default: false },
     grade: { type: String, enum: Object.values(Grade) }
@@ -79,14 +79,14 @@ const SectionSchema: Schema = new mongoose.Schema({
 });
 
 const SubModuleSchema: Schema = new mongoose.Schema({
-    title: { type: String, required: true},
+    title: { type: String, required: [true, "Le titre du sous-module est requis."]},
     description: [String],
     courses: [SectionSchema],
     rules: { type: [RuleDefinitionSchema], default: [] }
 });
 
 const ModuleSchema: Schema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: [true, "Le titre du module est requis."] },
   description: { type: [String], default: [] },
   courses: { type: [SectionSchema], default: [] },
   subModules: { type: [SubModuleSchema], default: [] },
@@ -94,17 +94,17 @@ const ModuleSchema: Schema = new mongoose.Schema({
 });
 
 const ProgramSchema: Schema = new mongoose.Schema({
-  degree: { type: String, required: true },
+  degree: { type: String, required: [true, "Le nom du programme (degree) est requis."] },
   option: { type: String },
   type: {
     type: [String],
-    required: [true, 'Program type is required.'],
+    required: [true, "Le type de programme est requis."],
     validate: {
       validator: (arr: string[]) => Array.isArray(arr) && arr.length > 0,
-      message: 'Program type must contain at least one value.'
+      message: "Le type de programme doit contenir au moins une valeur."
     }
   },
-  department: { type: String, required: true },
+  department: { type: String, required: [true, "Le département est requis."] },
   description: { type: String, default: '' },
   coordonatorId: { type: String, ref: "User" },
   modules: { type: [ModuleSchema], default: [] }

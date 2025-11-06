@@ -47,17 +47,18 @@
         </div>
 
         <div class="toolbar-right">
-          <button mat-stroked-button (click)="togglePreview()">
+          <button mat-stroked-button class="palette-warning" (click)="togglePreview()">
             {{ isPreviewing ? 'Revenir à l’édition' : 'Prévisualiser le plan' }}
           </button>
           <button
             mat-flat-button
+            class="palette-primary"
             (click)="saveProgram()"
             [disabled]="isSaving"
           >
             {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
           </button>
-          <button mat-flat-button (click)="requestExit()">Quitter l'édition</button>
+          <button mat-flat-button class="palette-danger" (click)="requestExit()">Quitter l'édition</button>
         </div>
       </div>
 
@@ -80,3 +81,4 @@
     </ng-container>
   </div>
 </div>
+

@@ -91,17 +91,17 @@ input {
   box-shadow: 0 5px 3px rgba(0, 0, 0, 0.25);
 
   &:hover {
-    background: #e3f2fd;
-    border-color: #3498db;
+    background: color-mix(in srgb, var(--app-color-blue) 12%, white);
+    border-color: var(--app-color-blue);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-color-blue) 25%, transparent);
   }
 
   &.selected {
-    background: #3498db;
-    color: white;
-    border-color: #3498db;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    background: var(--app-color-blue);
+    color: #fff;
+    border-color: var(--app-color-blue);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-color-blue) 35%, transparent);
   }
 }
 
@@ -206,8 +206,8 @@ input {
 }
 
 .editor-actions .btn-primary {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--app-color-blue);
+  color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -218,7 +218,7 @@ input {
 }
 
 .editor-actions .btn-primary:hover {
-  background-color: #2980b9;
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%);
   transform: translateY(-2px);
 }
 
@@ -300,11 +300,11 @@ input {
 }
 
 .btn-danger {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--app-color-red);
+  color: #fff;
 }
 .btn-danger:hover {
-  background-color: #c0392b;
+  background-color: color-mix(in srgb, var(--app-color-red) 85%, black 15%);
 }
 .btn-danger {
   border: none;
@@ -313,4 +313,78 @@ input {
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+}
+
+.palette-primary {
+  background-color: var(--app-color-blue) !important;
+  color: #fff !important;
+}
+
+.palette-primary:hover {
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%) !important;
+}
+
+.mat-button-disabled.palette-primary {
+  background-color: color-mix(in srgb, var(--app-color-blue) 35%, white 65%) !important;
+  color: color-mix(in srgb, var(--app-color-blue) 40%, white 60%) !important;
+}
+
+.palette-warning {
+  background-color: var(--app-color-orange) !important;
+  color: #fff !important;
+  border-color: var(--app-color-orange) !important;
+}
+
+.palette-warning:hover {
+  background-color: color-mix(in srgb, var(--app-color-orange) 85%, black 15%) !important;
+  border-color: color-mix(in srgb, var(--app-color-orange) 85%, black 15%) !important;
+}
+
+.mat-button-disabled.palette-warning {
+  background-color: color-mix(in srgb, var(--app-color-orange) 35%, white 65%) !important;
+  border-color: color-mix(in srgb, var(--app-color-orange) 35%, white 65%) !important;
+  color: color-mix(in srgb, var(--app-color-orange) 30%, white 70%) !important;
+}
+
+.palette-outline {
+  background-color: transparent !important;
+  border: 1px solid var(--app-color-blue) !important;
+  color: var(--app-color-blue) !important;
+}
+
+.palette-outline:hover {
+  background-color: color-mix(in srgb, var(--app-color-blue) 8%, white) !important;
+}
+
+.mat-button-disabled.palette-outline {
+  border-color: color-mix(in srgb, var(--app-color-blue) 30%, white 70%) !important;
+  color: color-mix(in srgb, var(--app-color-blue) 30%, white 70%) !important;
+}
+
+.palette-danger {
+  background-color: var(--app-color-red) !important;
+  color: #fff !important;
+}
+
+.palette-danger:hover {
+  background-color: color-mix(in srgb, var(--app-color-red) 85%, black 15%) !important;
+}
+
+.mat-button-disabled.palette-danger {
+  background-color: color-mix(in srgb, var(--app-color-red) 35%, white 65%) !important;
+  color: color-mix(in srgb, var(--app-color-red) 35%, white 65%) !important;
+}
+
+.palette-success {
+  background-color: var(--app-color-green) !important;
+  color: #013216 !important;
+}
+
+.palette-success:hover {
+  background-color: color-mix(in srgb, var(--app-color-green) 85%, black 15%) !important;
+}
+
+.mat-button-disabled.palette-success {
+  background-color: color-mix(in srgb, var(--app-color-green) 45%, white 55%) !important;
+  color: color-mix(in srgb, var(--app-color-green) 55%, black 45%) !important;
 }

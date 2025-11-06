@@ -11,7 +11,7 @@
   align-items: center;
 }
 
-.header-actions { display: flex; gap: 8px; }
+.header-actions { display: flex; gap: 8px; margin-right: 1rem; }
 
 .editor-header h3 {
   color: #2c3e50;
@@ -73,8 +73,8 @@
 .form-row input:focus,
 .form-row textarea:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--app-color-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-color-blue) 15%, transparent);
 }
 
 .toggle {
@@ -118,8 +118,13 @@
 }
 
 /* Make primary footer action green for UX clarity */
-.editor-footer .btn-primary { background-color: #4caf50; }
-.editor-footer .btn-primary:hover { background-color: #388e3c; }
+.editor-footer .btn-primary {
+  background-color: var(--app-color-green);
+  color: #013216;
+}
+.editor-footer .btn-primary:hover {
+  background-color: color-mix(in srgb, var(--app-color-green) 85%, black 15%);
+}
 
 /* Rules styling */
 .rule-actions { margin-top: 6px; display: flex; gap: 6px; align-items: center; }
@@ -202,7 +207,7 @@
 .rule-chip .chip-remove {
   background: transparent;
   border: none;
-  color: #e74c3c;
+  color: var(--app-color-red);
   cursor: pointer;
   font-weight: 700;
 }
@@ -241,7 +246,7 @@
 }
 
 .manual-error {
-  color: #c0392b;
+  color: color-mix(in srgb, var(--app-color-red) 80%, black 20%);
   font-size: 0.85rem;
 }
 
@@ -256,11 +261,32 @@
   font-weight: 500;
 }
 
-.btn-primary { background-color: #3498db; color: white; }
-.btn-primary:hover { background-color: #2980b9; }
+.btn-primary {
+  background-color: var(--app-color-blue);
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%);
+}
 
 .btn-secondary { background-color: white; color: #2c3e50; border: 1px solid #dee2e6; }
-.btn-secondary:hover { background-color: #f0f2f5; }
+.btn-secondary:hover { background-color: color-mix(in srgb, var(--app-color-blue) 8%, white); }
 
-.btn-danger { background-color: #e74c3c; color: white; }
-.btn-danger:hover { background-color: #c0392b; }
+.btn-danger {
+  background-color: var(--app-color-red);
+  color: #fff;
+}
+.btn-danger:hover {
+  background-color: color-mix(in srgb, var(--app-color-red) 85%, black 15%);
+}
+
+.btn-primary.palette-primary {
+  background-color: var(--app-color-blue);
+  color: #fff;
+}
+
+.btn-primary.palette-primary:hover {
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%);
+}
+
+

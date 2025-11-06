@@ -137,8 +137,8 @@
 .form-row input:focus,
 .form-row textarea:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--app-color-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-color-blue) 15%, transparent);
 }
 
 .editor-actions {
@@ -148,8 +148,8 @@
 }
 
 .btn-primary {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--app-color-blue);
+  color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -160,7 +160,7 @@
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%);
   transform: translateY(-2px);
 }
 
@@ -177,13 +177,13 @@
 }
 
 .btn-secondary:hover {
-  background-color: #f0f2f5;
+  background-color: color-mix(in srgb, var(--app-color-blue) 8%, white);
   transform: translateY(-2px);
 }
 
 .btn-link {
   background: transparent;
-  color: #3498db;
+  color: var(--app-color-blue);
   border: none;
   padding: 10px 12px;
   border-radius: 6px;
@@ -200,3 +200,14 @@
 .exit-edit-btn:hover {
   text-decoration: underline;
 }
+
+.btn-primary.palette-primary {
+  background-color: var(--app-color-blue);
+  color: #fff;
+}
+
+.btn-primary.palette-primary:hover {
+  background-color: color-mix(in srgb, var(--app-color-blue) 85%, black 15%);
+}
+
+

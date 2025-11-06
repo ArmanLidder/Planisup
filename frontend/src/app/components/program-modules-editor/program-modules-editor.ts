@@ -66,7 +66,7 @@ export class ProgramModulesEditor implements OnChanges {
       (target.courses && target.courses.length > 0) ||
       (target.subModules && target.subModules.length > 0);
     if (hasContent) {
-      const confirmed = await this.confirmRemoval('Supprimer ce module ? Les sections et sous-modules seront perdus.');
+      const confirmed = await this.confirmRemoval('Êtes-vous sûr de vouloir supprimer ce module ?');
       if (!confirmed) return;
     }
     this.draftModules = this.draftModules.filter((_, i) => i !== index);
@@ -264,7 +264,7 @@ export class ProgramModulesEditor implements OnChanges {
       (target.rules && target.rules.length > 0)
     );
     if (hasContent) {
-      const confirmed = await this.confirmRemoval('Supprimer ce sous-module et toutes ses sections ?');
+      const confirmed = await this.confirmRemoval(' Êtes-vous sûr de vouloir supprimer ce sous-module?');
       if (!confirmed) return;
     }
     const list = this.editTemp.subModules.filter((_, i) => i !== j);
@@ -361,7 +361,7 @@ export class ProgramModulesEditor implements OnChanges {
       (!!target.description && target.description.trim().length > 0)
     );
     if (hasContent) {
-      const confirmed = await this.confirmRemoval('Supprimer cette section et tous ses cours ?');
+      const confirmed = await this.confirmRemoval('Êtes-vous sûr de vouloir supprimer cette section?');
       if (!confirmed) return;
     }
     const list = this.editTemp.courses.filter((_, i) => i !== k);

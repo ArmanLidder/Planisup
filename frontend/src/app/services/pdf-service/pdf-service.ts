@@ -13,9 +13,11 @@ import { Trimester } from '@common/program';
 })
 export class PdfService {
   private members: User[] = [];
+  private codirectors: User[] = [];
   private readonly masterResearchCourses: string[] = ['CAP7002', 'CAP7005', 'CAP7002E', 'CAP7005E'];
   private firstNameFile: string = '';
   private lastNameFile: string = '';
+  private codirectorsDateSignature: Date = new Date();
 
   constructor(
     private readonly apiService: ApiService,
@@ -51,6 +53,7 @@ export class PdfService {
     reject: (error: any) => void
   ) {
     await this.fillCredentialsAndObtentionSections(form, studyPlan);
+    await this.fillCredentialsCodirectors(form, studyPlan);
     await this.fillAdditionalWorkShops(form, studyPlan);
     await this.fillMandatoryCourses(form, studyPlan);
     await this.fillComplementaryCourses(form, studyPlan);
@@ -84,6 +87,7 @@ export class PdfService {
         const dateValidated = studyPlan.directorValidationDate
           ? new Date(studyPlan.directorValidationDate)
           : new Date();
+        this.codirectorsDateSignature = dateValidated;
         this.setTextField(
           form,
           'directeur_d’études_ou_de_recherche',
@@ -119,20 +123,6 @@ export class PdfService {
           `${dateValidated.toLocaleDateString()}`
         );
       }
-
-      /* if (member.role === UserRole.Codirector) {
-        this.setTextField(form, 'codirecteur_1', `${codirecteur1}`);
-        this.setTextField(
-          form,
-          'codirecteur_2',
-          `${codirecteur2}, ${new Date().toLocaleDateString()}`
-        );
-        this.setTextField(
-          form,
-          'signature_codirecteur_et_date',
-          `${member.firstName} ${member.lastName}, ${new Date().toLocaleDateString())}`
-        );
-      }*/
     });
 
     if (this.studyPlanService.isProgramDESS()) {
@@ -155,6 +145,42 @@ export class PdfService {
     }
 
     this.setCheckBox(form, 'acceptation_condition');
+  }
+
+  private async fillCredentialsCodirectors(form: PDFForm, studyPlan: StudyPlan) {
+    if (studyPlan._id) {
+      const codirectors = await lastValueFrom(
+        this.apiService.getProcessCodirectorsByIdStudyPlan(studyPlan._id)
+      );
+      this.codirectors = codirectors;
+    }
+
+    if (this.codirectors.length === 0) {
+      return;
+    }
+
+    if (this.codirectors[0]) {
+      this.setTextField(
+        form,
+        'codirecteur_1',
+        `${this.codirectors[0].firstName} ${this.codirectors[0].lastName}`
+      );
+    }
+
+    if (this.codirectors[1]) {
+      this.setTextField(
+        form,
+        'codirecteur_2',
+        `${this.codirectors[1].firstName} ${this.codirectors[1].lastName}`
+      );
+    }
+
+    const signatureText =
+      this.codirectors
+        .map((codirector) => `${codirector.firstName} ${codirector.lastName}`)
+        .join(', ') + `, ${this.codirectorsDateSignature.toLocaleDateString()}`;
+
+    this.setTextField(form, 'signature_codirecteur_et_date', signatureText);
   }
 
   private async fillAdditionalWorkShops(form: PDFForm, studyPlan: StudyPlan) {

@@ -6,6 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { CourseSearch } from '@app/components/course-search/course-search';
 import { ApiService } from '@app/services/api/api-service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-program-modules-editor',
@@ -104,8 +105,21 @@ export class ProgramModulesEditor implements OnChanges {
     return this.structureType === 'sections';
   }
 
-  setStructure(index: number, kind: 'sections' | 'submodules'): void {
+  async setStructure(index: number, kind: 'sections' | 'submodules'): Promise<void> {
     if (this.editingIndex !== index || !this.editTemp) return;
+    if (this.structureType === kind) return;
+
+    const hasSections = Array.isArray(this.editTemp.courses) && this.editTemp.courses.length > 0;
+    const hasSubModules = Array.isArray(this.editTemp.subModules) && this.editTemp.subModules.length > 0;
+
+    const willEraseSections = kind === 'submodules' && hasSections;
+    const willEraseSubModules = kind === 'sections' && hasSubModules;
+
+    if (willEraseSections || willEraseSubModules) {
+      const confirmed = await this.confirmStructureSwap(kind);
+      if (!confirmed) return;
+    }
+
     this.structureType = kind;
     const m = { ...this.editTemp } as Module;
     if (kind === 'sections') {
@@ -126,6 +140,23 @@ export class ProgramModulesEditor implements OnChanges {
       this.subSecEditTemp = null;
     }
     this.editTemp = m;
+  }
+
+  private async confirmStructureSwap(target: 'sections' | 'submodules'): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const message =
+      target === 'sections'
+        ? 'Basculer vers les sections effacera tous les sous-modules existants. Continuer ?'
+        : 'Basculer vers les sous-modules effacera toutes les sections existantes. Continuer ?';
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message,
+        firstButton: 'Annuler',
+        secondButton: 'Continuer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   startEdit(index: number): void {

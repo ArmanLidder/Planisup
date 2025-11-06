@@ -1,30 +1,41 @@
-<div class="steps-progress">
-  <div class="container" #container>
-    <ng-container *ngFor="let item of itemProgressList; index as i">
-      <div class="check-box"
-        [class.complete]="item.displayLabel === 'Approuvé'"
-        [class.active]="item.displayLabel === 'En cours' || item.displayLabel === 'Corrections requises'"
-        [class.needs-correction]="item.displayLabel === 'Corrections requises'">
-        <svg id="checkbox" viewBox="0 0 100 100">
-          <circle class="circle" cx="50.5" cy="49" r="45"></circle>
-          <polyline class="check" points="28.5,51.9 41.9,65.3 72.5,32.8"></polyline>
-        </svg>
-        <div class="info">
-          <span class="step">{{ item.label }}</span>
-          <span class="progress-info"
-                [class.complete]="item.displayLabel === 'Approuvé'"
-                [class.in-progress]="item.displayLabel === 'En cours'"
-                [class.needs-correction]="item.displayLabel === 'Corrections requises'">
-                {{ item.displayLabel }}
-          </span>
-        </div>
-        <div class="progress-line"
-             [class.complete]="item.displayLabel === 'Approuvé'"
-             [class.active]="item.displayLabel === 'En cours' || item.displayLabel === 'Corrections requises'"
-             *ngIf="i < itemProgressList.length - 1">
-          <div class="progress-percent"></div>
-        </div>
+<div class="progress-content">
+  <div class="content">
+    <div
+      *ngFor="let item of itemProgressList; index as i"
+      class="block-content"
+      [class.complete]="item.displayLabel === 'Approuvé'"
+      [class.active]="
+        item.displayLabel === 'En cours' || item.displayLabel === 'Corrections requises'
+      "
+      [class.needs-correction]="item.displayLabel === 'Corrections requises'"
+    >
+      <svg viewBox="0 0 100 100">
+        <circle class="circle" cx="50" cy="50" r="45"></circle>
+        <polyline class="check" points="30,50 45,65 70,35"></polyline>
+      </svg>
+      <div class="block-content-text">
+        <span class="block-content-text-role">{{ item.label }}</span>
+        <span
+          class="block-content-text-status"
+          [class.complete]="item.displayLabel === 'Approuvé'"
+          [class.in-progress]="item.displayLabel === 'En cours'"
+          [class.needs-correction]="item.displayLabel === 'Corrections requises'"
+        >
+          {{ item.displayLabel }}
+        </span>
       </div>
-    </ng-container>
+      <div
+        class="block-content-line"
+        [ngClass]="{
+          complete: i < getCurrentStepIndex(),
+          active:
+            i === getCurrentStepIndex() &&
+            item.displayLabel !== 'En cours' &&
+            item.displayLabel !== 'Corrections requises',
+          future: i >= getCurrentStepIndex()
+        }"
+        *ngIf="i < itemProgressList.length - 1"
+      ></div>
+    </div>
   </div>
 </div>

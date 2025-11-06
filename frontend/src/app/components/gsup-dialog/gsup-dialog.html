@@ -1,13 +1,18 @@
 <div mat-dialog-content class="dialog-content">
   <div class="dialog-header">
-    <mat-icon class="warning-icon">warning</mat-icon>
-    <h2 mat-dialog-title>Confirmation</h2>
+    <mat-icon class="dialog-icon" [ngClass]="dialogIcon">{{ dialogIcon }}</mat-icon>
+    <h2 mat-dialog-title>{{ dialogTitle }}</h2>
   </div>
-  <p class="dialog-message">{{ data.message }}</p>
+  <p class="dialog-message" *ngIf="data?.message">{{ data.message }}</p>
+  <ul class="dialog-details" *ngIf="detailLines.length">
+    <li *ngFor="let detail of detailLines">{{ detail }}</li>
+  </ul>
 </div>
 <div mat-dialog-actions class="dialog-actions">
-  <button mat-button (click)="onCancelClick()">{{ data.firstButton }}</button>
-  <button mat-raised-button color="warn" (click)="onConfirmClick()">
-    {{ data.secondButton }}
+  <button mat-button *ngIf="showCancel" (click)="onCancelClick()">
+    {{ cancelLabel }}
+  </button>
+  <button mat-raised-button [color]="confirmColor" (click)="onConfirmClick()">
+    {{ confirmLabel }}
   </button>
 </div>

@@ -1,6 +1,6 @@
 .dialog-content {
   min-width: 400px;
-  max-width: 500px;
+  max-width: 520px;
 
   .dialog-header {
     display: flex;
@@ -8,11 +8,25 @@
     gap: 12px;
     margin-bottom: 16px;
 
-    .warning-icon {
+    .dialog-icon {
       color: #ff9800;
       font-size: 28px;
       width: 28px;
       height: 28px;
+
+      &.error {
+        color: #f44336;
+      }
+
+      &.check_circle,
+      &.done,
+      &.success {
+        color: #4caf50;
+      }
+
+      &.info {
+        color: #2196f3;
+      }
     }
 
     h2 {
@@ -22,12 +36,19 @@
     }
   }
 
-  .dialog-message {
+  .dialog-message,
+  .dialog-details {
     margin: 0;
     font-size: 1rem;
     line-height: 1.5;
     color: #333;
     white-space: pre-line;
+  }
+
+  .dialog-details {
+    margin-top: 12px;
+    padding-left: 20px;
+    list-style: disc;
   }
 }
 
@@ -44,7 +65,7 @@
     min-width: 280px;
 
     .dialog-header {
-      .warning-icon {
+      .dialog-icon {
         font-size: 24px;
         width: 24px;
         height: 24px;

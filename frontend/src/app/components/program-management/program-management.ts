@@ -215,20 +215,30 @@ export class ProgramManagement implements OnInit {
 
     this.isSaving = true;
     this.programService.saveProgram(program).subscribe({
-      next: (saved) => {
+      next: async (saved) => {
         this.handleProgramSaved(saved, wasDraft);
-        alert(wasDraft ? 'Programme créé avec succès.' : 'Modifications enregistrées avec succès.');
         this.isSaving = false;
+        await this.showDialogMessage({
+          title: 'Succès',
+          message: wasDraft
+            ? 'Programme créé avec succès.'
+            : 'Modifications enregistrées avec succès.',
+          icon: 'check_circle',
+          confirmColor: 'primary',
+        });
       },
-      error: (error) => {
+      error: async (error) => {
         console.error('Erreur lors de la sauvegarde du programme:', error);
         const baseMessage = error?.error?.message || 'Une erreur est survenue lors de la sauvegarde.';
-        const formattedDetails = this.formatValidationDetails(error?.error?.details);
-        const fullMessage = formattedDetails
-          ? `${baseMessage}\n\nDétails :\n${formattedDetails}`
-          : baseMessage;
-        alert(fullMessage);
+        const details = this.formatValidationDetails(error?.error?.details);
         this.isSaving = false;
+        await this.showDialogMessage({
+          title: 'Erreur',
+          message: baseMessage,
+          details: details ?? undefined,
+          icon: 'error',
+          confirmColor: 'warn',
+        });
       },
 
     });
@@ -456,16 +466,22 @@ export class ProgramManagement implements OnInit {
     });
   }
 
-  private formatValidationDetails(details: unknown): string | null {
+  private formatValidationDetails(details: unknown): string[] | null {
     if (!details) return null;
 
     if (typeof details === 'string') {
-      return details;
+      const lines = details
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      return lines.length > 0 ? lines : null;
     }
 
     if (Array.isArray(details)) {
-      const lines = details.map((entry) => `- ${String(entry)}`);
-      return lines.join('\n');
+      const items = details
+        .map((entry) => String(entry).trim())
+        .filter((line) => line.length > 0);
+      return items.length > 0 ? items : null;
     }
 
     if (typeof details === 'object') {
@@ -477,12 +493,12 @@ export class ProgramManagement implements OnInit {
           typeof message === 'string'
             ? message
             : (message as any)?.message || JSON.stringify(message);
-        return `- ${readablePath}: ${textValue}`;
+        return `${readablePath}: ${textValue}`;
       });
-      return lines.join('\n');
+      return lines;
     }
 
-    return String(details);
+    return [String(details)];
   }
 
   private humanizeErrorPath(rawPath: string): string {
@@ -511,5 +527,26 @@ export class ProgramManagement implements OnInit {
         return label;
       })
       .join(' > ');
+  }
+
+  private async showDialogMessage(options: {
+    title: string;
+    message: string;
+    details?: string[];
+    icon?: string;
+    confirmColor?: 'primary' | 'accent' | 'warn';
+  }): Promise<void> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    this.dialog.open(GsupDialog, {
+      data: {
+        title: options.title,
+        message: options.message,
+        details: options.details,
+        icon: options.icon,
+        confirmColor: options.confirmColor || 'primary',
+        hideCancel: true,
+        secondButton: 'Fermer',
+      },
+    });
   }
 }

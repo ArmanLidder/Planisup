@@ -329,6 +329,9 @@ export class ProgramController {
       const seenTypes = new Set<string>();
       let minValue: number | null = null;
       let maxValue: number | null = null;
+      let hasCreditsExact = false;
+      let hasCreditsMinimum = false;
+      let hasCreditsMaximum = false;
 
       rules.forEach((rule, index) => {
         const basePath = `${path}[${index}]`;
@@ -369,23 +372,47 @@ export class ProgramController {
         }
 
         if (type === "credits_exact") {
+          if (hasCreditsMinimum || hasCreditsMaximum) {
+            addError(
+              basePath,
+              "La règle 'crédits exacts' ne peut pas être combinée avec des règles de crédits minimum ou maximum."
+            );
+            return;
+          }
+          hasCreditsExact = true;
           requirePositiveNumber(rule.value, `${basePath}.value`, "credits_exact");
           return;
         }
 
         if (type === "credits_minimum") {
+          if (hasCreditsExact) {
+            addError(
+              basePath,
+              "La règle 'crédits minimum' ne peut pas être combinée avec une règle de crédits exacts."
+            );
+            return;
+          }
           const value = requirePositiveNumber(rule.value, `${basePath}.value`, "credits_minimum");
           if (value !== null) {
             minValue = value;
           }
+          hasCreditsMinimum = true;
           return;
         }
 
         if (type === "credits_maximum") {
+          if (hasCreditsExact) {
+            addError(
+              basePath,
+              "La règle 'crédits maximum' ne peut pas être combinée avec une règle de crédits exacts."
+            );
+            return;
+          }
           const value = requirePositiveNumber(rule.value, `${basePath}.value`, "credits_maximum");
           if (value !== null) {
             maxValue = value;
           }
+          hasCreditsMaximum = true;
           return;
         }
       });

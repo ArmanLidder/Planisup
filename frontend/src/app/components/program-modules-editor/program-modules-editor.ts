@@ -184,6 +184,9 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveEdit(): void {
+    this.applyPendingModuleSectionEdit();
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
     if (this.editingIndex === null || !this.editTemp) return;
     const arr = [...this.draftModules];
     arr[this.editingIndex] = this.editTemp;
@@ -285,13 +288,8 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveSubEdit(): void {
-    if (this.subEditingIndex === null || !this.subEditTemp || !this.editTemp?.subModules) return;
-    const list = [...this.editTemp.subModules];
-    list[this.subEditingIndex] = this.subEditTemp;
-    this.editTemp = { ...this.editTemp, subModules: list };
-    this.subEditingIndex = null;
-    this.subEditTemp = null;
-
+    this.applyPendingSubModuleSectionEdit();
+    this.applyPendingSubModuleEdit();
   }
 
   subOnTitleChange(val: string): void {
@@ -358,12 +356,7 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   saveSecEdit(): void {
-    if (this.secEditingIndex === null || !this.secEditTemp || !this.editTemp?.courses) return;
-    const list = [...this.editTemp.courses];
-    list[this.secEditingIndex] = this.secEditTemp;
-    this.editTemp = { ...this.editTemp, courses: list };
-    this.secEditingIndex = null;
-    this.secEditTemp = null;
+    this.applyPendingModuleSectionEdit();
   }
 
   secOnDescriptionChange(val: string): void {
@@ -426,13 +419,7 @@ export class ProgramModulesEditor implements OnChanges {
 
   }
   subSaveSecEdit(): void {
-    if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
-    const list = [...this.subEditTemp.courses];
-    list[this.subSecEditingIndex] = this.subSecEditTemp;
-    this.subEditTemp = { ...this.subEditTemp, courses: list };
-    this.subSecEditingIndex = null;
-    this.subSecEditTemp = null;
-
+    this.applyPendingSubModuleSectionEdit();
   }
   subSecOnDescriptionChange(val: string): void {
     if (!this.subSecEditTemp) return;
@@ -588,5 +575,32 @@ return null;
       const inSm = sm.courses.reduce((a, sec) => a + (Array.isArray(sec?.courses) ? sec.courses.length : 0), 0);
       return acc + inSm;
     }, 0);
+  }
+
+  private applyPendingModuleSectionEdit(): void {
+    if (this.secEditingIndex === null || !this.secEditTemp || !this.editTemp?.courses) return;
+    const list = [...this.editTemp.courses];
+    list[this.secEditingIndex] = this.secEditTemp;
+    this.editTemp = { ...this.editTemp, courses: list };
+    this.secEditingIndex = null;
+    this.secEditTemp = null;
+  }
+
+  private applyPendingSubModuleSectionEdit(): void {
+    if (this.subSecEditingIndex === null || !this.subSecEditTemp || !this.subEditTemp?.courses) return;
+    const list = [...this.subEditTemp.courses];
+    list[this.subSecEditingIndex] = this.subSecEditTemp;
+    this.subEditTemp = { ...this.subEditTemp, courses: list };
+    this.subSecEditingIndex = null;
+    this.subSecEditTemp = null;
+  }
+
+  private applyPendingSubModuleEdit(): void {
+    if (this.subEditingIndex === null || !this.subEditTemp || !this.editTemp?.subModules) return;
+    const list = [...this.editTemp.subModules];
+    list[this.subEditingIndex] = this.subEditTemp;
+    this.editTemp = { ...this.editTemp, subModules: list };
+    this.subEditingIndex = null;
+    this.subEditTemp = null;
   }
 }

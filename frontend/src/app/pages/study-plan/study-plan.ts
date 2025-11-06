@@ -41,6 +41,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   coordinators: User[] = [];
   @Input() directorId: string = '';
   @Input() coordonatorId: string = '';
+  director: User = {} as User;
+  codirectors: User[] = [];
+  coodonator: User = {} as User;
 
   currentPlan: StudyPlanInterface | null = null;
   private programSubscription: Subscription | null = null;
@@ -78,6 +81,26 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
         console.error('Erreur lors du chargement des directeurs et coordonnateurs:', error);
       },
     });
+
+    if (this.authService.currentUser?.directorId) {
+      this.apiService.getUserById(this.authService.currentUser?.directorId).subscribe((res) => {
+        this.director = res.user;
+      });
+    }
+
+    if (this.authService.currentUser?.codirectorsIds) {
+      this.authService.currentUser?.codirectorsIds.forEach((id) => {
+        this.apiService.getUserById(id).subscribe((res) => {
+          this.codirectors.push(res.user)
+      });
+      })
+    }
+
+    if (this.programService.program?.coordonatorId) {
+      this.apiService.getUserById(this.programService.program?.coordonatorId).subscribe((res) => {
+        this.coodonator = res.user;
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -354,9 +377,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     //   errors.push('Vous devez selectionner un Directeur');
     // }
 
-    if (this.coordonatorId === '') {
-      errors.push('Vous devez selectionner un Coordonateur');
-    }
+    // if (this.coordonatorId === '') {
+    //   errors.push('Vous devez selectionner un Coordonateur');
+    // }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();
@@ -428,7 +451,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       status: StudyPlanStatus.LIVE,
       studentId: this.authService.currentUser?._id || '',
       directorId: this.authService.currentUser?.directorId || '',
-      coordonatorId: this.coordonatorId,
+      coordonatorId: this.coodonator._id || "",
       programId: this.program._id!,
       programType: this.programService.program?.type[0] as ProgramType,
       studyPlanStep: StudyPlanStep.STUDENT,

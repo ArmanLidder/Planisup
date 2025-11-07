@@ -30,6 +30,13 @@
   gap: 1rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .left-title-block h2 {
   margin: 0;
   font-size: 1.4rem;

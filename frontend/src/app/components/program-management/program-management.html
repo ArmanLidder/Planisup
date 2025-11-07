@@ -4,11 +4,22 @@
       <div class="left-title-block">
         <h2>Programmes</h2>
       </div>
-      <button mat-flat-button
-              class="palette-primary" (click)="createProgram()">
-        <span class="icon-plus">+</span>
-        Nouveau programme
-      </button>
+      <div class="header-actions">
+        <button mat-flat-button
+                class="palette-primary" (click)="createProgram()">
+          <span class="icon-plus">+</span>
+          Nouveau programme
+        </button>
+        <span matTooltip="Sélectionnez un programme pour pouvoir le dupliquer."
+              [matTooltipDisabled]="!!selectedProgramId && !!programService.program">
+          <button mat-stroked-button
+                  class="palette-primary"
+                  (click)="duplicateProgram()"
+                  [disabled]="!selectedProgramId || !programService.program">
+            Dupliquer
+          </button>
+        </span>
+      </div>
     </div>
     <div class="search-bar">
       <input

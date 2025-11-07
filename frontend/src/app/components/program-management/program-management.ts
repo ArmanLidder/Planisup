@@ -11,12 +11,13 @@ import { ActivatedRoute } from '@angular/router';
 import removeAccents from 'remove-accents';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import {SnackBar} from '@app/services/snackbar/snackbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SnackBar } from '@app/services/snackbar/snackbar';
 
 @Component({
   selector: 'app-program-management',
   standalone: true,
-  imports: [StudyPlan, CommonModule, MatInputModule, ProgramEditor, MatButtonModule, MatDialogModule],
+  imports: [StudyPlan, CommonModule, MatInputModule, ProgramEditor, MatButtonModule, MatDialogModule, MatTooltipModule],
   templateUrl: './program-management.html',
   styleUrl: './program-management.scss',
 })
@@ -98,6 +99,29 @@ export class ProgramManagement implements OnInit {
       return;
     }
     this.finishSelectProgram(programId);
+  }
+
+  async duplicateProgram(): Promise<void> {
+    if (!this.selectedProgramId) return;
+    const source = this.editingDraft || this.programService.program;
+    if (!source) return;
+    const clone: Program = JSON.parse(JSON.stringify(source));
+    clone._id = undefined;
+    clone.degree = clone.degree ? `${clone.degree} (COPIÉ)` : 'Programme (COPIÉ)';
+
+    if (this.isEditing) {
+      if (this.hasUnsavedChanges()) {
+        const ok = await this.confirmExit();
+        if (!ok) return;
+      }
+      this.exitEdit();
+    }
+
+    this.originalProgram = null;
+    this.editingDraft = clone;
+    this.isCreatingNew = true;
+    this.selectedProgramId = 'new-program';
+    this.enterEditMode();
   }
 
     private finishSelectProgram(programId: string): void {

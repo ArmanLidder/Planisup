@@ -7,7 +7,6 @@
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.5);
   padding: 0.5rem 1rem;
   flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .left-container {
@@ -44,12 +43,30 @@
 .right-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 2.5rem;
+  align-items: center;
+  gap: 2rem;
 }
 
-.text {
-  font-size: clamp(8px, 2vw, 16px);
+.student-infos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+.student-infos strong {
   font-weight: bold;
-  color: black;
-  cursor: pointer;
+  padding: 0rem 0.5rem 0rem 0.5rem;
+  font-size: 14px;
+  color: var(--app-color-red);
+}
+
+.student-infos p {
+  font-weight: bold;
+  padding: 0rem 0.5rem 0rem 0.5rem;
+  font-size: 14px;
+  color: var(--app-color-red);
 }

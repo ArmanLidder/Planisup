@@ -18,7 +18,7 @@ export class GsupHeader implements OnInit {
   etudiantRole = UserRole.Etudiant;
 
   constructor(
-    private readonly authentificationService: AuthentificationService,
+    protected readonly authentificationService: AuthentificationService,
     private readonly programService: ProgramService,
     public router: Router
   ) {}
@@ -26,6 +26,7 @@ export class GsupHeader implements OnInit {
   ngOnInit(): void {
     this.authentificationService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+      console.log(this.currentUser);
     });
   }
 

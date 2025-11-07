@@ -81,19 +81,36 @@ export class AuthentificationService {
   }
 
   isEmployee(): boolean {
-    return this.currentUser?.role === UserRole.Employe;
-  }
-
-  isAdmin(): boolean {
-    return this.currentUser?.role === UserRole.Administrateur;
+    return (
+      this.currentUser?.role === UserRole.Directeur ||
+      this.currentUser?.role === UserRole.Coordonnateur ||
+      this.currentUser?.role === UserRole.Agent ||
+      this.currentUser?.role === UserRole.Registrar
+    );
   }
 
   isStudent(): boolean {
     return this.currentUser?.role === UserRole.Etudiant;
   }
 
+  isDirector(): boolean {
+    return this.currentUser?.role === UserRole.Directeur;
+  }
+
+  isCoordonator(): boolean {
+    return this.currentUser?.role === UserRole.Coordonnateur;
+  }
+
+  isAgent(): boolean {
+    return this.currentUser?.role === UserRole.Agent;
+  }
+
   isRegistrar(): boolean {
     return this.currentUser?.role === UserRole.Registrar;
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === UserRole.Administrateur;
   }
 
   canAccessAdmin(): boolean {

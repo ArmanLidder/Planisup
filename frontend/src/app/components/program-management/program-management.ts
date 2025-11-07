@@ -7,10 +7,11 @@ import { ApiService } from '@app/services/api/api-service';
 import { ProgramService } from '@app/services/program/program-service';
 import { MatInputModule } from '@angular/material/input';
 import { ProgramEditor } from '@app/components/program-editor/program-editor';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import removeAccents from 'remove-accents';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {SnackBar} from '@app/services/snackbar/snackbar';
 
 @Component({
   selector: 'app-program-management',
@@ -41,9 +42,9 @@ export class ProgramManagement implements OnInit {
   constructor(
     private readonly apiService: ApiService,
     private readonly activatedRoute: ActivatedRoute,
-    private readonly router: Router,
     protected programService: ProgramService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private snackbar: SnackBar
   ) {}
 
   ngOnInit(): void {
@@ -218,14 +219,7 @@ export class ProgramManagement implements OnInit {
       next: async (saved) => {
         this.handleProgramSaved(saved, wasDraft);
         this.isSaving = false;
-        await this.showDialogMessage({
-          title: 'Succès',
-          message: wasDraft
-            ? 'Programme créé avec succès.'
-            : 'Modifications enregistrées avec succès.',
-          icon: 'check_circle',
-          confirmColor: 'primary',
-        });
+        wasDraft ? this.snackbar.show('Programme créé avec succès.') : this.snackbar.show('Modifications enregistrées avec succès.')
       },
       error: async (error) => {
         console.error('Erreur lors de la sauvegarde du programme:', error);
@@ -432,7 +426,7 @@ export class ProgramManagement implements OnInit {
 
     this.apiService.deleteProgram(this.selectedProgramId).subscribe({
       next: (res) => {
-        alert('Programme supprimé avec succès.');
+        this.snackbar.show('Programme supprimé avec succès.');
         this.selectedProgramId = null;
         this.originalProgram = null;
         this.editingDraft = null;
@@ -445,7 +439,7 @@ export class ProgramManagement implements OnInit {
 
       error: (err) => {
         console.error('Erreur lors de la suppression du programme:', err);
-        alert('Échec de la suppression du programme.');
+        this.snackbar.show('Échec de la suppression du programme.');
       },
     });
   }
@@ -461,7 +455,6 @@ export class ProgramManagement implements OnInit {
       },
       error: (err) => {
         console.error('Erreur lors du rechargement des programmes:', err);
-        alert('Impossible de recharger la liste des programmes.');
       },
     });
   }

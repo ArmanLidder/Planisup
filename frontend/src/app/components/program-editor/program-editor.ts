@@ -22,7 +22,7 @@ export class ProgramEditor implements OnChanges, OnInit {
   @ViewChild(ProgramModulesEditor) private modulesEditor?: ProgramModulesEditor;
 
   form: FormGroup;
-  allowedTypes: string[] = ['dess', 'maitrise', 'doctorat', 'dess,maitrise'];
+  allowedTypes: string[] = ['dess', 'maitrise', 'doctorat'];
   metadataEditing = false;
   private newModeInitialized = false;
   coordinators: User[] = [];

@@ -61,6 +61,28 @@ body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+.mat-mdc-snack-bar-container.app-snackbar {
+  min-width: 430px;
+  max-width: 770px;
+  padding: 16px 30px;
+
+  .mdc-snackbar__surface {
+    background-color: #fdfdfd !important;
+    color: #1f1f1f !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #1f1f1f !important;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .mdc-button__label {
+    color: var(--mat-sys-primary) !important;
+    font-size: 1.05rem;
+  }
+}
+
 /* Force la transparence sur tous les éléments mat-table */
 mat-table,
 .mat-table,
@@ -115,4 +137,5 @@ mat-table,
 .search-container ::-webkit-scrollbar-track {
   background: rgba(211, 211, 211, 0);
 }
+
 

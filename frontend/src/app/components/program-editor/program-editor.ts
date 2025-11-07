@@ -74,6 +74,8 @@ export class ProgramEditor implements OnChanges, OnInit {
   }
 
   saveMetadata(): boolean {
+    this.modulesEditor?.applyAllPendingEdits();
+    this.flushModulesToProgram();
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return false;
@@ -89,6 +91,7 @@ export class ProgramEditor implements OnChanges, OnInit {
       description: value.description,
       coordonatorId,
     } as Program;
+    this.program = updated;
     this.programChange.emit(updated);
     this.metadataEditing = false;
     return true;
@@ -107,6 +110,7 @@ export class ProgramEditor implements OnChanges, OnInit {
       coordonatorId,
       modules: mods,
     } as Program;
+    this.program = updated;
     this.programChange.emit(updated);
   }
 

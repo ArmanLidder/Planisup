@@ -43,8 +43,11 @@
         <div class="up-right-first-row-first">
           <img src="./../../../assets/image_user.png" alt="" />
           <div class="up-right-first-row-first-infos">
-            <p>{{ auth.currentUser?.firstName }} {{ auth.currentUser?.lastName }}</p>
-            <p>{{ auth.currentUser?.role }}</p>
+            <p *ngIf="this.auth.isDirector() || this.auth.isCoordonator()">
+              {{ auth.currentUser?.role }}
+            </p>
+            <p *ngIf="this.auth.isAgent()">AGENT ADMINISTRATIF</p>
+            <p *ngIf="this.auth.isRegistrar()">REGISTRAIRE</p>
             <p *ngIf="auth.currentUser?.departement">{{ auth.currentUser?.departement }}</p>
           </div>
         </div>

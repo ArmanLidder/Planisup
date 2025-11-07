@@ -100,7 +100,6 @@
 .up-right-first-row-first img {
   width: 25%;
   height: 60%;
-  padding-left: 0.8rem;
 }
 
 .up-right-first-row-first-infos {
@@ -117,7 +116,7 @@
   margin: 0;
   font-weight: bold;
   font-size: clamp(2px, 1vw, 14px);
-  color: #1a237e;
+  color: var(--app-color-red);
   text-align: center;
 }
 
@@ -131,7 +130,7 @@
   margin: 0;
   font-weight: bold;
   font-size: clamp(2px, 1vw, 16px);
-  color: #1a237e;
+  color: var(--app-color-red);
   text-align: center;
 }
 
@@ -171,7 +170,7 @@
   margin: 0;
   font-weight: bold;
   font-size: clamp(2px, 2vw, 20px);
-  color: #1a237e;
+  color: var(--app-color-red);
 }
 
 .down-right-image {
@@ -228,7 +227,7 @@
   margin: 0;
   font-weight: bold;
   font-size: clamp(2px, 2vw, 18px);
-  color: #1a237e;
+  color: var(--app-color-red);
 }
 
 .mat-mdc-cell {

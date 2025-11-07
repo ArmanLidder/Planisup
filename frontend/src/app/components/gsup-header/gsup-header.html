@@ -30,6 +30,19 @@
     <p class="title">PlaniSup</p>
   </div>
   <div class="right-container">
+    <div class="student-infos" *ngIf="this.currentUser">
+      <p *ngIf="this.authentificationService.isStudent()">
+        <strong>Étudiant :</strong>{{ this.currentUser.firstName }}
+        {{ this.currentUser.lastName }}
+      </p>
+      <p *ngIf="this.authentificationService.isEmployee()">
+        <strong>Employé :</strong>{{ this.currentUser.firstName }}
+        {{ this.currentUser.lastName }}
+      </p>
+      <p *ngIf="this.authentificationService.isAdmin()">
+        <strong>ADMINISTRATEUR</strong>
+      </p>
+    </div>
     <app-gsup-menu
       *ngIf="this.router.url !== '/login' && this.router.url !== '/portail'"
       [currentUser]="currentUser"

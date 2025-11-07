@@ -316,8 +316,8 @@ export class ProgramController {
         addError(path, `La règle ${label} nécessite une valeur numérique.`);
         return null;
       }
-      if (value <= 0) {
-        addError(path, `La règle ${label} doit être supérieure à 0.`);
+      if (value < 0) {
+        addError(path, `La règle ${label} doit être 0 ou plus.`);
         return null;
       }
       return value;

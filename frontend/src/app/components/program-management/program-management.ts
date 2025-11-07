@@ -37,6 +37,7 @@ export class ProgramManagement implements OnInit {
   private originalProgram: Program | null = null;
   protected editingDraft: Program | null = null;
   protected isCreatingNew = false;
+  private draftPlaceholderId: string | null = null;
 
   @ViewChild(ProgramEditor) private programEditorComponent?: ProgramEditor;
 
@@ -120,7 +121,7 @@ export class ProgramManagement implements OnInit {
     this.originalProgram = null;
     this.editingDraft = clone;
     this.isCreatingNew = true;
-    this.selectedProgramId = 'new-program';
+    this.addDraftPlaceholder(clone.degree || 'Programme (COPIÉ)');
     this.enterEditMode();
   }
 
@@ -209,10 +210,10 @@ export class ProgramManagement implements OnInit {
       coordonatorId: null,
       modules: [],
     } as Program;
-    this.selectedProgramId = 'new-program';
     this.originalProgram = null;
     this.editingDraft = JSON.parse(JSON.stringify(draftProgram));
     this.isCreatingNew = true;
+    this.addDraftPlaceholder('Nouveau programme');
     this.enterEditMode();
   }
 
@@ -301,6 +302,7 @@ export class ProgramManagement implements OnInit {
 
   exitEdit(): void {
     if (this.isCreatingNew) {
+      this.clearDraftPlaceholder();
       this.selectedProgramId = null;
       this.originalProgram = null;
       this.editingDraft = null;
@@ -340,6 +342,7 @@ export class ProgramManagement implements OnInit {
     if (!saved._id) {
       return;
     }
+    this.clearDraftPlaceholder();
     this.updateProgramLabel(saved);
     this.syncReducedPrograms(saved, undefined);
     this.isEditing = false;
@@ -350,6 +353,9 @@ export class ProgramManagement implements OnInit {
     this.originalProgram = saved;
     this.editingDraft = JSON.parse(JSON.stringify(saved));
     this.isCreatingNew = false;
+    if (wasDraft) {
+      this.reloadProgramsList();
+    }
   }
 
   private syncReducedPrograms(saved: Program, removedId?: string): void {
@@ -481,6 +487,28 @@ export class ProgramManagement implements OnInit {
         console.error('Erreur lors du rechargement des programmes:', err);
       },
     });
+  }
+
+  private addDraftPlaceholder(label: string): void {
+    this.clearDraftPlaceholder();
+    this.draftPlaceholderId = `draft-${Date.now()}`;
+    const updated = new Map(this.allProgramsOriginal);
+    updated.set(this.draftPlaceholderId, label);
+    this.allProgramsOriginal = updated;
+    this.allPrograms.next(new Map(updated));
+    this.selectedProgramId = this.draftPlaceholderId;
+  }
+
+  private clearDraftPlaceholder(): void {
+    if (!this.draftPlaceholderId) return;
+    const updated = new Map(this.allProgramsOriginal);
+    updated.delete(this.draftPlaceholderId);
+    this.allProgramsOriginal = updated;
+    this.allPrograms.next(new Map(updated));
+    if (this.selectedProgramId === this.draftPlaceholderId) {
+      this.selectedProgramId = null;
+    }
+    this.draftPlaceholderId = null;
   }
 
   private formatValidationDetails(details: unknown): string[] | null {

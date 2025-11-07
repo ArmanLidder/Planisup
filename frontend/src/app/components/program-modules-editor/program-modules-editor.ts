@@ -165,7 +165,21 @@ export class ProgramModulesEditor implements OnChanges {
     return !!result;
   }
 
-  startEdit(index: number): void {
+  private readonly pendingEditsMessage =
+    "Certaines modifications n'ont pas été appliquées. Voulez-vous les appliquer avant de continuer ?";
+
+  async startEdit(index: number): Promise<void> {
+    if (this.editingIndex === index) return;
+    const hasOtherEdits =
+      this.editingIndex !== null ||
+      this.subEditingIndex !== null ||
+      this.secEditingIndex !== null ||
+      this.subSecEditingIndex !== null;
+    if (hasOtherEdits && this.hasPendingEdits()) {
+      const proceed = await this.confirmPendingChanges(this.pendingEditsMessage);
+      if (!proceed) return;
+      this.applyAllPendingEdits();
+    }
     this.editingIndex = index;
     this.editTemp = JSON.parse(JSON.stringify(this.draftModules[index]));
     if (!this.editTemp) return;
@@ -185,8 +199,7 @@ export class ProgramModulesEditor implements OnChanges {
   }
 
   cancelEdit(): void {
-    this.editingIndex = null;
-    this.editTemp = null;
+    this.resetVariables();
   }
 
   saveEdit(): void {
@@ -289,8 +302,16 @@ export class ProgramModulesEditor implements OnChanges {
     this.editTemp = { ...this.editTemp, subModules: list };
   }
 
-  startSubEdit(j: number): void {
+  async startSubEdit(j: number): Promise<void> {
     if (!this.editTemp?.subModules) return;
+    if (this.subEditingIndex === j) return;
+    const hasPending = this.subEditingIndex !== null || this.subSecEditingIndex !== null;
+    if (hasPending && (this.subEditingIndex !== null || this.subSecEditingIndex !== null)) {
+      const proceed = await this.confirmPendingChanges(this.pendingEditsMessage);
+      if (!proceed) return;
+      this.applyPendingSubModuleSectionEdit();
+      this.applyPendingSubModuleEdit();
+    }
     this.subEditingIndex = j;
     this.subEditTemp = JSON.parse(JSON.stringify(this.editTemp.subModules[j]));
 
@@ -300,7 +321,8 @@ export class ProgramModulesEditor implements OnChanges {
   cancelSubEdit(): void {
     this.subEditingIndex = null;
     this.subEditTemp = null;
-
+    this.subSecEditingIndex = null;
+    this.subSecEditTemp = null;
   }
 
   saveSubEdit(): void {
@@ -369,8 +391,14 @@ export class ProgramModulesEditor implements OnChanges {
     if (this.secEditingIndex === k) { this.secEditingIndex = null; this.secEditTemp = null; }
   }
 
-  startSecEdit(k: number): void {
+  async startSecEdit(k: number): Promise<void> {
     if (!this.editTemp?.courses) return;
+    if (this.secEditingIndex === k) return;
+    if (this.secEditingIndex !== null) {
+      const proceed = await this.confirmPendingChanges(this.pendingEditsMessage);
+      if (!proceed) return;
+      this.applyPendingModuleSectionEdit();
+    }
     this.secEditingIndex = k;
     this.secEditTemp = JSON.parse(JSON.stringify(this.editTemp.courses[k]));
     this.ensureCoursesLoaded();
@@ -442,8 +470,14 @@ export class ProgramModulesEditor implements OnChanges {
     this.subEditTemp = { ...this.subEditTemp, courses: list };
     if (this.subSecEditingIndex === k) { this.subSecEditingIndex = null; this.subSecEditTemp = null; }
   }
-  subStartSecEdit(k: number): void {
+  async subStartSecEdit(k: number): Promise<void> {
     if (!this.subEditTemp?.courses) return;
+    if (this.subSecEditingIndex === k) return;
+    if (this.subSecEditingIndex !== null) {
+      const proceed = await this.confirmPendingChanges(this.pendingEditsMessage);
+      if (!proceed) return;
+      this.applyPendingSubModuleSectionEdit();
+    }
     this.subSecEditingIndex = k;
     this.subSecEditTemp = JSON.parse(JSON.stringify(this.subEditTemp.courses[k]));
 
@@ -632,6 +666,19 @@ return null;
       this.draftModules = arr;
       this.resetVariables();
     }
+  }
+
+  private async confirmPendingChanges(message: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message,
+        firstButton: 'Retour',
+        secondButton: 'Appliquer',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   private applyPendingModuleSectionEdit(): void {

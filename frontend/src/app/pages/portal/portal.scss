@@ -70,7 +70,7 @@
 }
 
 .content-title p {
-  color: #1a237e;
+  color: var(--app-color-red);
   font-weight: bold;
   font-size: 24px;
   overflow: hidden;
@@ -78,7 +78,7 @@
 }
 
 .content-link p {
-  color: #1a237e;
+  color: var(--app-color-red);
   font-weight: bold;
   font-size: 14px;
   overflow: hidden;
@@ -86,7 +86,7 @@
 }
 
 .content-link a {
-  color: #0099ff;
+  color: var(--app-color-blue);
   font-weight: bold;
   font-size: 12px;
   overflow: hidden;
@@ -94,7 +94,7 @@
 }
 
 .content-simulation p {
-  color: #1a237e;
+  color: var(--app-color-red);
   font-weight: bold;
   font-size: 14px;
   overflow: hidden;
@@ -102,7 +102,7 @@
 }
 
 .content-simulation p strong {
-  color: #0099ff;
+  color: var(--app-color-blue);
   font-weight: bold;
   font-size: 18px;
   overflow: hidden;
@@ -126,7 +126,7 @@
   border: 3px solid black;
 
   &:hover {
-    background: #3498db;
+    background: var(--app-color-blue);
     border: 3px solid black;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
@@ -134,7 +134,7 @@
 
   &:active {
     transform: scale(0.8);
-    background: #3498db;
+    background: var(--app-color-blue);
     border: 3px solid black;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
     transition: all 0.3s ease;

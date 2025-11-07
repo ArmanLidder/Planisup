@@ -82,7 +82,7 @@ app-progress {
   border: 3px solid black;
 
   &:hover {
-    background: #3498db;
+    background: var(--app-color-blue);
     border: 3px solid black;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
@@ -90,7 +90,7 @@ app-progress {
 
   &:active {
     transform: scale(0.8);
-    background: #3498db;
+    background: var(--app-color-blue);
     border: 3px solid black;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
     transition: all 0.3s ease;

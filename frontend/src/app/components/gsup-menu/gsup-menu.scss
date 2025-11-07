@@ -49,5 +49,6 @@
 }
 
 .dropdown-option:hover {
-  filter: brightness(80%);
+  background: #ffe6e6;
+  border: 2px solid var(--app-color-red);
 }

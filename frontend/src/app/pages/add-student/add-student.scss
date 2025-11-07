@@ -92,22 +92,18 @@ input {
   overflow: hidden;
 
   &:hover {
-    background: #e3f2fd;
-    border-color: #3498db;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 20px 20px rgba(0, 0, 0, 0.5);
   }
 
   &.selected {
-    background: #3498db;
-    color: white;
-    border-color: #3498db;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    background: #ffe6e6;
+    border-color: var(--app-color-red);
   }
 }
 
 .student-item p {
-  color: #1a237e;
+  color: var(--app-color-red);
   font-weight: bold;
   font-size: 16px;
   overflow: hidden;
@@ -172,7 +168,7 @@ mat-form-field {
 }
 
 mat-card-title {
-  color: #1a237e;
+  color: var(--app-color-red);
   font-weight: bold;
   font-size: 24px;
   overflow: hidden;

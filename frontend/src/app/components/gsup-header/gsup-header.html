@@ -32,11 +32,11 @@
   <div class="right-container">
     <div class="student-infos" *ngIf="this.currentUser">
       <p *ngIf="this.authentificationService.isStudent()">
-        <strong>Étudiant :</strong>{{ this.currentUser.firstName }}
+        <strong>ÉTUDIANT :</strong>{{ this.currentUser.firstName }}
         {{ this.currentUser.lastName }}
       </p>
       <p *ngIf="this.authentificationService.isEmployee()">
-        <strong>Employé :</strong>{{ this.currentUser.firstName }}
+        <strong>EMPLOYÉ :</strong>{{ this.currentUser.firstName }}
         {{ this.currentUser.lastName }}
       </p>
       <p *ngIf="this.authentificationService.isAdmin()">

@@ -181,6 +181,6 @@ export class ViewPlan implements OnInit, OnDestroy {
   }
 
   get isDisplayCorrection(): boolean {
-    return this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION;
+    return (this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION) && this.authentificationService.isStudent();
   }
 }

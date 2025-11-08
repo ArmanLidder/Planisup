@@ -59,6 +59,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private router: Router
   ) {}
 
+  get canSave(): boolean {
+    return this.sPS.canSave;
+  }
+
+  get canSubmit(): boolean {
+    return this.sPS.canSubmit;
+  }
+
   ngOnInit() {
     this.courseService.getCourses();
 
@@ -125,22 +133,22 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       this.modules = this.program.modules;
     }
 
-    this.totalCredits = 0;
     this.selectedCredits = 0;
 
     // faire sa avec la regle de module credit exact avec le value
-    if (this.program.type == "dess") this.totalCredits = 30;
-    if (this.program.type == "maitrise") this.totalCredits = 45;
-    if (this.program.type == "doctorat") this.totalCredits = 90;
-    // for (const module of this.program.modules) {
-    //   // this.totalCredits += this.extractCreditsFromTitle(module.title);
-    //   const rule = module.rules?.find(rule => rule.type === 'credits_exact');
-    //   this.totalCredits += rule?.value ? rule.value : 0 ;
-    // }
+    const credits = {
+      dess: 30,
+      doctorat: 15,
+      maitrise: this.program.degree.includes("recherche") ? 15 : 45
+    };
+
+    this.totalCredits = credits[this.program.type as keyof typeof credits] ?? 0;
 
     // Initialiser le service avec les modules
-    if (!this.isViewMode) {
-      this.courseStateService.initializeCourseStates(this.modules);
+    if (!this.isViewMode) this.courseStateService.initializeCourseStates(this.modules); 
+    if (this.state === 'modifyStudent' && this.sPS.studyPlan?.courseState) {
+      this.courseStateService.restoreCourseState(this.sPS.studyPlan.courseState);
+      this.sPS.canSave = true;
     }
 
     // Charger tous les cours depuis le backend
@@ -321,6 +329,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     if (!result) return;
 
+    this.sPS.canSave = true;
+    this.sPS.canSubmit = false;
     this.calculateTotalCredits();
   }
 
@@ -351,12 +361,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
   getModuleCreditRequired(module: Module): string {
     const ruleExact = module.rules?.find(rule => rule.type === 'credits_exact');
+    const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
+    const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
+
     if (ruleExact) return (ruleExact?.value || 0).toString();
-    else {
-      const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
-      const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
-      return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString()
-    }
+    else if (ruleMax && ruleMin) return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString();
+    else if (!ruleMax) return (ruleMin?.value || 0)?.toString() + " (minimum)";
+    else if (!ruleMin) return (ruleMax?.value || 0)?.toString() + " (maximum)";
+    else return "";
   }
 
   /**
@@ -371,16 +383,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     if (this.isViewMode) return;
 
     const errors: string[] = [];
-
-    // No need everything director selected during creation and coordonnator during program creation
-
-    // if (this.directorId === '') {
-    //   errors.push('Vous devez selectionner un Directeur');
-    // }
-
-    // if (this.coordonatorId === '') {
-    //   errors.push('Vous devez selectionner un Coordonateur');
-    // }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();
@@ -422,11 +424,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    // Validation des crédits totaux
-    if (this.selectedCredits > this.totalCredits) {
-      errors.push('Le total des crédits ne peut pas dépasser le maximum autorisé.');
-    }
-
     // Validation Avantage Poly
     if (this.courseStateService.getAvantagePolyCredit() > this.AVANTAGE_POLY_MAX_CREDITS) {
       errors.push(
@@ -441,44 +438,49 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     // Afficher les erreurs ou soumettre le plan
     if (errors.length > 0) {
       alert('Erreurs de validation:\n' + errors.join('\n'));
-      return;
+      if (!this.sPS.canSave) return;
     }
 
-    if (this.state === 'modifyStudent') this.submitStudyPlan();
-    else this.sPS.updateStudyPlan();
+    if (this.state === 'modifyStudent' && this.authService.currentUser) this.submitStudyPlan();
+    else if (this.state === 'correction') this.sPS.updateStudyPlan();
+    else alert("Plan d'étude est valide!");
   }
 
   private submitStudyPlan() {
-    this.currentPlan = {
-      status: StudyPlanStatus.LIVE,
-      studentId: this.authService.currentUser?._id || '',
-      directorId: this.authService.currentUser?.directorId || '',
-      coordonatorId: this.coodonator._id || "",
-      programId: this.program._id!,
-      programType: this.programService.program?.type[0] as ProgramType,
-      studyPlanStep: StudyPlanStep.STUDENT,
-      stepValidation: StepValidationStatus.IN_PROGRESS,
-      courseState: this.courseStateService.serializeCourseState(),
-      coursesSelection: {
-        modules: this.courseStateService.getSelectedCoursesByModule(),
-      },
-      codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
-    };
+    if (this.sPS.studyPlan) this.sPS.updateStudyPlan();
+    else {
+      this.currentPlan = {
+        status: this.sPS.canSave ? StudyPlanStatus.MODIFY_STUDENT : StudyPlanStatus.LIVE,
+        studentId: this.authService.currentUser?._id || '',
+        directorId: this.authService.currentUser?.directorId || '',
+        coordonatorId: this.coodonator._id || "",
+        programId: this.program._id!,
+        programType: this.programService.program?.type[0] as ProgramType,
+        studyPlanStep: StudyPlanStep.STUDENT,
+        stepValidation: StepValidationStatus.IN_PROGRESS,
+        courseState: this.courseStateService.serializeCourseState(),
+        coursesSelection: {
+          modules: this.courseStateService.getSelectedCoursesByModule(),
+        },
+        codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
+      };
 
-    if (this.sPS.studyPlan) {
-      alert("Plan d'études déjà soumis!");
-    } else {
+      const message2 = this.sPS.canSave ? "Plan d'études enregistré avec succès!" : "Plan d'études soumis avec succès!"
+
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
-          this.sPS.loadStudyPlan(response._id, true);
-          alert("Plan d'études soumis avec succès!");
+          if (this.sPS.canSubmit) this.sPS.loadStudyPlan(response._id, true);
+          alert(message2);
         },
         error: (error) => {
-          console.error("Erreur lors de la soumission du plan d'études:", error);
-          alert("Erreur lors de la soumission du plan d'études.");
+          console.error("Erreur lors de l'envoie du plan d'études:", error);
+          alert("Erreur lors de l'envoie du plan d'études.");
         },
       });
     }
+
+    this.sPS.canSave = false;
+    this.sPS.canSubmit = true;
   }
 
   modifyPlan(): void {

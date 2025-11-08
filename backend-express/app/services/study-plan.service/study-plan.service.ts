@@ -244,7 +244,10 @@ export class StudyPlanService {
         studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
       else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
 
-      studyPlan.status = StudyPlanStatus.LIVE;
+      // console.log(studyPlan.status)
+      // studyPlan.status = StudyPlanStatus.LIVE;
+      // console.log(studyPlan.status)
+
       studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
 
       const savedPlan = await StudyPlanModel.create(studyPlan);
@@ -271,7 +274,7 @@ export class StudyPlanService {
   private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
     this.logger.info("Update study plan");
     try {
-      if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION) {
+      if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION && studyPlan.status === StudyPlanStatus.LIVE) {
         const step = studyPlan.programType[0] === "dess" ? StudyPlanStep.ADMIN_AGENT : StudyPlanStep.DIRECTOR;
         studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
         studyPlan.studyPlanStep = step;
@@ -295,7 +298,7 @@ export class StudyPlanService {
 
       const savedPlan = await StudyPlanModel.findOneAndUpdate(
         { _id: studyPlan._id },
-        { $set: { stepValidation: StepValidationStatus.IN_PROGRESS } },
+        studyPlan,
         { new: true }
       );
       return savedPlan;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '@app/services/api/api-service';
-import { StepValidationStatus, StudyPlan, StudyPlanStatus } from '@common/study-plan';
+import { StepValidationStatus, StudyPlan, StudyPlanStatus, StudyPlanStep } from '@common/study-plan';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthentificationService } from '@app/services/authentification/authentification-service';
@@ -26,6 +26,9 @@ export class StudyPlanService {
   private readonly studyPlanSubject = new BehaviorSubject<StudyPlan | null>(null);
   studyPlan$ = this.studyPlanSubject.asObservable();
 
+  canSave: boolean = false;
+  canSubmit: boolean = false;
+
   get studyPlan(): StudyPlan | null {
     return this.studyPlanSubject.value;
   }
@@ -39,7 +42,10 @@ export class StudyPlanService {
       },
       complete: () => {
         this.loadingSubject.next(false);
-        this.router.navigate(['/view-plan']);
+        console.log(this.studyPlan?.status)
+        if (this.studyPlan?.status === StudyPlanStatus.MODIFY_STUDENT && this.studyPlan.stepValidation === StepValidationStatus.IN_PROGRESS) 
+          this.programService.loadProgram(this.studyPlan.programId);
+        else this.router.navigate(['/view-plan']);
       },
     });
   }
@@ -92,19 +98,28 @@ export class StudyPlanService {
     if (this.studyPlan) {
       const updatedPlan = {
         ...this.studyPlan,
+        status: this.canSave ? StudyPlanStatus.MODIFY_STUDENT : StudyPlanStatus.LIVE,
         courseState: this.courseStateService.serializeCourseState(),
         coursesSelection: {
           modules: this.courseStateService.getSelectedCoursesByModule(),
         },
       };
-      console.log(updatedPlan.courseState)
+      
+      if (this.canSave) {
+        this.canSave = false;
+        this.canSubmit = true;
+      } else {
+        this.canSubmit = false;
+      }
+
       this.apiService.submitStudyPlan(updatedPlan).subscribe({
         next: (plan: StudyPlan) => {
           this.studyPlanSubject.next(plan);
         },
         complete: () => {
           this.loadingSubject.next(false);
-          this.router.navigate(['/view-plan']);
+          alert("plan d'étude envoyé avec succès")
+          if (this.studyPlan?.status !== StudyPlanStatus.MODIFY_STUDENT) this.router.navigate(['/view-plan']);
         },
       });
     }

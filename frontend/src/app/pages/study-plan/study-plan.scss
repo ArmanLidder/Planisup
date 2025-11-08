@@ -99,6 +99,10 @@ header {
     &:active {
       transform: translateY(0);
     }
+
+    &:disabled {
+      background-color: #666666;
+    }
   }
 }
 

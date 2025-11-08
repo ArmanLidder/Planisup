@@ -570,7 +570,7 @@ export class CourseStateService {
   getSelectedCredits(): number {
     let credits = 0;
     this.courseStates.forEach((state) => {
-      if (state.selected) {
+      if (state.selected && !state.course.sigle.includes("CAP")) {
         credits += state.credits;
       }
     });

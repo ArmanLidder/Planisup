@@ -12,6 +12,7 @@ export enum StudyPlanStatus {
     LIVE = 'live',
     CANCELLED = 'cancelled',
     VALIDATED = 'validated',
+    MODIFY_STUDENT = 'modify-student',
 }
 
 export enum StepValidationStatus {

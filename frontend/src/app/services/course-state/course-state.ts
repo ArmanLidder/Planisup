@@ -724,12 +724,12 @@ export class CourseStateService {
   /**
    * Définir le trimestre sélectionné pour un cours
    */
-  setCourseTrimester(courseSigle: string, trimester: string) {
+  setCourseTrimester(courseSigle: string, trimester: Trimester) {
     const state = this.courseStates.get(courseSigle);
     if (!state || !state.selected) return;
 
     // Stocker le trimestre comme string dans le course
-    state.course.selectedTrimester = trimester;
+    state.course.trimester = [trimester];
     
     // Mettre à jour le state
     this.courseStates.set(courseSigle, state);

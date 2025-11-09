@@ -160,7 +160,7 @@ export class StudyCourse {
   }
 
   // Nouvelle fonctionnalité : Gestion des trimestres
-  get availableTrimesters(): string[] {
+  get availableTrimesters(): Trimester[] {
     const courseTrim = this.courseService.courses.find(trim => trim.sigle === this.course.sigle) as any;
 
     if (!courseTrim) return [];
@@ -168,26 +168,27 @@ export class StudyCourse {
 
     if (Array.isArray(courseTrim.trimester)) {
       const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
-        if (t.jourSoir.trim() === "") return `${t.trimestre} ${t.annee}`;
+        if (t.jourSoir.trim() === "") return {year: t.annee, term: t.trimestre, dayNight:t.jourSoir };
         return null;
       }).filter((item: string) => item !== null);
-      return trimesters.length > 0 ? trimesters : ["―"]
+      return trimesters.length > 0 ? trimesters : []
     }
 
-    return ["―"];
+    return [];
   }
 
-  get selectedTrimester(): string | undefined {
-    const selected = this.courseState.course.selectedTrimester;
-    return selected && selected !== '' ? selected : '';
+  get selectedTrimester(): string {
+    if (Array.isArray(this.courseState.course.trimester)) {
+      console.log(this.courseState.course.trimester)
+      return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
+    }
+    return "";
   }
 
-  onTrimesterSelect(trimester: string) {
+  onTrimesterSelect(trimester: Trimester) {
     if (this.isViewMode) return;
     
     this.courseStateService.setCourseTrimester(this.course.sigle, trimester);
-    this.studyPlanService.canSave = true;
-    this.studyPlanService.canSubmit = false;
   }
 
   get needsTrimesterSelection(): boolean {

@@ -20,11 +20,12 @@ import { User } from '@common/user';
 import { Router } from '@angular/router';
 import { LoadingService } from '@app/services/loading/loading-service';
 import { Loading } from '@app/components/loading/loading';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule, FormsModule, Loading],
+  imports: [CommonModule, StudyModule, FormsModule, Loading, MatTooltip],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -61,14 +62,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     protected loadingService: LoadingService,
   ) {}
-
-  get canSave(): boolean {
-    return this.sPS.canSave;
-  }
-
-  get canSubmit(): boolean {
-    return this.sPS.canSubmit;
-  }
 
   async ngOnInit() {
     this.loadingService.startLoading();
@@ -153,7 +146,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     if (!this.isViewMode) this.courseStateService.initializeCourseStates(this.modules); 
     if (this.state === 'modifyStudent' && this.sPS.studyPlan?.courseState) {
       this.courseStateService.restoreCourseState(this.sPS.studyPlan.courseState);
-      this.sPS.canSave = true;
     }
 
     this.calculateTotalCredits();
@@ -334,8 +326,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     if (!result) return;
 
-    this.sPS.canSave = true;
-    this.sPS.canSubmit = false;
     this.calculateTotalCredits();
   }
 
@@ -443,7 +433,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     // Afficher les erreurs ou soumettre le plan
     if (errors.length > 0) {
       alert('Erreurs de validation:\n' + errors.join('\n'));
-      if (!this.sPS.canSave) return;
+      return;
     }
 
     if (this.state === 'modifyStudent' && this.authService.currentUser) this.submitStudyPlan();
@@ -452,41 +442,38 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   }
 
   private submitStudyPlan() {
-    if (this.sPS.studyPlan) this.sPS.updateStudyPlan();
-    else {
-      this.currentPlan = {
-        status: this.sPS.canSave ? StudyPlanStatus.MODIFY_STUDENT : StudyPlanStatus.LIVE,
-        studentId: this.authService.currentUser?._id || '',
-        directorId: this.authService.currentUser?.directorId || '',
-        coordonatorId: this.coodonator._id || "",
-        programId: this.program._id!,
-        programType: this.programService.program?.type[0] as ProgramType,
-        studyPlanStep: StudyPlanStep.STUDENT,
-        stepValidation: StepValidationStatus.IN_PROGRESS,
-        courseState: this.courseStateService.serializeCourseState(),
-        coursesSelection: {
-          modules: this.courseStateService.getSelectedCoursesByModule(),
-        },
-        codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
-      };
+    this.currentPlan = {
+      status: StudyPlanStatus.LIVE,
+      studentId: this.authService.currentUser?._id || '',
+      directorId: this.authService.currentUser?.directorId || '',
+      coordonatorId: this.coodonator._id || "",
+      programId: this.program._id!,
+      programType: this.programService.program?.type[0] as ProgramType,
+      studyPlanStep: StudyPlanStep.STUDENT,
+      stepValidation: StepValidationStatus.IN_PROGRESS,
+      courseState: this.courseStateService.serializeCourseState(),
+      coursesSelection: {
+        modules: this.courseStateService.getSelectedCoursesByModule(),
+      },
+      codirectorsIds: this.authService.currentUser?.codirectorsIds || [],
+    };
 
-      const message2 = this.sPS.canSave ? "Plan d'études enregistré avec succès!" : "Plan d'études soumis avec succès!"
-
+    if (this.sPS.studyPlan) {
+      alert("Plan d'études déjà soumis!");
+    } else {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
-          if (this.sPS.canSubmit) this.sPS.loadStudyPlan(response._id, true);
-          alert(message2);
+          this.sPS.loadStudyPlan(response._id, true);
+          alert("Plan d'études soumis avec succès!");
         },
         error: (error) => {
-          console.error("Erreur lors de l'envoie du plan d'études:", error);
-          alert("Erreur lors de l'envoie du plan d'études.");
+          console.error("Erreur lors de la soumission du plan d'études:", error);
+          alert("Erreur lors de la soumission du plan d'études.");
         },
       });
     }
-
-    this.sPS.canSave = false;
-    this.sPS.canSubmit = true;
   }
+
 
   modifyPlan(): void {
     this.programService.setAdminEditing(true);

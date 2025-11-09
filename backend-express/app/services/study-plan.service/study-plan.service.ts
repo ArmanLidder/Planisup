@@ -237,16 +237,14 @@ export class StudyPlanService {
   }
 
   private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
-    this.logger.info("Saving new study plan: " + JSON.stringify(studyPlan));
+    this.logger.info("Saving new study plan: ");
     try {
       // Will have to add ProgramType.MatrisePro
       if (studyPlan.programType === ProgramType.DESS)
         studyPlan.studyPlanStep = StudyPlanStep.ADMIN_AGENT;
       else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
 
-      // console.log(studyPlan.status)
-      // studyPlan.status = StudyPlanStatus.LIVE;
-      // console.log(studyPlan.status)
+      studyPlan.status = StudyPlanStatus.LIVE;
 
       studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
 
@@ -274,7 +272,7 @@ export class StudyPlanService {
   private async updateStudyPlan(studyPlan: Partial<StudyPlan>) {
     this.logger.info("Update study plan");
     try {
-      if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION && studyPlan.status === StudyPlanStatus.LIVE) {
+      if (studyPlan.stepValidation === StepValidationStatus.NEEDS_CORRECTION) {
         const step = studyPlan.programType[0] === "dess" ? StudyPlanStep.ADMIN_AGENT : StudyPlanStep.DIRECTOR;
         studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
         studyPlan.studyPlanStep = step;
@@ -296,13 +294,11 @@ export class StudyPlanService {
         return savedPlan;
       }
 
-      console.log("je suis la")
       const savedPlan = await StudyPlanModel.findOneAndUpdate(
         { _id: studyPlan._id },
-        studyPlan,
+        { $set: { stepValidation: StepValidationStatus.IN_PROGRESS } },
         { new: true }
       );
-      console.log("je suis la 2")
       return savedPlan;
     } catch (e) {
       this.logger.error(e);

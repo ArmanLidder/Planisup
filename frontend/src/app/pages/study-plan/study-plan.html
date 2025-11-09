@@ -54,12 +54,8 @@
         </app-study-module>
       </div>
 
-      <div class="actions" *ngIf="!isViewMode && this.authService.currentUser">
-        <button (click)="validatePlan()" [disabled]="!canSave" class="btn-primary">Enregistrer le plan d'études</button>
-      </div>
-
       <div class="actions" *ngIf="!isViewMode && this.state === 'modifyStudent'">
-        <button (click)="validatePlan()" [disabled]="!canSubmit" class="btn-primary">Valider le plan d'études</button>
+        <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
       </div>
 
       <div class="actions" *ngIf="this.state === 'viewAdmin'">
@@ -67,7 +63,7 @@
       </div>
 
       <div class="actions" *ngIf="state === 'correction'">
-        <button (click)="validatePlan()" [disabled]="!canSubmit" class="btn-primary">Soumettre</button>
+        <button (click)="validatePlan()" class="btn-primary">Soumettre</button>
       </div>
 
     </div>

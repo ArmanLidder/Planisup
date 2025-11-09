@@ -9,6 +9,7 @@ import { ProgramService } from '@app/services/program/program-service';
 import { UserRole } from '@common/user';
 import { MatIconModule } from '@angular/material/icon';
 import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { CourseService } from '@app/services/course/course-service';
 
 @Component({
   selector: 'app-home',
@@ -26,12 +27,14 @@ export class Home implements OnInit {
     private readonly router: Router,
     private readonly programService: ProgramService,
     private readonly studyPlanService: StudyPlanService,
+    private readonly courseService: CourseService,
     public authentificationService: AuthentificationService
   ) {}
 
   ngOnInit(): void {
     this.programService.reset();
     this.studyPlanService.resetStudyPlan();
+    this.courseService.getAllCourses();
   }
 
   navigateTo(degree: string): void {

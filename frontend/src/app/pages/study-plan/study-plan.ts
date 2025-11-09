@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StudyModule } from '../../components/study-module/study-module';
+import { StudyModule } from '@app/components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
 import { Program, Module, Course, ProgramType, SubModule, Section } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 import {
   StudyPlan as StudyPlanInterface,
   StudyPlanStatus,
@@ -24,7 +26,7 @@ import { Loading } from '@app/components/loading/loading';
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule, FormsModule, Loading],
+  imports: [CommonModule, StudyModule, FormsModule, MatDialogModule, Loading],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -60,6 +62,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     private sPS: StudyPlanService,
     private router: Router,
     protected loadingService: LoadingService,
+    private readonly dialog: MatDialog,
   ) {}
 
   get canSave(): boolean {
@@ -442,13 +445,26 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     // Afficher les erreurs ou soumettre le plan
     if (errors.length > 0) {
-      alert('Erreurs de validation:\n' + errors.join('\n'));
+      this.alertPopUp('Erreurs de validation:\n' + errors.join('\n'));
       if (!this.sPS.canSave) return;
     }
 
     if (this.state === 'modifyStudent' && this.authService.currentUser) this.submitStudyPlan();
     else if (this.state === 'correction') this.sPS.updateStudyPlan();
-    else alert("Plan d'étude est valide!");
+    else this.alertPopUp("Plan d'étude est valide!");
+  }
+
+  private async alertPopUp(text: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message: text,
+        firstButton: 'Ok',
+        hideCancel: true,
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   private submitStudyPlan() {
@@ -475,11 +491,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
           if (this.sPS.canSubmit) this.sPS.loadStudyPlan(response._id, true);
-          alert(message2);
+          this.alertPopUp(message2);
         },
         error: (error) => {
           console.error("Erreur lors de l'envoie du plan d'études:", error);
-          alert("Erreur lors de l'envoie du plan d'études.");
+          this.alertPopUp("Erreur lors de l'envoie du plan d'études.");
         },
       });
     }

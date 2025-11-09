@@ -7,6 +7,8 @@ import { AuthentificationService } from '@app/services/authentification/authenti
 import { CourseStateService } from '../course-state/course-state';
 import { ProgramService } from '../program/program-service';
 import { ProgramType } from '@common/program';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +19,8 @@ export class StudyPlanService {
     private readonly auth: AuthentificationService,
     private readonly router: Router,
     private readonly programService: ProgramService,
-    private readonly courseStateService: CourseStateService
+    private readonly courseStateService: CourseStateService,
+    private readonly dialog: MatDialog,
   ) {}
 
   private readonly loadingSubject = new BehaviorSubject<boolean>(false);
@@ -92,6 +95,19 @@ export class StudyPlanService {
     }
   }
 
+  private async alertPopUp(text: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message: text,
+        firstButton: 'Ok',
+        hideCancel: true,
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
   updateStudyPlan(): void {
     this.loadingSubject.next(true);
     if (this.studyPlan) {
@@ -117,14 +133,14 @@ export class StudyPlanService {
         },
         complete: () => {
           this.loadingSubject.next(false);
-          alert("plan d'étude envoyé avec succès")
+          this.alertPopUp("plan d'étude envoyé avec succès")
           if (this.studyPlan?.status !== StudyPlanStatus.MODIFY_STUDENT) this.router.navigate(['/view-plan']);
         },
         error: (error) => {
           this.canSave = true;
           this.canSubmit = false;
           console.error("Erreur lors de l'envoie du plan d'études:", error);
-          alert("Erreur lors de l'envoie du plan d'études.");
+          this.alertPopUp("Erreur lors de l'envoie du plan d'études.");
         },
       });
     }

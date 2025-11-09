@@ -111,16 +111,39 @@ header {
   gap: 2rem;
   margin-top: 20px;
   flex-wrap: wrap;
+  border: 1px solid var(--app-color-red);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   .form-group {
     flex: 1 1 300px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    .member-icon {
+      font-size: 20px;
+      filter: grayscale(20%);
+    }
 
     label {
-      font-weight: 600;
-      margin-bottom: 6px;
+      font-weight: 700;
+      margin-bottom: 0;
       color: #2c3e50;
+      white-space: nowrap;
+    }
+
+    .readonly-text {
+      margin: 0;
+      padding: 8px 12px;
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      font-size: 15px;
+      color: #333;
+      flex: 1;
     }
 
     select {

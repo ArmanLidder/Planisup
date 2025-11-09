@@ -160,34 +160,53 @@ export class StudyCourse {
   }
 
   // Nouvelle fonctionnalité : Gestion des trimestres
-  get availableTrimesters(): Trimester[] {
+  get availableTrimesters(): string[] {
     const courseTrim = this.courseService.courses.find(trim => trim.sigle === this.course.sigle) as any;
 
     if (!courseTrim) return [];
 
 
     if (Array.isArray(courseTrim.trimester)) {
+      console.log(courseTrim.trimester)
       const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
-        if (t.jourSoir.trim() === "") return {year: t.annee, term: t.trimestre, dayNight:t.jourSoir };
+        if (t.jourSoir.trim() !== "") return `${t.trimestre} ${t.annee}`;
         return null;
       }).filter((item: string) => item !== null);
-      return trimesters.length > 0 ? trimesters : []
+      console.log(trimesters)
+      return trimesters.length > 0 ? trimesters : ["Aucun Trimestre"]
     }
 
-    return [];
+    return ["Aucun Trimestre"];
   }
 
   get selectedTrimester(): string {
-    if (Array.isArray(this.courseState.course.trimester)) {
+    if (Array.isArray(this.courseState.course.trimester) && this.courseState.course.trimester.length > 0 && this.courseState.course.trimester[0]) {
       console.log(this.courseState.course.trimester)
       return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
     }
-    return "";
+    return "Aucun Trimestre";
   }
 
-  onTrimesterSelect(trimester: Trimester) {
+  onTrimesterSelect(event: Event) {
     if (this.isViewMode) return;
     
+    const selectElement = event.target as HTMLSelectElement;
+    const value = selectElement.value;
+
+    const [term, year] = value.split(' ');
+    let trimester: Trimester;
+    if (term === "Aucun") {
+      trimester  = { 
+        term: "-", 
+        year: 0, 
+      };
+    } else {
+      trimester = { 
+        term: term, 
+        year: parseInt(year, 10), 
+      };
+    }
+    console.log(trimester)
     this.courseStateService.setCourseTrimester(this.course.sigle, trimester);
   }
 

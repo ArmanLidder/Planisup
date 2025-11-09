@@ -51,17 +51,17 @@
     
     <!-- NOUVEAU : Sélection du trimestre -->
     <div class="trimester-selector" *ngIf="needsTrimesterSelection">
-      <label for="trimesterSelect">Sélectionnez un trimestre :</label>
+
       <select 
         id="trimesterSelect"
         class="trimester-dropdown"
-        (change)="onTrimesterSelect($event.target.value)">
+        (change)="onTrimesterSelect($event)">
         <option value="" disabled selected>Choisir un trimestre</option>
         <option *ngFor="let trimester of availableTrimesters"
-          [value]="trimester.term + ' ' + trimester.year"
-          [selected]="trimester.term + ' ' + trimester.year === selectedTrimester"
+          [value]="trimester"
+          [selected]="trimester === selectedTrimester"
           >
-          {{ trimester.term}} {{ trimester.year }}
+          {{ trimester}}
         </option>
       </select>
     </div>

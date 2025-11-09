@@ -97,7 +97,7 @@ export class StudyPlanService {
           modules: this.courseStateService.getSelectedCoursesByModule(),
         },
       };
-      console.log(updatedPlan.courseState)
+      console.log(updatedPlan.courseState);
       this.apiService.submitStudyPlan(updatedPlan).subscribe({
         next: (plan: StudyPlan) => {
           this.studyPlanSubject.next(plan);

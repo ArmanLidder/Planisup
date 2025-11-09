@@ -1,0 +1,81 @@
+<div class="verify-study-plan-container">
+  <mat-toolbar class="informations-content" color="primary">
+    <div class="employees-informations">
+      <p><strong>Directeur :</strong> {{ director?.firstName }} {{ director?.lastName }}</p>
+      <p>
+        <strong>Coordonateur :</strong> {{ coordinator?.firstName }} {{ coordinator?.lastName }}
+      </p>
+      <p>
+        <strong>Codirecteurs :</strong>
+        {{ codirectors && codirectors.length > 0 ? codirectors : 'Aucun' }}
+      </p>
+    </div>
+    <div class="program-informations">
+      <p><strong>Département :</strong> {{ programService.program?.department }}</p>
+      <p><strong>Programme :</strong> {{ programService.program?.degree }}</p>
+      <p>
+        <strong>Option :</strong>
+        {{ programService.program?.option ? programService.program?.option : ' Aucune' }}
+      </p>
+    </div>
+    <div class="student-informations">
+      <p><strong>Matricule :</strong> 2132752</p>
+      <p><strong>Prénom :</strong> {{ student?.firstName }}</p>
+      <p><strong>Nom :</strong> {{ student?.lastName }}</p>
+    </div>
+  </mat-toolbar>
+
+  <div class="courses-content">
+    <mat-table [dataSource]="filteredCourses" matSort>
+      <ng-container matColumnDef="sigle">
+        <mat-header-cell *matHeaderCellDef> Sigle </mat-header-cell>
+        <mat-cell *matCellDef="let course"> {{ course.sigle }} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Nom </mat-header-cell>
+        <mat-cell *matCellDef="let course"> {{ course.course.name }} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="module">
+        <mat-header-cell *matHeaderCellDef> Module </mat-header-cell>
+        <mat-cell *matCellDef="let course">
+          {{ course.selectedInModule ? course.selectedInModule : '-' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="subModule">
+        <mat-header-cell *matHeaderCellDef> Sous-module </mat-header-cell>
+        <mat-cell *matCellDef="let course">
+          {{ course.selectedInSubmodule ? course.selectedInSubmodule : '-' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="trimester">
+        <mat-header-cell *matHeaderCellDef> Trimestre </mat-header-cell>
+        <mat-cell *matCellDef="let course"> - </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="avantagePoly">
+        <mat-header-cell *matHeaderCellDef> Avantage Poly </mat-header-cell>
+        <mat-cell *matCellDef="let course">
+          {{ course.course?.alreadyDone ? 'OUI' : 'NON' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="grade">
+        <mat-header-cell *matHeaderCellDef> Note </mat-header-cell>
+        <mat-cell *matCellDef="let course">
+          {{ course.course?.grade ? course.course?.grade : '-' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="credits">
+        <mat-header-cell *matHeaderCellDef> Crédits </mat-header-cell>
+        <mat-cell *matCellDef="let course"> {{ course.credits }} crédits </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    </mat-table>
+  </div>
+</div>

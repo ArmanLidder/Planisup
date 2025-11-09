@@ -24,11 +24,12 @@ import { CourseStateService } from '@app/services/course-state/course-state';
 import { ApiService } from '@app/services/api/api-service';
 import { Subscription } from 'rxjs';
 import { UserRole } from '@common/user';
+import { VerifyStudyPlan } from "@app/components/verify-study-plan/verify-study-plan";
 
 @Component({
   selector: 'app-view-plan',
   standalone: true,
-  imports: [Progress, ChatComponent, CommonModule, Loading, StudyPlanComponent],
+  imports: [Progress, ChatComponent, CommonModule, Loading, StudyPlanComponent, VerifyStudyPlan],
   templateUrl: './view-plan.html',
   styleUrl: './view-plan.scss',
 })

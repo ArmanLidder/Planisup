@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Course, Grade, Module, Section, SubModule, RuleDefinition } from '@common/program';
+import { Course, Grade, Module, Section, SubModule, RuleDefinition, Trimester } from '@common/program';
 import { SelectedModule, SerializedCourseState } from '@common/study-plan';
 
 export interface CourseState {
@@ -140,7 +140,6 @@ export class CourseStateService {
         course: course
       });
     }
-    console.log(this.courseStates)
   }
 
   private isSubModuleExcluded(
@@ -490,15 +489,6 @@ export class CourseStateService {
           };
         }
         break;
-      
-      // case 'director_approval':
-      //   if (currentCredits + courseCredits > (rule.value || 0)) {
-      //     return {
-      //       canSelect: false,
-      //       reason: `Limite de crédits avec approbation atteinte (${currentCredits}/${rule.value})`
-      //     };
-      //   }
-      //   break;
     }
 
     return { canSelect: true };
@@ -729,6 +719,20 @@ export class CourseStateService {
 
     state.course.alreadyDone = alreadyDone;
     if (grade) state.course.grade = grade;
+  }
+
+  /**
+   * Définir le trimestre sélectionné pour un cours
+   */
+  setCourseTrimester(courseSigle: string, trimester: string) {
+    const state = this.courseStates.get(courseSigle);
+    if (!state || !state.selected) return;
+
+    // Stocker le trimestre comme string dans le course
+    state.course.selectedTrimester = trimester;
+    
+    // Mettre à jour le state
+    this.courseStates.set(courseSigle, state);
   }
 
   getAvantagePolyCredit(): number {

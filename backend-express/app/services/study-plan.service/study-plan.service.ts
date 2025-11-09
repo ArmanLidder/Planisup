@@ -296,11 +296,13 @@ export class StudyPlanService {
         return savedPlan;
       }
 
+      console.log("je suis la")
       const savedPlan = await StudyPlanModel.findOneAndUpdate(
         { _id: studyPlan._id },
         studyPlan,
         { new: true }
       );
+      console.log("je suis la 2")
       return savedPlan;
     } catch (e) {
       this.logger.error(e);

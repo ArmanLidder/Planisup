@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CourseState, CourseStateService } from '@app/services/course-state/course-state';
-import { Course, Grade } from '@common/program';
+import { CourseService } from '@app/services/course/course-service';
+import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
+import { Course, Grade, Trimester } from '@common/program';
 
 @Component({
   selector: 'app-study-course',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './study-course.html',
   styleUrl: './study-course.scss'
 })
@@ -21,7 +24,11 @@ export class StudyCourse {
   showGradeDropdown: boolean = false;
   grades = Object.values(Grade);
 
-  constructor(private courseStateService: CourseStateService) {}
+  constructor(
+    private courseStateService: CourseStateService,
+    private courseService: CourseService,
+    private studyPlanService: StudyPlanService,
+  ) {}
 
   onSelectionChange(selected: boolean) {
     if (this.isViewMode) return;
@@ -31,7 +38,7 @@ export class StudyCourse {
         this.course.sigle,
         this.currentModuleTitle,
         this.currentSubmoduleTitle,
-        this.currentSectionDescription
+        this.currentSectionDescription,
       );
       
       if (!canSelect.canSelect) {
@@ -150,5 +157,40 @@ export class StudyCourse {
 
   get isAvantagePolyChecked(): boolean {
     return this.courseState.course.alreadyDone || false;
+  }
+
+  // Nouvelle fonctionnalité : Gestion des trimestres
+  get availableTrimesters(): string[] {
+    const courseTrim = this.courseService.courses.find(trim => trim.sigle === this.course.sigle) as any;
+
+    if (!courseTrim) return [];
+
+
+    if (Array.isArray(courseTrim.trimester)) {
+      const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
+        if (t.jourSoir.trim() === "") return `${t.trimestre} ${t.annee}`;
+        return null;
+      }).filter((item: string) => item !== null);
+      return trimesters.length > 0 ? trimesters : ["―"]
+    }
+
+    return ["―"];
+  }
+
+  get selectedTrimester(): string | undefined {
+    const selected = this.courseState.course.selectedTrimester;
+    return selected && selected !== '' ? selected : '';
+  }
+
+  onTrimesterSelect(trimester: string) {
+    if (this.isViewMode) return;
+    
+    this.courseStateService.setCourseTrimester(this.course.sigle, trimester);
+    this.studyPlanService.canSave = true;
+    this.studyPlanService.canSubmit = false;
+  }
+
+  get needsTrimesterSelection(): boolean {
+    return this.isSelected && !this.isViewMode && this.availableTrimesters.length > 0;
   }
 }

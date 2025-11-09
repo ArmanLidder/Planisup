@@ -56,6 +56,7 @@ const CourseSchema: Schema = new mongoose.Schema({
     name: { type: String },
     credits: { type: Number },
     trimester: [TrimesterSchema], // Student will only choose one date
+    selectedTrimester: { type: String },
     alreadyDone: { type: Boolean, default: false },
     grade: { type: String, enum: Object.values(Grade) }
 }, { _id: false});

@@ -42,7 +42,6 @@ export class StudyPlanService {
       },
       complete: () => {
         this.loadingSubject.next(false);
-        console.log(this.studyPlan?.status)
         if (this.studyPlan?.status === StudyPlanStatus.MODIFY_STUDENT && this.studyPlan.stepValidation === StepValidationStatus.IN_PROGRESS) 
           this.programService.loadProgram(this.studyPlan.programId);
         else this.router.navigate(['/view-plan']);
@@ -120,6 +119,12 @@ export class StudyPlanService {
           this.loadingSubject.next(false);
           alert("plan d'étude envoyé avec succès")
           if (this.studyPlan?.status !== StudyPlanStatus.MODIFY_STUDENT) this.router.navigate(['/view-plan']);
+        },
+        error: (error) => {
+          this.canSave = true;
+          this.canSubmit = false;
+          console.error("Erreur lors de l'envoie du plan d'études:", error);
+          alert("Erreur lors de l'envoie du plan d'études.");
         },
       });
     }

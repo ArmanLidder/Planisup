@@ -42,7 +42,6 @@ export class StudySection {
     // Rafraîchir la liste des cours sélectionnés dans course-search
     if (this.courseSearchComponent) {
       this.courseSearchComponent.loadSelectedCourses();
-      console.log(this.sectionCourses)
     }
   }
 

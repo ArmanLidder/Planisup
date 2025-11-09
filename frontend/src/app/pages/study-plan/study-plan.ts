@@ -18,11 +18,13 @@ import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Subscription } from 'rxjs';
 import { User } from '@common/user';
 import { Router } from '@angular/router';
+import { LoadingService } from '@app/services/loading/loading-service';
+import { Loading } from '@app/components/loading/loading';
 
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule, FormsModule],
+  imports: [CommonModule, StudyModule, FormsModule, Loading],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -56,7 +58,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     protected authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
-    private router: Router
+    private router: Router,
+    protected loadingService: LoadingService,
   ) {}
 
   get canSave(): boolean {
@@ -67,8 +70,10 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return this.sPS.canSubmit;
   }
 
-  ngOnInit() {
-    this.courseService.getCourses();
+  async ngOnInit() {
+    this.loadingService.startLoading();
+    // Charger tous les cours depuis le backend
+    await this.loadAllCourses();
 
     if (this.programOverride) {
       this.initializeWithProgram(this.programOverride);
@@ -150,9 +155,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       this.courseStateService.restoreCourseState(this.sPS.studyPlan.courseState);
       this.sPS.canSave = true;
     }
-
-    // Charger tous les cours depuis le backend
-    await this.loadAllCourses();
 
     this.calculateTotalCredits();
   }
@@ -264,9 +266,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.courseService.getCourses();
     if (this.courseService.courses.length > 0) {
       this.allCourses = this.courseService.courses;
+      this.loadingService.stopLoading();
     } else {
       await this.apiService.getCourses().subscribe((listCourses) => {
         this.allCourses = listCourses;
+        this.courseService.courses = listCourses;
+        this.loadingService.stopLoading();
       });
     }
   }

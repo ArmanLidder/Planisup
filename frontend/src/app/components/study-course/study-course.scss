@@ -230,6 +230,53 @@
       }
     }
     
+    // NOUVEAU : Styles pour la sélection de trimestre
+    .trimester-selector {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+      
+      .trimester-dropdown {
+        padding: 4px 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 13px;
+        background-color: white;
+        color: #495057;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        min-width: 140px;
+        
+        &:focus {
+          outline: none;
+          border-color: #27ae60;
+          box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.1);
+        }
+        
+        &:hover {
+          border-color: #27ae60;
+        }
+      }
+    }
+    
+    .trimester-display {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+      
+      .trimester-label {
+        font-size: 13px;
+        color: #27ae60;
+        font-weight: 500;
+        white-space: nowrap;
+        background-color: rgba(39, 174, 96, 0.1);
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+    }
+    
     .course-credits {
       color: #6c757d;
       font-size: 14px;
@@ -312,6 +359,12 @@
       }
       
       .avantage-poly-inline {
+        margin-right: 0;
+        flex-basis: 100%;
+        justify-content: flex-start;
+      }
+      
+      .trimester-selector {
         margin-right: 0;
         flex-basis: 100%;
         justify-content: flex-start;

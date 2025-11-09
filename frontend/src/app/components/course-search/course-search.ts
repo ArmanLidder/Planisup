@@ -215,7 +215,6 @@ export class CourseSearch implements OnInit, OnChanges {
 
   addCourse(course: Course) {
     if (!this.canSelectCourse(course)) return;
-    console.log("je suiss la")
     if (this.pickMode) {
       this.courseSelectionChange.emit({ course, selected: true });
       return;
@@ -226,7 +225,6 @@ export class CourseSearch implements OnInit, OnChanges {
     this.selectedCourses.push(course);
     this.selectedCredits += course.credits;
     this.courseSelectionChange.emit({ course, selected: true });
-    console.log("je suis la en bas")
   }
 
   removeCourse(course: Course) {
@@ -265,7 +263,7 @@ export class CourseSearch implements OnInit, OnChanges {
       return;
     }
 
-    const course: Course = { sigle, name, credits, trimester: [] };
+    const course: Course = { sigle, name, credits, trimester: [], };
 
     this.allCourses = [course, ...this.allCourses];
     this.filteredCourses = [course, ...this.filteredCourses];

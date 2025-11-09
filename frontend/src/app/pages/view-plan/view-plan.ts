@@ -61,7 +61,6 @@ export class ViewPlan implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log(this.programService.program);
     this.studyPlanSubscription = this.studyPlan$.subscribe((plan) => {
       if (plan && plan.programId) {
         this.studyPlan = plan;

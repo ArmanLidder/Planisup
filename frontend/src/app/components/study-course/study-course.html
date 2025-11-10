@@ -68,7 +68,7 @@
     
     <!-- Affichage du trimestre sélectionné en mode view -->
     <div class="trimester-display" *ngIf="isViewMode && isSelected && selectedTrimester">
-      <span class="trimester-label">📅 {{ selectedTrimester}}</span>
+      <span class="trimester-label">📅 {{ selectedTrimester === '- 0' ? 'Aucun trimestre' : selectedTrimester }}</span>
     </div>
     
     <span class="course-credits" [class.disabled-text]="!canBeToggled()">{{ course.credits }} crédits</span>

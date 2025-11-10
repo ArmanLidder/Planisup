@@ -56,6 +56,13 @@
 
       <div class="actions" *ngIf="!isViewMode && this.state === 'modifyStudent'">
         <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
+        <button 
+          (click)="submitPlan()" 
+          class="btn-primary" 
+          [disabled]="!isValidated" 
+          [class.validated]="isValidated">
+            Soumettre le plan d'études
+        </button>
       </div>
 
       <div class="actions" *ngIf="this.state === 'viewAdmin'">

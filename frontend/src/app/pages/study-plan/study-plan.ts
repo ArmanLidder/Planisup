@@ -54,6 +54,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private programSubscription: Subscription | null = null;
   private readonly AVANTAGE_POLY_MAX_CREDITS = 15;
 
+  // État de validation
+  isValidated: boolean = false;
+
   constructor(
     private programService: ProgramService,
     private courseStateService: CourseStateService,
@@ -333,6 +336,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     if (!result) return;
 
+    // Réinitialiser la validation si des changements sont apportés
+    this.isValidated = false;
     this.calculateTotalCredits();
   }
 
@@ -381,9 +386,28 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return title.replace(creditsPattern, '').trim();
   }
 
+  /**
+   * Valide le plan d'études sans le soumettre
+   */
   validatePlan() {
     if (this.isViewMode) return;
 
+    const errors = this.performValidation();
+
+    if (errors.length > 0) {
+      this.isValidated = false;
+      this.alertPopUp('Erreurs de validation:\n' + errors.join('\n'));
+      return;
+    }
+
+    this.isValidated = true;
+    this.alertPopUp("Plan d'étude validé avec succès!");
+  }
+
+  /**
+   * Effectue toutes les validations et retourne les erreurs
+   */
+  private performValidation(): string[] {
     const errors: string[] = [];
 
     // Validation des groupes de règles
@@ -400,13 +424,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     // Validation de la règle d'exclusivité des sous-modules
     this.program.modules.forEach(module => {
-      // Vérifier si le module a une règle d'exclusivité
       const hasExclusiveRule = module.rules?.some(rule => rule.type === 'exclusive_submodules');
       
       if (hasExclusiveRule && module.subModules) {
         const selectedSubModules: string[] = [];
 
-        // Trouver tous les sous-modules avec des cours sélectionnés
         module.subModules.forEach(subModule => {
           const hasSelection = Array.from(this.courseStateService.courseStates.values()).some(
             state => state.selected && 
@@ -419,7 +441,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
           }
         });
 
-        // Valider qu'un seul sous-module a été choisi
         if (selectedSubModules.length === 0) {
           const subModuleTitles = module.subModules.map(sm => this.extractSubModulePrefix(sm.title)).join(', ');
           errors.push(`Vous devez choisir un module parmi: ${subModuleTitles}`);
@@ -443,15 +464,56 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
     }
 
-    // Afficher les erreurs ou soumettre le plan
+    return errors;
+  }
+
+  /**
+   * Soumet le plan d'études après validation et confirmation
+   */
+  async submitPlan() {
+    if (this.isViewMode) return;
+
+    // Effectuer la validation
+    const errors = this.performValidation();
+
     if (errors.length > 0) {
+      this.isValidated = false;
       this.alertPopUp('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
 
-    if (this.state === 'modifyStudent' && this.authService.currentUser) this.submitStudyPlan();
-    else if (this.state === 'correction') this.sPS.updateStudyPlan();
-    else this.alertPopUp("Plan d'étude est valide!");
+    // Demander confirmation avant de soumettre
+    const confirmed = await this.confirmSubmission();
+    
+    if (!confirmed) {
+      return;
+    }
+
+    if (this.state === 'modifyStudent' && this.authService.currentUser) {
+      this.submitStudyPlan();
+    } else if (this.state === 'correction') {
+      this.sPS.updateStudyPlan();
+    }
+  }
+
+  /**
+   * Affiche un dialog de confirmation pour la soumission
+   */
+  private async confirmSubmission(): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        title: 'Confirmation de soumission',
+        message: 'Êtes-vous sûr de vouloir soumettre votre plan d\'études?',
+        details: 'Une fois soumis, votre plan sera envoyé pour validation. Vous ne pourrez plus le modifier jusqu\'à ce qu\'il soit retourné en correction.',
+        firstButton: 'Annuler',
+        secondButton: 'Oui, soumettre',
+        confirmColor: 'primary',
+        icon: 'send',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   private async alertPopUp(text: string): Promise<boolean> {
@@ -500,7 +562,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-
   modifyPlan(): void {
     this.programService.setAdminEditing(true);
     if (this.router.url !== '/admin/programs') {
@@ -508,7 +569,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // Ajouter cette méthode helper
   extractSubModulePrefix(subModuleTitle: string): string {
     const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
     return match ? match[1] : subModuleTitle;

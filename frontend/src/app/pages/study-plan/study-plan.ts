@@ -68,6 +68,10 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
   async ngOnInit() {
     this.loadingService.startLoading();
+
+    if (!this.programService.program && !this.programOverride) {
+      this.programService.restoreFromStorage();
+    }
     // Charger tous les cours depuis le backend
     await this.loadAllCourses();
 

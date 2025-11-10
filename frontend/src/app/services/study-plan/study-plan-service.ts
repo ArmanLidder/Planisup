@@ -29,15 +29,18 @@ export class StudyPlanService {
   private readonly studyPlanSubject = new BehaviorSubject<StudyPlan | null>(null);
   studyPlan$ = this.studyPlanSubject.asObservable();
 
+  private readonly STORAGE_KEY = 'current_study_plan';
+
   get studyPlan(): StudyPlan | null {
     return this.studyPlanSubject.value;
   }
 
   loadStudyPlan(id: string, isStudent: boolean = false): void {
-    this.loadingSubject.next(false);
+    this.loadingSubject.next(true); // Should be true when starting
     this.apiService.getStudyPlan(id).subscribe({
       next: (plan: StudyPlan) => {
-        this.studyPlanSubject.next(plan);
+        // Use the setter to also persist to localStorage
+        this.studyPlan = plan;
         if (isStudent && plan._id) this.auth.addStudyPlan(plan._id);
       },
       complete: () => {
@@ -45,6 +48,29 @@ export class StudyPlanService {
         this.router.navigate(['/view-plan']);
       },
     });
+  }
+
+  set studyPlan(plan: StudyPlan | null) {
+    this.studyPlanSubject.next(plan);
+    if (plan) {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(plan));
+    } else {
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
+  }
+
+  restoreFromStorage(): void {
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    console.log('Restoring study plan from storage:', stored);
+    if (stored) {
+      try {
+        const plan = JSON.parse(stored) as StudyPlan;
+        this.studyPlanSubject.next(plan);
+      } catch (error) {
+        console.error('Error restoring study plan from storage:', error);
+        localStorage.removeItem(this.STORAGE_KEY);
+      }
+    }
   }
 
   cancelStudyPlan(): void {

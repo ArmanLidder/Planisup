@@ -29,6 +29,7 @@ export class ProgramService {
 
   private _program: Program | null = null;
   private programSubject = new BehaviorSubject<Program | null>(null);
+  private readonly STORAGE_KEY = 'current_program';
 
   get program(): Program | null {
     return this._program;
@@ -37,6 +38,11 @@ export class ProgramService {
   set program(value: Program | null) {
     this._program = value;
     this.programSubject.next(value);
+    if (value) {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(value));
+    } else {
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
   }
 
   get program$(): Observable<Program | null> {
@@ -57,11 +63,13 @@ export class ProgramService {
     this.adminEditingSubject.next(value);
   }
 
+  
   /** Step 0 → 1: Load departements for a certain type */
   loadDepartements(type: string): void {
     if (this.departementsSubject.getValue().length > 0) return;
     this.departementsSubject.next([]);
     this.type = type;
+    localStorage.setItem(this.STORAGE_KEY + '_type', type);
     this.loadingSubject.next(true);
     this.api.getDepartements(type).subscribe({
       next: (departements) => {
@@ -123,6 +131,26 @@ export class ProgramService {
     else this.stepSubject.next(step - 1);
   }
 
+  restoreFromStorage(): void {
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    console.log('Restoring program from storage:', stored);
+    if (stored) {
+      try {
+        const program = JSON.parse(stored) as Program;
+        this._program = program;
+        this.programSubject.next(program);
+        // Also restore the type if it was stored
+        const typeStored = localStorage.getItem(this.STORAGE_KEY + '_type');
+        if (typeStored) {
+          this.type = typeStored;
+        }
+      } catch (error) {
+        console.error('Error restoring program from storage:', error);
+        localStorage.removeItem(this.STORAGE_KEY);
+      }
+    }
+  }
+
   reset(): void {
     this.stepSubject.next(0);
     this.departementsSubject.next([]);
@@ -132,6 +160,8 @@ export class ProgramService {
     this.type = null;
     this.departement = null;
     this.degree = null;
+    localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.STORAGE_KEY + '_type');
   }
 
   private populateProgramMap(programs: ReducedProgram[]): Map<string, ReducedProgram[]> {

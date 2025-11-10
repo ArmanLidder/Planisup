@@ -163,14 +163,13 @@ export class StudyCourse {
   get availableTrimesters(): string[] {
     const courseTrim = this.courseService.courses.find(trim => trim.sigle === this.course.sigle) as any;
 
-    if (!courseTrim) return [];
+    if (!courseTrim) return ["Aucun Trimestre"];
 
 
     if (Array.isArray(courseTrim.trimester)) {
       const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
         if(t.jourSoir !== undefined && t.jourSoir !== null) {
             if (t.jourSoir.trim() !== "") {
-              console.log("test test", t.jourSoir.trim());
               return `${t.trimestre} ${t.annee} (${t.jourSoir.trim()})`;
             }
         }
@@ -182,11 +181,15 @@ export class StudyCourse {
     return ["Aucun Trimestre"];
   }
 
-  get selectedTrimester(): string {
-    if (Array.isArray(this.courseState.course.trimester) && this.courseState.course.trimester.length > 0 && this.courseState.course.trimester[0]) {
+  get selectedTrimester(): string | undefined {
+    if (Array.isArray(this.courseState.course.trimester) 
+      && this.courseState.course.trimester.length > 0 
+      && this.courseState.course.trimester[0] 
+      && this.courseState.course.trimester[0].dayNight == "selected") {
+        console.log("je suis dans le if")
       return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
     }
-    return "Aucun Trimestre";
+    return undefined;
   }
 
   onTrimesterSelect(event: Event) {

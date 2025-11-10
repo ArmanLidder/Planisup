@@ -154,7 +154,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     // Initialiser le service avec les modules
     if (!this.isViewMode) this.courseStateService.initializeCourseStates(this.modules); 
-    if (this.state === 'modifyStudent' && this.sPS.studyPlan?.courseState) {
+    if (this.state === 'correction' && this.sPS.studyPlan?.courseState) {
       this.courseStateService.restoreCourseState(this.sPS.studyPlan.courseState);
     }
 

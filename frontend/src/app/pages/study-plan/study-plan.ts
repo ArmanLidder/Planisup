@@ -392,6 +392,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       errors.push(...groupValidation.errors);
     }
 
+    // Validation des trimestres des cours sélectionnés
+    const trimesterValidation = this.courseStateService.validateTrimesters();
+    if (!trimesterValidation.isValid) {
+      errors.push(...trimesterValidation.errors);
+    }
+
     // Validation de la règle d'exclusivité des sous-modules
     this.program.modules.forEach(module => {
       // Vérifier si le module a une règle d'exclusivité

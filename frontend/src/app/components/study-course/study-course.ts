@@ -195,12 +195,14 @@ export class StudyCourse {
     if (term === "Aucun") {
       trimester  = { 
         term: "-", 
-        year: 0, 
+        year: 0,
+        dayNight: "selected"
       };
     } else {
       trimester = { 
         term: term, 
-        year: parseInt(year, 10), 
+        year: parseInt(year, 10),
+        dayNight: "selected"
       };
     }
     this.courseStateService.setCourseTrimester(this.course.sigle, trimester);

@@ -48,7 +48,6 @@ export interface Course {
   name: string;
   credits: number;
   trimester: Trimester[] | Trimester | string;
-  selectedTrimester?: string;
   alreadyDone?: boolean;
   grade?: Grade;
 }

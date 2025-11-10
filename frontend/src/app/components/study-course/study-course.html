@@ -54,13 +54,12 @@
       <select 
         id="trimesterSelect"
         class="trimester-dropdown"
+        [value]="selectedTrimesterValue"
         (change)="onTrimesterSelect($event)">
-        <option value="" disabled selected>Choisir un trimestre</option>
+        <option value="" disabled>Choisir un trimestre</option>
         <option *ngFor="let trimester of availableTrimesters"
-          [value]="trimester"
-          [selected]="trimester === selectedTrimester"
-          >
-          {{ trimester}}
+          [value]="trimester">
+          {{ trimester }}
         </option>
       </select>
     </div>

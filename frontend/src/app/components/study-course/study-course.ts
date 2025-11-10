@@ -186,10 +186,22 @@ export class StudyCourse {
       && this.courseState.course.trimester.length > 0 
       && this.courseState.course.trimester[0] 
       && this.courseState.course.trimester[0].dayNight == "selected") {
-        console.log("je suis dans le if")
+        console.log("je suis dans le if", `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`);
       return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
     }
     return undefined;
+  }
+
+  get selectedTrimesterValue(): string {
+    const selected = this.selectedTrimester;
+    if (!selected) return '';
+    
+    // Find the matching trimester with day/night info
+    const match = this.availableTrimesters.find(t => t.startsWith(selected));
+    if(selected === "- 0") {
+        return "Aucun Trimestre";
+    }
+    return match || '';
   }
 
   onTrimesterSelect(event: Event) {

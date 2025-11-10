@@ -168,7 +168,12 @@ export class StudyCourse {
 
     if (Array.isArray(courseTrim.trimester)) {
       const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
-        if (t.jourSoir.trim() !== "") return `${t.trimestre} ${t.annee}`;
+        if(t.jourSoir !== undefined && t.jourSoir !== null) {
+            if (t.jourSoir.trim() !== "") {
+              console.log("test test", t.jourSoir.trim());
+              return `${t.trimestre} ${t.annee} (${t.jourSoir.trim()})`;
+            }
+        }
         return null;
       }).filter((item: string) => item !== null);
       return trimesters.length > 0 ? trimesters : ["Aucun Trimestre"]

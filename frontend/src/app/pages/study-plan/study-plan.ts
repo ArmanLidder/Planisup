@@ -426,7 +426,7 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
 
     // Validation des trimestres des cours sélectionnés
-    const trimesterValidation = this.courseStateService.validateTrimesters();
+    const trimesterValidation = this.courseStateService.validateTrimestersAndAPGrade();
     if (!trimesterValidation.isValid) {
       errors.push(...trimesterValidation.errors);
     }
@@ -469,9 +469,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       );
     }
 
-    if (!this.courseStateService.isAllAvantagePolyGrade()) {
-      errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
-    }
+    // if (!this.courseStateService.isAllAvantagePolyGrade()) {
+    //   errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
+    // }
 
     return errors;
   }

@@ -30,9 +30,8 @@
                (change)="onAvantagePolyChange($event)"
                *ngIf="!isViewMode">
         <span class="avantage-checkmark" *ngIf="!isViewMode"></span>
-        <span class="avantage-poly-label" *ngIf="!isViewMode">Avantage Poly</span>
-        <span class="avantage-poly-label" *ngIf="currentGrade && isViewMode">Avantage Poly</span>
-        <span class="current-grade" *ngIf="currentGrade && isViewMode"> - {{ currentGrade }}</span>
+        <span class="avantage-poly-label" *ngIf="!isViewMode || (currentGrade && isViewMode && isAvantagePolyChecked)">Avantage Poly</span>
+        <span class="current-grade" *ngIf="currentGrade && isViewMode && isAvantagePolyChecked"> - {{ currentGrade }}</span>
       </label>
       
       <!-- Dropdown pour sélectionner la note -->

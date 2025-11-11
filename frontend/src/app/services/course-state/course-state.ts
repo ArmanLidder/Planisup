@@ -760,7 +760,7 @@ export class CourseStateService {
     return isGrade;
   }
 
-  validateTrimesters(): { isValid: boolean; errors: string[] } {
+  validateTrimestersAndAPGrade(): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     this.courseStates.forEach((state, courseSigle) => {
@@ -768,11 +768,17 @@ export class CourseStateService {
         if (!state.course.trimester || state.course.trimester.length !== 1 || state.course.trimester[0].dayNight !== "selected")
           errors.push(`Le cours ${courseSigle} n'a pas de trimestre sélectionné`);
       }
+      if (state.selected && state.course.alreadyDone && !this.isGradeValide(state.course.grade))
+        errors.push(`La note du cours ${courseSigle} (${state.course.grade || "Aucune"}) est inférieure à B`);
     });
 
     return {
       isValid: errors.length === 0,
       errors: errors
     };
+  }
+
+  isGradeValide(grade: Grade | undefined) {
+    return grade && (grade === Grade.AStar || grade === Grade.A || grade === Grade.BPlus || grade === Grade.B)
   }
 }

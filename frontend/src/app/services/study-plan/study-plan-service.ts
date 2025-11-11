@@ -156,6 +156,7 @@ export class StudyPlanService {
   }
 
   resetStudyPlan() {
+    localStorage.removeItem(this.STORAGE_KEY);
     this.studyPlanSubject.next(null);
   }
 

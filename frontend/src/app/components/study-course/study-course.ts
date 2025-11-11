@@ -186,7 +186,6 @@ export class StudyCourse {
       && this.courseState.course.trimester.length > 0 
       && this.courseState.course.trimester[0] 
       && this.courseState.course.trimester[0].dayNight == "selected") {
-        console.log("je suis dans le if", `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`);
       return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
     }
     return undefined;

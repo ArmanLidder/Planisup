@@ -46,7 +46,6 @@ export class CourseStateService {
    * Restaure le courseState depuis un objet sérialisé
    */
   restoreCourseState(serializedState: { [courseSigle: string]: SerializedCourseState }) {
-    console.log("je met mes courseState")
     Object.entries(serializedState).forEach(([sigle, state]) => {
       this.courseStates.set(sigle, {
         selected: state.selected,
@@ -131,14 +130,17 @@ export class CourseStateService {
   }
 
   addCourseToStates(course: Course): void {
-    if (!this.courseStates.has(course.sigle)) {
-      this.courseStates.set(course.sigle, {
+    const courseCopy: Course = {
+      ...course,
+    }
+    if (!this.courseStates.has(courseCopy.sigle)) {
+      this.courseStates.set(courseCopy.sigle, {
         selected: false,
         selectedInModule: null,
         selectedInSubmodule: null,
         selectedInSection: null,
-        credits: course.credits,
-        course: course
+        credits: courseCopy.credits,
+        course: courseCopy
       });
     }
   }
@@ -559,7 +561,6 @@ export class CourseStateService {
   }
 
   getSelectedCredits(): number {
-    console.log("je calcule les credits selectionner")
     let credits = 0;
     this.courseStates.forEach((state) => {
       if (state.selected && !state.course.sigle.includes("CAP")) {

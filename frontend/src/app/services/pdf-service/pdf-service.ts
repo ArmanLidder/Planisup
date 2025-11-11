@@ -15,6 +15,16 @@ export class PdfService {
   private members: User[] = [];
   private codirectors: User[] = [];
   private readonly masterResearchCourses: string[] = ['CAP7002', 'CAP7005', 'CAP7002E', 'CAP7005E'];
+  private readonly phdResearchCourses: string[] = [
+    'CAP7003',
+    'CAP7003E',
+    'CAP7005',
+    'CAP7005E',
+    'CAP7011',
+    'CAP7011E',
+    'CAP7015',
+    'CAP7015E',
+  ];
   private firstNameFile: string = '';
   private lastNameFile: string = '';
   private codirectorsDateSignature: Date = new Date();
@@ -37,7 +47,12 @@ export class PdfService {
   }
 
   private async generateStudyPlanPdf(studyPlan: StudyPlan): Promise<Uint8Array> {
-    const pdfUrl = '/assets/plan_etudes_2cycle.pdf';
+    let pdfUrl = '';
+    if (this.studyPlanService.isProgramPHD()) {
+      pdfUrl = '/assets/plan_etudes_doctorat.pdf';
+    } else {
+      pdfUrl = '/assets/plan_etudes_2cycle.pdf';
+    }
     const pdfBytes = await fetch(pdfUrl).then((res) => res.arrayBuffer());
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const form = pdfDoc.getForm();
@@ -56,7 +71,7 @@ export class PdfService {
     await this.fillCredentialsCodirectors(form, studyPlan);
     await this.fillAdditionalWorkShops(form, studyPlan);
     await this.fillMandatoryCourses(form, studyPlan);
-    await this.fillComplementaryCourses(form, studyPlan);
+    //await this.fillComplementaryCourses(form, studyPlan);
     await this.completeForm(form, resolve, reject);
   }
 
@@ -125,7 +140,9 @@ export class PdfService {
       }
     });
 
-    if (this.studyPlanService.isProgramDESS()) {
+    if (this.studyPlanService.isProgramPHD()) {
+      this.setCheckBox(form, 'phd');
+    } else if (this.studyPlanService.isProgramDESS()) {
       this.setCheckBox(form, 'dess');
     } else if (
       this.studyPlanService.isProgramMaster() &&
@@ -141,7 +158,9 @@ export class PdfService {
 
     if (this.programService.program) {
       this.setTextField(form, 'programme', this.programService.program?.department);
-      this.setTextField(form, 'option_ou_orientation', this.programService.program?.option || '');
+      if (!this.studyPlanService.isProgramPHD()) {
+        this.setTextField(form, 'option_ou_orientation', this.programService.program?.option || '');
+      }
     }
 
     this.setCheckBox(form, 'acceptation_condition');
@@ -215,6 +234,44 @@ export class PdfService {
           continue;
         }
       }
+    } else if (this.studyPlanService.isProgramPHD()) {
+      for (const course of this.phdResearchCourses) {
+        if (
+          studyPlan.courseState[course] &&
+          studyPlan.courseState[course].selected &&
+          Array.isArray(studyPlan.courseState[course].course.trimester)
+        ) {
+          const formattedTrimester = this.formatTrimester(
+            studyPlan.courseState[course].course.trimester[0]
+          );
+
+          if (
+            studyPlan.courseState[course].course.sigle === 'CAP7005' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7005E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_2', `${formattedTrimester}`);
+          } else if (
+            studyPlan.courseState[course].course.sigle === 'CAP7003' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7003E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_3', `${formattedTrimester}`);
+          } else if (
+            studyPlan.courseState[course].course.sigle === 'CAP7011' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7011E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_4', `${formattedTrimester}`);
+          } else if (
+            studyPlan.courseState[course].course.sigle === 'CAP7015' ||
+            studyPlan.courseState[course].course.sigle === 'CAP7015E'
+          ) {
+            this.setTextField(form, 'trimestre_atelier_5', `${formattedTrimester}`);
+          }
+
+          this.setCheckBox(form, course);
+        } else {
+          continue;
+        }
+      }
     }
   }
 
@@ -226,11 +283,13 @@ export class PdfService {
         creditsTotal += course.credits || 0;
         const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
-        this.setTextField(form, `institution_cours_obligatoire_${pdfIndex}`, 'Polytechnique');
+        this.setTextField(form, `institution_cours_obligatoire_${pdfIndex}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
         this.setTextField(form, `trimestre_cours_obligatoire_${pdfIndex}`, formattedTrimester);
         this.setTextField(form, `sigle_cours_obligatoire_${pdfIndex}`, course.sigle || '');
         this.setTextField(form, `titre_cours_obligatoire_${pdfIndex}`, course.name || '');
-        this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
+        if (!this.studyPlanService.isProgramPHD()) {
+          this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
+        }
         if (course.alreadyDone) {
           this.setTextField(form, `av_${pdfIndex}`, 'A.P');
         }
@@ -255,7 +314,7 @@ export class PdfService {
         const formattedTrimester = this.formatTrimester(course.trimester[0]);
         const pdfIndex = index + 1;
         if (pdfIndex <= 9) {
-          this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique');
+          this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER
           this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
           this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
           this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
@@ -311,11 +370,18 @@ export class PdfService {
       studyPlan.coursesSelection.modules.forEach((module) => {
         if (module.courses) {
           module.courses.forEach((course) => {
-            allCourses.push({
-              ...course,
-              module: module.title,
-              moduleType: this.determineModuleType(module.title),
-            });
+            if (!this.studyPlanService.isProgramPHD()) {
+              allCourses.push({
+                ...course,
+                module: module.title,
+                moduleType: this.determineModuleType(module.title),
+              });
+            } else {
+              allCourses.push({
+                ...course,
+                module: module.title,
+              });
+            }
           });
         }
       });

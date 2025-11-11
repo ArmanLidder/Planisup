@@ -51,7 +51,6 @@
     <!-- Sélection du trimestre -->
     <div class="trimester-selector" *ngIf="needsTrimesterSelection">
       <select 
-        id="trimesterSelect"
         class="trimester-dropdown"
         [value]="selectedTrimesterValue"
         (change)="onTrimesterSelect($event)">

@@ -25,19 +25,19 @@
       <div class="selectors" *ngIf="this.authService.currentUser">
         <div class="form-group">
           <span class="member-icon">👤</span>
-          <label for="director">{{ getTypeDirector() }} :</label>
+          <label>{{ getTypeDirector() }} :</label>
           <p class="readonly-text">{{ director.firstName }} {{ director.lastName }}</p>
         </div>
         <div class="form-group">
           <span class="member-icon">👥</span>
-          <label for="coordinator">Coodirecteurs :</label>
+          <label>Coodirecteurs :</label>
           <p class="readonly-text" *ngFor="let codirector of codirectors">
             {{ codirector.firstName }} {{ codirector.lastName }}
           </p>
         </div>
         <div class="form-group">
           <span class="member-icon">📋</span>
-          <label for="coordinator">Coodonateur :</label>
+          <label>Coodonateur :</label>
           <p class="readonly-text">{{ coodonator.firstName }} {{ coodonator.lastName }}</p>
         </div>
       </div>

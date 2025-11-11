@@ -134,11 +134,20 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private async initializeWithProgram(program: Program) {
     this.program = program;
 
+    // Créer une copie des modules du programme
+    let modules = [...program.modules];
+
+    // Ajouter le module complémentaire seulement en mode édition
+    if (this.state !== 'viewAdmin') {
+      const complementaryModule = this.createComplementaryModule();
+      modules.push(complementaryModule);
+    }
+
     // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
     if (this.isViewMode) {
-      this.modules = this.filterSelectedCourses(program.modules);
+      this.modules = this.filterSelectedCourses(modules);
     } else {
-      this.modules = this.program.modules;
+      this.modules = modules;
     }
 
     this.selectedCredits = 0;
@@ -588,5 +597,33 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return (this.program.type == "doctorat" || this.program.degree.includes("recherche")) 
       ? "Directeur de recherche" 
       : "Directeur d'étude";
+  }
+
+  private createComplementaryModule(): Module {
+    return {
+      title: "Cours complémentaire",
+      description: [],
+      rules: [
+        {
+          type: 'credits_minimum',
+          value: 0
+        }
+      ],
+      courses: [
+        {
+          description: "",
+          courses: [],
+          rules: [
+            {
+              type: 'director_approval',
+            },
+            {
+              type: 'credits_minimum', 
+              value: 0
+            }
+          ]
+        }
+      ]
+    }
   }
 }

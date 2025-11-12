@@ -319,7 +319,11 @@ export class PdfService {
 
     filteredCourses.forEach((course, index) => {
       credits += course.credits;
-      this.setTextField(form, `institution_cours_obligatoire_${index}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
+      this.setTextField(
+        form,
+        `institution_cours_obligatoire_${index}`,
+        course.course.institution ? course.course.institution : 'Polytechnique de Montréal'
+      );
       this.setTextField(form, `sigle_cours_obligatoire_${index}`, course.course.sigle);
       this.setTextField(form, `titre_cours_obligatoire_${index}`, course.course.name);
       this.setTextField(
@@ -367,7 +371,11 @@ export class PdfService {
 
     filteredCourses.forEach((course, index) => {
       credits += course.credits;
-      this.setTextField(form, `institution_cours_complémentaire_${index}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
+      this.setTextField(
+        form,
+        `institution_cours_complémentaire_${index}`,
+        course.course.institution ? course.course.institution : 'Polytechnique de Montréal'
+      );
       this.setTextField(form, `sigle_cours_complémentaire_${index}`, course.course.sigle);
       this.setTextField(form, `titre_cours_complémentaire_${index}`, course.course.name);
       this.setTextField(

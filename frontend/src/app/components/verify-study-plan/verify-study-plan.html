@@ -27,6 +27,13 @@
 
   <div class="courses-content">
     <mat-table [dataSource]="filteredCourses" matSort>
+      <ng-container matColumnDef="school">
+        <mat-header-cell *matHeaderCellDef> Institution </mat-header-cell>
+        <mat-cell *matCellDef="let course">
+          {{ course.course.institution ? course.course.institution : 'Polytechnique de Montréal' }}
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="sigle">
         <mat-header-cell *matHeaderCellDef> Sigle </mat-header-cell>
         <mat-cell *matCellDef="let course"> {{ course.sigle }} </mat-cell>
@@ -75,9 +82,10 @@
         <mat-cell *matCellDef="let course"> {{ course.credits }} crédits </mat-cell>
       </ng-container>
       <mat-header-row *matHeaderRowDef="displayedColumns" class="table-header"></mat-header-row>
-      <mat-row 
-        *matRowDef="let row; columns: displayedColumns" 
-        [class.highlighted-row]="isHighlighted(row)">
+      <mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.highlighted-row]="isHighlighted(row)"
+      >
       </mat-row>
     </mat-table>
   </div>

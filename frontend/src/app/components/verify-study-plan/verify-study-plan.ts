@@ -29,6 +29,7 @@ export class VerifyStudyPlan implements OnInit {
   @Input() studyPlan!: StudyPlan;
   @Input() program: Program | null = null;
   public displayedColumns: string[] = [
+    'school',
     'sigle',
     'name',
     'module',
@@ -54,7 +55,6 @@ export class VerifyStudyPlan implements OnInit {
       this.getProcessMembers(this.studyPlan._id);
       this.getCordirectorsMembers(this.studyPlan._id);
       this.getCoursesStudent();
-      console.log(this.filteredCourses)
     }
   }
 

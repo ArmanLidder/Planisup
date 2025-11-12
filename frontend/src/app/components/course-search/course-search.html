@@ -107,6 +107,12 @@
           [ngModelOptions]="{ standalone: true }"
         />
         <input
+          type="text"
+          placeholder="Institution du cours"
+          [(ngModel)]="manualCourseInstitution"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <input
           type="number"
           min="0"
           step="1"

@@ -54,6 +54,7 @@ export class VerifyStudyPlan implements OnInit {
       this.getProcessMembers(this.studyPlan._id);
       this.getCordirectorsMembers(this.studyPlan._id);
       this.getCoursesStudent();
+      console.log(this.filteredCourses)
     }
   }
 

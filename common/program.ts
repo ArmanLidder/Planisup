@@ -50,6 +50,7 @@ export interface Course {
   trimester: Trimester[] | Trimester | string;
   alreadyDone?: boolean;
   grade?: Grade;
+  institution?: string;
 }
 
 export interface ExtendedInfoCourse extends Course {

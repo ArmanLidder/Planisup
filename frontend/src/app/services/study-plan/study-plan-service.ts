@@ -61,7 +61,6 @@ export class StudyPlanService {
 
   restoreFromStorage(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
-    console.log('Restoring study plan from storage:', stored);
     if (stored) {
       try {
         const plan = JSON.parse(stored) as StudyPlan;

@@ -133,7 +133,6 @@ export class ProgramService {
 
   restoreFromStorage(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
-    console.log('Restoring program from storage:', stored);
     if (stored) {
       try {
         const program = JSON.parse(stored) as Program;

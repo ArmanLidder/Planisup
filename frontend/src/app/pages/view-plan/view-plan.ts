@@ -66,7 +66,6 @@ export class ViewPlan implements OnInit, OnDestroy {
     }
 
     this.studyPlanSubscription = this.studyPlan$.subscribe((plan) => {
-      console.log('Study plan subscription triggered:', plan);
       if (plan && plan.programId) {
         this.studyPlan = plan;
         this.loadProgramAndRestoreState(plan);

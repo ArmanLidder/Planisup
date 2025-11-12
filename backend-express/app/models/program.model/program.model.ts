@@ -44,6 +44,7 @@ export interface ICourse extends Document {
     trimester: ITrimester[];
     alreadyDone?: boolean;
     grade?: Grade;
+    institution?: string
 }
 
 export interface ITrimester extends Document {
@@ -69,7 +70,8 @@ const CourseSchema: Schema = new mongoose.Schema({
     credits: { type: Number, required: [true, "Le nombre de crédits est requis."] },
     trimester: [TrimesterSchema],
     alreadyDone: { type: Boolean, default: false },
-    grade: { type: String, enum: Object.values(Grade) }
+    grade: { type: String, enum: Object.values(Grade) },
+    institution: { type: String }
 });
 
 const SectionSchema: Schema = new mongoose.Schema({

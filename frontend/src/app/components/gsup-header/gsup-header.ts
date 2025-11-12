@@ -26,7 +26,6 @@ export class GsupHeader implements OnInit {
   ngOnInit(): void {
     this.authentificationService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-      console.log(this.currentUser);
     });
   }
 

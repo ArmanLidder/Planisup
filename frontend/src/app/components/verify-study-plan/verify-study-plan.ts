@@ -110,9 +110,19 @@ export class VerifyStudyPlan implements OnInit {
     return undefined;
   }
 
-  /*isHighlighted(course: SerializedCourseState): void {
-    if (course.selectedInSection === ) {
-      
-    }
-  }*/
+  isHighlighted(course: SerializedCourseState): boolean {
+    if (course.selectedInModule === "Cours complémentaire") return true;
+
+    const module = this.program?.modules?.find(m => m.title === course.selectedInModule);
+    if (!module) return false;
+
+    const searchIn = course.selectedInSubmodule 
+      ? module.subModules?.find(sm => sm.title === course.selectedInSubmodule)?.courses
+      : module.courses;
+
+    return searchIn?.some(s => 
+      s.rules?.some(r => r.type === 'director_approval') && 
+      s.description === course.selectedInSection
+    ) ?? false;
+  }
 }

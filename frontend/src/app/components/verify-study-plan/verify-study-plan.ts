@@ -7,6 +7,7 @@ import { User, UserRole } from '@common/user';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTable, MatHeaderCell, MatCell, MatHeaderRow, MatRow } from '@angular/material/table';
 import { MatTableModule } from '@angular/material/table';
+import { Program } from '@common/program';
 
 @Component({
   selector: 'app-verify-study-plan',
@@ -26,6 +27,7 @@ import { MatTableModule } from '@angular/material/table';
 })
 export class VerifyStudyPlan implements OnInit {
   @Input() studyPlan!: StudyPlan;
+  @Input() program: Program | null = null;
   public displayedColumns: string[] = [
     'sigle',
     'name',
@@ -50,6 +52,7 @@ export class VerifyStudyPlan implements OnInit {
   ngOnInit(): void {
     if (this.studyPlan?._id) {
       console.log(this.studyPlan);
+      console.log(this.program);
       this.getProcessMembers(this.studyPlan._id);
       this.getCordirectorsMembers(this.studyPlan._id);
       this.getCoursesStudent();
@@ -60,6 +63,7 @@ export class VerifyStudyPlan implements OnInit {
     this.apiService.getProcessMembersByIdStudyPlan(studyPlanId).subscribe({
       next: (members) => {
         members.forEach((member) => {
+          if (!member) return;
           if (member.role === UserRole.Etudiant) {
             this.student = member;
           } else if (member.role === UserRole.Directeur) {
@@ -91,4 +95,24 @@ export class VerifyStudyPlan implements OnInit {
       .filter((course) => course.selected);
     console.log(this.filteredCourses);
   }
+
+  getSelectedTrimester(course: SerializedCourseState): string | undefined {
+    if (
+      Array.isArray(course.course.trimester) &&
+      course.course.trimester.length > 0 &&
+      course.course.trimester[0] &&
+      course.course.trimester[0].dayNight == 'selected'
+    ) {
+      return course.course.trimester[0].term === '-'
+        ? 'Aucun trimestre défini'
+        : `${course.course.trimester[0].term} ${course.course.trimester[0].year}`;
+    }
+    return undefined;
+  }
+
+  /*isHighlighted(course: SerializedCourseState): void {
+    if (course.selectedInSection === ) {
+      
+    }
+  }*/
 }

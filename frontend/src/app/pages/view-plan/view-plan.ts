@@ -24,7 +24,7 @@ import { CourseStateService } from '@app/services/course-state/course-state';
 import { ApiService } from '@app/services/api/api-service';
 import { Subscription } from 'rxjs';
 import { UserRole } from '@common/user';
-import { VerifyStudyPlan } from "@app/components/verify-study-plan/verify-study-plan";
+import { VerifyStudyPlan } from '@app/components/verify-study-plan/verify-study-plan';
 
 @Component({
   selector: 'app-view-plan',
@@ -46,7 +46,7 @@ export class ViewPlan implements OnInit, OnDestroy {
     protected readonly authentificationService: AuthentificationService,
     protected readonly sPS: StudyPlanService,
     private readonly pdfService: PdfService,
-    private readonly programService: ProgramService,
+    protected readonly programService: ProgramService,
     private readonly courseStateService: CourseStateService,
     private readonly apiService: ApiService
   ) {
@@ -60,8 +60,7 @@ export class ViewPlan implements OnInit, OnDestroy {
     return this.getProgressSteps();
   }
 
- ngOnInit() {
-    
+  ngOnInit() {
     if (!this.sPS.studyPlan) {
       this.sPS.restoreFromStorage();
     }
@@ -206,6 +205,9 @@ export class ViewPlan implements OnInit, OnDestroy {
   }
 
   get isDisplayCorrection(): boolean {
-    return (this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION) && this.authentificationService.isStudent();
+    return (
+      this.studyPlan?.stepValidation === StepValidationStatus.NEEDS_CORRECTION &&
+      this.authentificationService.isStudent()
+    );
   }
 }

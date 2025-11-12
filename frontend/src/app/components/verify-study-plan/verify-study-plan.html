@@ -53,7 +53,7 @@
 
       <ng-container matColumnDef="trimester">
         <mat-header-cell *matHeaderCellDef> Trimestre </mat-header-cell>
-        <mat-cell *matCellDef="let course"> - </mat-cell>
+        <mat-cell *matCellDef="let course"> {{ getSelectedTrimester(course) }} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="avantagePoly">

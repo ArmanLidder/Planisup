@@ -8,9 +8,10 @@ import { Course, Grade, Trimester } from '@common/program';
 
 @Component({
   selector: 'app-study-course',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './study-course.html',
-  styleUrl: './study-course.scss'
+  styleUrl: './study-course.scss',
 })
 export class StudyCourse {
   @Input() course!: Course;
@@ -19,7 +20,7 @@ export class StudyCourse {
   @Input() currentSectionDescription!: string;
   @Input() isViewMode: boolean = false;
   @Input() isSectionHighlight: boolean = false;
-  @Output() selectionChange = new EventEmitter<{courseSigle: string, selected: boolean}>();
+  @Output() selectionChange = new EventEmitter<{ courseSigle: string; selected: boolean }>();
 
   showGradeDropdown: boolean = false;
   grades = Object.values(Grade);
@@ -27,20 +28,20 @@ export class StudyCourse {
   constructor(
     private courseStateService: CourseStateService,
     private courseService: CourseService,
-    private studyPlanService: StudyPlanService,
+    private studyPlanService: StudyPlanService
   ) {}
 
   onSelectionChange(selected: boolean) {
     if (this.isViewMode) return;
-    
+
     if (selected) {
       const canSelect = this.courseStateService.canCourseBeSelected(
         this.course.sigle,
         this.currentModuleTitle,
         this.currentSubmoduleTitle,
-        this.currentSectionDescription,
+        this.currentSectionDescription
       );
-      
+
       if (!canSelect.canSelect) {
         return;
       }
@@ -48,7 +49,7 @@ export class StudyCourse {
 
     this.selectionChange.emit({
       courseSigle: this.course.sigle,
-      selected: selected
+      selected: selected,
     });
   }
 
@@ -62,11 +63,13 @@ export class StudyCourse {
 
   get isDisabled(): boolean {
     if (this.isViewMode) return true;
-    
+
     if (this.isSelected) {
-      return this.courseState.selectedInModule !== this.currentModuleTitle ||
-             this.courseState.selectedInSubmodule !== this.currentSubmoduleTitle ||
-             this.courseState.selectedInSection !== this.currentSectionDescription;
+      return (
+        this.courseState.selectedInModule !== this.currentModuleTitle ||
+        this.courseState.selectedInSubmodule !== this.currentSubmoduleTitle ||
+        this.courseState.selectedInSection !== this.currentSectionDescription
+      );
     }
 
     const canSelect = this.courseStateService.canCourseBeSelected(
@@ -81,22 +84,22 @@ export class StudyCourse {
 
   get disabledReason(): string {
     if (this.isViewMode) return '';
-    
+
     if (this.isSelected && this.isDisabled) {
       if (!this.currentSubmoduleTitle) {
         return this.courseState.selectedInModule === this.currentModuleTitle
-        ? "Déjà sélectionné dans une autre section"
-        : `Déjà sélectionné dans le module: ${this.courseState.selectedInModule}`;
+          ? 'Déjà sélectionné dans une autre section'
+          : `Déjà sélectionné dans le module: ${this.courseState.selectedInModule}`;
       }
 
       if (this.courseState.selectedInSubmodule === this.currentSubmoduleTitle) {
-        return "Déjà sélectionné dans une autre section";
+        return 'Déjà sélectionné dans une autre section';
       }
-      
+
       if (this.courseState.selectedInModule === this.currentModuleTitle) {
         return `Déjà sélectionné dans le sous-module: ${this.courseState.selectedInSubmodule}`;
       }
-      
+
       return `Déjà sélectionné dans le module: ${this.courseState.selectedInModule}`;
     }
 
@@ -107,7 +110,7 @@ export class StudyCourse {
         this.currentSubmoduleTitle,
         this.currentSectionDescription
       );
-      
+
       return canSelect.reason || 'Non sélectionnable';
     }
 
@@ -121,7 +124,7 @@ export class StudyCourse {
 
   canBeToggled(): boolean {
     if (this.isViewMode) return false;
-    
+
     if (this.isSelected) {
       return !this.isDisabled;
     } else {
@@ -147,7 +150,7 @@ export class StudyCourse {
 
   onGradeSelect(grade: Grade) {
     if (this.isViewMode) return;
-    
+
     this.courseStateService.setAvantagePoly(this.course.sigle, true, grade);
   }
 
@@ -161,32 +164,37 @@ export class StudyCourse {
 
   // Nouvelle fonctionnalité : Gestion des trimestres
   get availableTrimesters(): string[] {
-    const courseTrim = this.courseService.courses.find(trim => trim.sigle === this.course.sigle) as any;
+    const courseTrim = this.courseService.courses.find(
+      (trim) => trim.sigle === this.course.sigle
+    ) as any;
 
-    if (!courseTrim) return ["Aucun Trimestre"];
-
+    if (!courseTrim) return ['Aucun Trimestre'];
 
     if (Array.isArray(courseTrim.trimester)) {
-      const trimesters = courseTrim.trimester.map((t: { trimestre: string; annee: string, jourSoir: string }) => {
-        if(t.jourSoir !== undefined && t.jourSoir !== null) {
-            if (t.jourSoir.trim() !== "") {
+      const trimesters = courseTrim.trimester
+        .map((t: { trimestre: string; annee: string; jourSoir: string }) => {
+          if (t.jourSoir !== undefined && t.jourSoir !== null) {
+            if (t.jourSoir.trim() !== '') {
               return `${t.trimestre} ${t.annee} (${t.jourSoir.trim()})`;
             }
-        }
-        return null;
-      }).filter((item: string) => item !== null);
-      return trimesters.length > 0 ? trimesters : ["Aucun Trimestre"]
+          }
+          return null;
+        })
+        .filter((item: string) => item !== null);
+      return trimesters.length > 0 ? trimesters : ['Aucun Trimestre'];
     }
 
-    return ["Aucun Trimestre"];
+    return ['Aucun Trimestre'];
   }
 
   get selectedTrimester(): string | undefined {
-    if (Array.isArray(this.courseState.course.trimester) 
-      && this.courseState.course.trimester.length > 0 
-      && this.courseState.course.trimester[0] 
-      && this.courseState.course.trimester[0].dayNight == "selected") {
-      return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`; 
+    if (
+      Array.isArray(this.courseState.course.trimester) &&
+      this.courseState.course.trimester.length > 0 &&
+      this.courseState.course.trimester[0] &&
+      this.courseState.course.trimester[0].dayNight == 'selected'
+    ) {
+      return `${this.courseState.course.trimester[0].term} ${this.courseState.course.trimester[0].year}`;
     }
     return undefined;
   }
@@ -194,34 +202,34 @@ export class StudyCourse {
   get selectedTrimesterValue(): string {
     const selected = this.selectedTrimester;
     if (!selected) return '';
-    
+
     // Find the matching trimester with day/night info
-    const match = this.availableTrimesters.find(t => t.startsWith(selected));
-    if(selected === "- 0") {
-        return "Aucun Trimestre";
+    const match = this.availableTrimesters.find((t) => t.startsWith(selected));
+    if (selected === '- 0') {
+      return 'Aucun Trimestre';
     }
     return match || '';
   }
 
   onTrimesterSelect(event: Event) {
     if (this.isViewMode) return;
-    
+
     const selectElement = event.target as HTMLSelectElement;
     const value = selectElement.value;
 
     const [term, year] = value.split(' ');
     let trimester: Trimester;
-    if (term === "Aucun") {
-      trimester  = { 
-        term: "-", 
+    if (term === 'Aucun') {
+      trimester = {
+        term: '-',
         year: 0,
-        dayNight: "selected"
+        dayNight: 'selected',
       };
     } else {
-      trimester = { 
-        term: term, 
+      trimester = {
+        term: term,
         year: parseInt(year, 10),
-        dayNight: "selected"
+        dayNight: 'selected',
       };
     }
     this.courseStateService.setCourseTrimester(this.course.sigle, trimester);

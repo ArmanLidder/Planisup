@@ -25,19 +25,19 @@ button:active {
 }
 
 .red {
-  background-color: red;
+  background-color: var(--app-color-red);
 }
 
 .blue {
-  background-color: #3498db;
+  background-color: var(--app-color-blue);
 }
 
 .green {
-  background-color: rgb(4, 229, 4);
+  background-color: var(--app-color-green);
 }
 
 .orange {
-  background-color: orange;
+  background-color: var(--app-color-orange);
 }
 
 /* ================== Tailles ================== */

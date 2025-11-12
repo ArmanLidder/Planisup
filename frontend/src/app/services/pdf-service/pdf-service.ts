@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import { PDFDocument, PDFForm } from 'pdf-lib';
 import { User, UserRole } from '@common/user';
 import { ApiService } from '../api/api-service';
-import { StudyPlan } from '@common/study-plan';
+import { SerializedCourseState, StudyPlan } from '@common/study-plan';
 import { lastValueFrom } from 'rxjs';
 import { StudyPlanService } from '../study-plan/study-plan-service';
 import { ProgramService } from '../program/program-service';
-import { Trimester } from '@common/program';
 
 @Injectable({
   providedIn: 'root',
@@ -71,7 +70,7 @@ export class PdfService {
     await this.fillCredentialsCodirectors(form, studyPlan);
     await this.fillAdditionalWorkShops(form, studyPlan);
     await this.fillMandatoryCourses(form, studyPlan);
-    //await this.fillComplementaryCourses(form, studyPlan);
+    await this.fillComplementaryCourses(form, studyPlan);
     await this.completeForm(form, resolve, reject);
   }
 
@@ -90,7 +89,7 @@ export class PdfService {
         this.lastNameFile = member.lastName;
         this.setTextField(form, 'nom', this.lastNameFile);
         this.setTextField(form, 'prénom', this.firstNameFile);
-        this.setTextField(form, 'matricule', '2132752');
+        this.setTextField(form, 'matricule', '2132752'); // changer qd on aura le bon matricule
         this.setTextField(
           form,
           'signature_étudiant_et_date',
@@ -213,22 +212,31 @@ export class PdfService {
           studyPlan.courseState[course].selected &&
           Array.isArray(studyPlan.courseState[course].course.trimester)
         ) {
-          const formattedTrimester = this.formatTrimester(
-            studyPlan.courseState[course].course.trimester[0]
-          );
-
           if (
             studyPlan.courseState[course].course.sigle === 'CAP7002' ||
             studyPlan.courseState[course].course.sigle === 'CAP7002E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_1', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_a', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_1',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           } else if (
             studyPlan.courseState[course].course.sigle === 'CAP7005' ||
             studyPlan.courseState[course].course.sigle === 'CAP7005E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_2', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_b', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_2',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           }
-
           this.setCheckBox(form, course);
         } else {
           continue;
@@ -241,32 +249,55 @@ export class PdfService {
           studyPlan.courseState[course].selected &&
           Array.isArray(studyPlan.courseState[course].course.trimester)
         ) {
-          const formattedTrimester = this.formatTrimester(
-            studyPlan.courseState[course].course.trimester[0]
-          );
-
           if (
             studyPlan.courseState[course].course.sigle === 'CAP7005' ||
             studyPlan.courseState[course].course.sigle === 'CAP7005E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_2', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_b', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_2',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           } else if (
             studyPlan.courseState[course].course.sigle === 'CAP7003' ||
             studyPlan.courseState[course].course.sigle === 'CAP7003E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_3', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_c', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_3',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           } else if (
             studyPlan.courseState[course].course.sigle === 'CAP7011' ||
             studyPlan.courseState[course].course.sigle === 'CAP7011E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_4', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_d', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_4',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           } else if (
             studyPlan.courseState[course].course.sigle === 'CAP7015' ||
             studyPlan.courseState[course].course.sigle === 'CAP7015E'
           ) {
-            this.setTextField(form, 'trimestre_atelier_5', `${formattedTrimester}`);
+            if (studyPlan.courseState[course].course.alreadyDone) {
+              this.setTextField(form, 'av_e', 'A.P');
+            }
+            this.setTextField(
+              form,
+              'trimestre_atelier_5',
+              `${studyPlan.courseState[course].course.trimester[0].term} ${studyPlan.courseState[course].course.trimester[0].year}`
+            );
           }
-
           this.setCheckBox(form, course);
         } else {
           continue;
@@ -276,67 +307,116 @@ export class PdfService {
   }
 
   private async fillMandatoryCourses(form: PDFForm, studyPlan: StudyPlan) {
-    if (studyPlan.coursesSelection && studyPlan.coursesSelection.modules) {
-      const allCourses = this.extractAllCourses(studyPlan);
-      let creditsTotal = 0;
-      allCourses.forEach((course, index) => {
-        creditsTotal += course.credits || 0;
-        const formattedTrimester = this.formatTrimester(course.trimester[0]);
-        const pdfIndex = index + 1;
-        this.setTextField(form, `institution_cours_obligatoire_${pdfIndex}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
-        this.setTextField(form, `trimestre_cours_obligatoire_${pdfIndex}`, formattedTrimester);
-        this.setTextField(form, `sigle_cours_obligatoire_${pdfIndex}`, course.sigle || '');
-        this.setTextField(form, `titre_cours_obligatoire_${pdfIndex}`, course.name || '');
-        if (!this.studyPlanService.isProgramPHD()) {
-          this.setTextField(form, `module_cours_obligatoire_${pdfIndex}`, course.moduleType || '');
-        }
-        if (course.alreadyDone) {
-          this.setTextField(form, `av_${pdfIndex}`, 'A.P');
-        }
+    let filteredCourses: SerializedCourseState[] = [];
+    let credits = 0;
+
+    filteredCourses = Object.entries(studyPlan.courseState)
+      .map(([key, value]) => ({
+        sigle: key,
+        ...value,
+      }))
+      .filter((course) => course.selected && !this.verifyConditionsComplementary(course));
+
+    filteredCourses.forEach((course, index) => {
+      credits += course.credits;
+      this.setTextField(form, `institution_cours_obligatoire_${index}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
+      this.setTextField(form, `sigle_cours_obligatoire_${index}`, course.course.sigle);
+      this.setTextField(form, `titre_cours_obligatoire_${index}`, course.course.name);
+      this.setTextField(
+        form,
+        `crédits_cours_obligatoire_${index}`,
+        course.course.credits.toString()
+      );
+
+      if (Array.isArray(course.course.trimester)) {
         this.setTextField(
           form,
-          `crédits_cours_obligatoire_${pdfIndex}`,
-          course.credits?.toString() || ''
+          `trimestre_cours_obligatoire_${index}`,
+          course.course.trimester[0].term === '-'
+            ? 'Aucun trimestre défini'
+            : `${course.course.trimester[0].term} ${course.course.trimester[0].year}`
         );
-        if (pdfIndex === allCourses.length) {
-          this.setTextField(form, `credits_total_1`, creditsTotal.toString());
-        }
-      });
-    }
+      }
+
+      if (!this.studyPlanService.isProgramPHD()) {
+        this.setTextField(form, `module_cours_obligatoire_${index}`, course.selectedInModule!);
+      }
+
+      if (course.course.alreadyDone) {
+        this.setTextField(form, `av_${index}`, 'A.P');
+      }
+    });
+    this.setTextField(form, `credits_total_1`, credits.toString());
   }
 
   private async fillComplementaryCourses(form: PDFForm, studyPlan: StudyPlan) {
-    if (studyPlan.coursesSelection && studyPlan.coursesSelection.modules) {
-      const allCourses = this.extractAllCourses(studyPlan);
-      let creditsTotal = 0;
-      allCourses.forEach((course, index) => {
-        creditsTotal += course.credits || 0;
-        const formattedTrimester = this.formatTrimester(course.trimester[0]);
-        const pdfIndex = index + 1;
-        if (pdfIndex <= 9) {
-          this.setTextField(form, `institution_cours_complémentaire_${pdfIndex}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER
-          this.setTextField(form, `trimestre_cours_complémentaire_${pdfIndex}`, formattedTrimester);
-          this.setTextField(form, `sigle_cours_complémentaire_${pdfIndex}`, course.sigle || '');
-          this.setTextField(form, `titre_cours_complémentaire_${pdfIndex}`, course.name || '');
-          if (course.alreadyDone) {
-            this.setTextField(form, `av_complémentaire_${pdfIndex}`, 'A.P');
-          }
-          this.setTextField(
-            form,
-            `catégorie_cours_complémentaire_${pdfIndex}`,
-            course.moduleType || ''
-          );
-          this.setTextField(
-            form,
-            `crédits_cours_complémentaire_${pdfIndex}`,
-            course.credits?.toString() || ''
-          );
-          if (pdfIndex === allCourses.length) {
-            this.setTextField(form, `credits_total_2`, creditsTotal.toString());
-          }
-        }
-      });
+    let filteredCourses: SerializedCourseState[] = [];
+    let credits = 0;
+
+    filteredCourses = Object.entries(studyPlan.courseState)
+      .map(([key, value]) => ({
+        sigle: key,
+        ...value,
+      }))
+      .filter(
+        (course) =>
+          course.selected &&
+          !this.isExcludedFromComplementary(course) &&
+          this.verifyConditionsComplementary(course)
+      );
+
+    filteredCourses.forEach((course, index) => {
+      credits += course.credits;
+      this.setTextField(form, `institution_cours_complémentaire_${index}`, 'Polytechnique'); // C POSSIBLE QUE CE SOIT A LEXTERIEUR DE POLY A VERIFIER plus tard
+      this.setTextField(form, `sigle_cours_complémentaire_${index}`, course.course.sigle);
+      this.setTextField(form, `titre_cours_complémentaire_${index}`, course.course.name);
+      this.setTextField(
+        form,
+        `crédits_cours_complémentaire_${index}`,
+        course.course.credits.toString()
+      );
+
+      if (Array.isArray(course.course.trimester)) {
+        this.setTextField(
+          form,
+          `trimestre_cours_complémentaire_${index}`,
+          course.course.trimester[0].term === '-'
+            ? 'Aucun trimestre défini'
+            : `${course.course.trimester[0].term} ${course.course.trimester[0].year}`
+        );
+      }
+
+      if (course.course.alreadyDone) {
+        this.setTextField(form, `av_complémentaire_${index}`, 'A.P');
+      }
+
+      // this.setTextField(form, `catégorie_cours_complémentaire_${index}`, course.categorie); // POSER COMME QUESTION C QUOI CATEGORIE
+    });
+    this.setTextField(form, `credits_total_2`, credits.toString());
+  }
+
+  private isExcludedFromComplementary(course: SerializedCourseState): boolean {
+    if (
+      this.studyPlanService.isProgramMaster() &&
+      this.programService.program?.degree.includes('recherche') &&
+      this.masterResearchCourses.includes(course.course.sigle)
+    ) {
+      return true;
+    } else if (
+      this.studyPlanService.isProgramPHD() &&
+      this.phdResearchCourses.includes(course.course.sigle)
+    ) {
+      return true;
     }
+    return false;
+  }
+
+  private verifyConditionsComplementary(course: SerializedCourseState): boolean {
+    return [
+      course.selectedInModule === 'Cours complémentaire',
+      this.masterResearchCourses.includes(course.course.sigle),
+      this.phdResearchCourses.includes(course.course.sigle),
+    ].some((c) => c);
   }
 
   private async completeForm(
@@ -349,51 +429,6 @@ export class PdfService {
     } catch (error) {
       reject(error);
     }
-  }
-
-  private formatTrimester(trimester: Trimester): string {
-    if (!trimester) {
-      return 'Non spécifié';
-    }
-
-    if (trimester.term && trimester.year) {
-      return `${trimester.term} ${trimester.year}`;
-    }
-
-    console.warn('Format de trimestre non reconnu:', trimester);
-    return 'Format inconnu';
-  }
-
-  private extractAllCourses(studyPlan: StudyPlan) {
-    const allCourses: any[] = [];
-    if (studyPlan.coursesSelection.modules) {
-      studyPlan.coursesSelection.modules.forEach((module) => {
-        if (module.courses) {
-          module.courses.forEach((course) => {
-            if (!this.studyPlanService.isProgramPHD()) {
-              allCourses.push({
-                ...course,
-                module: module.title,
-                moduleType: this.determineModuleType(module.title),
-              });
-            } else {
-              allCourses.push({
-                ...course,
-                module: module.title,
-              });
-            }
-          });
-        }
-      });
-    }
-    return allCourses;
-  }
-
-  private determineModuleType(moduleTitle: string): string {
-    if (moduleTitle.includes('(A)')) return 'A';
-    if (moduleTitle.includes('(B)')) return 'B';
-    if (moduleTitle.includes('(C)')) return 'C';
-    return '';
   }
 
   private setTextField(form: PDFForm, fieldName: string, value?: string) {

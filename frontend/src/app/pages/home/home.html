@@ -1,7 +1,7 @@
 <div class="home-container" *ngIf="!this.authentificationService.currentUser">
   <div class="container-left">
     <div class="container-content">
-      <img src="./../../../assets/image_diplomees.png" />
+      <img src="assets/image_diplomees.png" />
       <h1>Gestionnaire de plan d'études des cycles supérieurs</h1>
       <p *ngIf="authentificationService.currentUser$ | async as user; else notLoggedIn">
         Bienvenue {{ user.firstName }} {{ user.lastName }}!
@@ -14,7 +14,7 @@
   <div class="container-etude">
     <div class="container-right">
       <div class="container-content">
-        <img src="./../../../assets/image_dess.png" />
+        <img src="assets/image_dess.png" />
         <h1>{{ degree[0] }}</h1>
         <p>Plans d'études pour le DESS en génie informatique.</p>
         <app-gsup-button
@@ -27,12 +27,12 @@
     </div>
     <div class="container-right">
       <div class="container-content">
-        <img src="./../../../assets/image_maitrise.png" />
+        <img src="assets/image_maitrise.png" />
         <h1>{{ degree[1] }}</h1>
         <p>Plans d'études pour la maîtrise en génie informatique.</p>
         <app-gsup-button
           [title]="degree[1]"
-          [color]="'green'"
+          [color]="'orange'"
           [size]="'large'"
           (clicked)="navigateTo(degree[1])"
         ></app-gsup-button>
@@ -40,7 +40,7 @@
     </div>
     <div class="container-right">
       <div class="container-content">
-        <img src="./../../../assets/image_doctorat.png" />
+        <img src="assets/image_doctorat.png" />
         <h1>{{ degree[2] }}</h1>
         <p>Plans d'études pour le doctorat en génie informatique.</p>
         <app-gsup-button

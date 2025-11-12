@@ -21,8 +21,11 @@
       [coordonatorId]="studyPlan.coordonatorId"
     >
     </app-study-plan>
-    } @else {<app-verify-study-plan [studyPlan]="studyPlan"></app-verify-study-plan>} } } @else if
-    (!isStudyPlanLoaded) {
+    } @else {<app-verify-study-plan
+      [studyPlan]="studyPlan"
+      [program]="programService.program"
+    ></app-verify-study-plan
+    >} } } @else if (!isStudyPlanLoaded) {
     <div class="loading-message">
       <p>Chargement du plan d'études...</p>
     </div>

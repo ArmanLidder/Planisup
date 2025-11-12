@@ -23,7 +23,7 @@
     *ngFor="let degree of degrees$ | async; let i = index"
     (click)="programService.chooseDegree(degree)"
   >
-    <img [src]="'./../../../assets/program&option.png'" />
+    <img [src]="'assets/program&option.png'" />
     <h1>{{ degree }}</h1>
   </div>
 </div>
@@ -37,7 +37,7 @@
     *ngFor="let opt of options$ | async; let i = index"
     (click)="programService.chooseOption(i)"
   >
-    <img [src]="'./../../../assets/program&option.png'" />
+    <img [src]="'assets/program&option.png'" />
     <h1>{{ opt }}</h1>
   </div>
 </div>

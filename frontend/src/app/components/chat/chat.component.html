@@ -1,8 +1,12 @@
-<div class="chat-container" [ngClass]="{ 'closed': state === 0, 'opened': state === 1 }">
-  <div class="chat-header" [ngClass]="{ 'closed': state === 0, 'opened': state === 1 }" (click)="toggleChatState()">
+<div class="chat-container" [ngClass]="{ closed: state === 0, opened: state === 1 }">
+  <div
+    class="chat-header"
+    [ngClass]="{ closed: state === 0, opened: state === 1 }"
+    (click)="toggleChatState()"
+  >
     <span class="!text-secondary">
       <i class="bi bi-chat-dots-fill"></i>
-      <img *ngIf="state === 0" src="../../../assets/boucle-de-retroaction.png" alt="Rétroaction" />
+      <img *ngIf="state === 0" src="assets/boucle-de-retroaction.png" alt="Rétroaction" />
       <span class="arrow-icon" aria-hidden="true">↘ </span>
       <span *ngIf="state === 1">Rétroaction</span>
     </span>
@@ -22,25 +26,24 @@
         </ng-container>
       </div> -->
       <div #chatscrollable class="messages">
-      <ng-container *ngIf="chat$ | async as chat">
-        <ng-container *ngFor="let msg of chat?.messages">
-          <div [ngClass]="['message', getMessageClass(msg)]">
-            <div class="bubble">
-              <div class="sender-name">{{ getSenderName(msg) }}</div>
-              <div class="message-content" [innerHTML]="safeHtml(msg.message)"></div>
-              <div class="message-timestamp">{{ formatSentDate(msg.createdAt) }}</div>
+        <ng-container *ngIf="chat$ | async as chat">
+          <ng-container *ngFor="let msg of chat?.messages">
+            <div [ngClass]="['message', getMessageClass(msg)]">
+              <div class="bubble">
+                <div class="sender-name">{{ getSenderName(msg) }}</div>
+                <div class="message-content" [innerHTML]="safeHtml(msg.message)"></div>
+                <div class="message-timestamp">{{ formatSentDate(msg.createdAt) }}</div>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </ng-container>
-      </ng-container>
-    </div>
-
+      </div>
 
       <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form">
         <app-editor-component formControlName="message"></app-editor-component>
         <button type="submit" [disabled]="!messageForm.valid">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
       </form>

@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StudyModule } from '../../components/study-module/study-module';
+import { StudyModule } from '@app/components/study-module/study-module';
 import { ProgramService } from '@app/services/program/program-service';
 import { Program, Module, Course, ProgramType, SubModule, Section } from '@common/program';
 import { CourseStateService } from '@app/services/course-state/course-state';
 import { CourseService } from '@app/services/course/course-service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 import {
   StudyPlan as StudyPlanInterface,
   StudyPlanStatus,
@@ -18,11 +20,14 @@ import { StudyPlanService } from '@app/services/study-plan/study-plan-service';
 import { Subscription } from 'rxjs';
 import { User } from '@common/user';
 import { Router } from '@angular/router';
+import { LoadingService } from '@app/services/loading/loading-service';
+import { Loading } from '@app/components/loading/loading';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-study-plan',
   standalone: true,
-  imports: [CommonModule, StudyModule, FormsModule],
+  imports: [CommonModule, StudyModule, FormsModule, MatDialogModule, Loading],
   templateUrl: './study-plan.html',
   styleUrls: ['./study-plan.scss'],
 })
@@ -49,6 +54,9 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private programSubscription: Subscription | null = null;
   private readonly AVANTAGE_POLY_MAX_CREDITS = 15;
 
+  // État de validation
+  isValidated: boolean = false;
+
   constructor(
     private programService: ProgramService,
     private courseStateService: CourseStateService,
@@ -56,11 +64,19 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     protected authService: AuthentificationService,
     private apiService: ApiService,
     private sPS: StudyPlanService,
-    private router: Router
+    private router: Router,
+    protected loadingService: LoadingService,
+    private readonly dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
-    this.courseService.getCourses();
+  async ngOnInit() {
+    this.loadingService.startLoading();
+
+    if (!this.programService.program && !this.programOverride) {
+      this.programService.restoreFromStorage();
+    }
+    // Charger tous les cours depuis le backend
+    await this.loadAllCourses();
 
     if (this.programOverride) {
       this.initializeWithProgram(this.programOverride);
@@ -118,33 +134,38 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
   private async initializeWithProgram(program: Program) {
     this.program = program;
 
-    // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
-    if (this.isViewMode) {
-      this.modules = this.filterSelectedCourses(program.modules);
-    } else {
-      this.modules = this.program.modules;
+    // Créer une copie des modules du programme
+    let modules = [...program.modules];
+
+    // Ajouter le module complémentaire seulement en mode édition
+    if (this.state !== 'viewAdmin') {
+      const complementaryModule = this.createComplementaryModule();
+      modules.push(complementaryModule);
     }
 
-    this.totalCredits = 0;
+    // En mode view, filtrer les modules pour ne garder que les cours sélectionnés
+    if (this.isViewMode) {
+      this.modules = this.filterSelectedCourses(modules);
+    } else {
+      this.modules = modules;
+    }
+
     this.selectedCredits = 0;
 
     // faire sa avec la regle de module credit exact avec le value
-    if (this.program.type == "dess") this.totalCredits = 30;
-    if (this.program.type == "maitrise") this.totalCredits = 45;
-    if (this.program.type == "doctorat") this.totalCredits = 90;
-    // for (const module of this.program.modules) {
-    //   // this.totalCredits += this.extractCreditsFromTitle(module.title);
-    //   const rule = module.rules?.find(rule => rule.type === 'credits_exact');
-    //   this.totalCredits += rule?.value ? rule.value : 0 ;
-    // }
+    const credits = {
+      dess: 30,
+      doctorat: 15,
+      maitrise: this.program.degree.includes("recherche") ? 15 : 45
+    };
+
+    this.totalCredits = credits[this.program.type as keyof typeof credits] ?? 0;
 
     // Initialiser le service avec les modules
-    if (!this.isViewMode) {
-      this.courseStateService.initializeCourseStates(this.modules);
+    if (!this.isViewMode) this.courseStateService.initializeCourseStates(this.modules); 
+    if (this.state === 'correction' && this.sPS.studyPlan?.courseState) {
+      this.courseStateService.restoreCourseState(this.sPS.studyPlan.courseState);
     }
-
-    // Charger tous les cours depuis le backend
-    await this.loadAllCourses();
 
     this.calculateTotalCredits();
   }
@@ -256,9 +277,12 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     this.courseService.getCourses();
     if (this.courseService.courses.length > 0) {
       this.allCourses = this.courseService.courses;
+      this.loadingService.stopLoading();
     } else {
       await this.apiService.getCourses().subscribe((listCourses) => {
         this.allCourses = listCourses;
+        this.courseService.courses = listCourses;
+        this.loadingService.stopLoading();
       });
     }
   }
@@ -321,6 +345,8 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
     if (!result) return;
 
+    // Réinitialiser la validation si des changements sont apportés
+    this.isValidated = false;
     this.calculateTotalCredits();
   }
 
@@ -351,12 +377,14 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
 
   getModuleCreditRequired(module: Module): string {
     const ruleExact = module.rules?.find(rule => rule.type === 'credits_exact');
+    const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
+    const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
+
     if (ruleExact) return (ruleExact?.value || 0).toString();
-    else {
-      const ruleMin = module.rules?.find(rule => rule.type === 'credits_minimum');
-      const ruleMax = module.rules?.find(rule => rule.type === 'credits_maximum');
-      return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString()
-    }
+    else if (ruleMax && ruleMin) return (ruleMin?.value || 0)?.toString() + " à " + (ruleMax?.value || 0)?.toString();
+    else if (!ruleMax) return (ruleMin?.value || 0)?.toString() + " (minimum)";
+    else if (!ruleMin) return (ruleMax?.value || 0)?.toString() + " (maximum)";
+    else return "";
   }
 
   /**
@@ -367,20 +395,29 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return title.replace(creditsPattern, '').trim();
   }
 
+  /**
+   * Valide le plan d'études sans le soumettre
+   */
   validatePlan() {
     if (this.isViewMode) return;
 
+    const errors = this.performValidation();
+
+    if (errors.length > 0) {
+      this.isValidated = false;
+      this.alertPopUp('Erreurs de validation:\n' + errors.join('\n'));
+      return;
+    }
+
+    this.isValidated = true;
+    this.alertPopUp("Plan d'étude validé avec succès!");
+  }
+
+  /**
+   * Effectue toutes les validations et retourne les erreurs
+   */
+  private performValidation(): string[] {
     const errors: string[] = [];
-
-    // No need everything director selected during creation and coordonnator during program creation
-
-    // if (this.directorId === '') {
-    //   errors.push('Vous devez selectionner un Directeur');
-    // }
-
-    // if (this.coordonatorId === '') {
-    //   errors.push('Vous devez selectionner un Coordonateur');
-    // }
 
     // Validation des groupes de règles
     const groupValidation = this.courseStateService.validateRuleGroups();
@@ -388,15 +425,19 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       errors.push(...groupValidation.errors);
     }
 
+    // Validation des trimestres des cours sélectionnés
+    const trimesterValidation = this.courseStateService.validateTrimestersAndAPGrade();
+    if (!trimesterValidation.isValid) {
+      errors.push(...trimesterValidation.errors);
+    }
+
     // Validation de la règle d'exclusivité des sous-modules
     this.program.modules.forEach(module => {
-      // Vérifier si le module a une règle d'exclusivité
       const hasExclusiveRule = module.rules?.some(rule => rule.type === 'exclusive_submodules');
       
       if (hasExclusiveRule && module.subModules) {
         const selectedSubModules: string[] = [];
 
-        // Trouver tous les sous-modules avec des cours sélectionnés
         module.subModules.forEach(subModule => {
           const hasSelection = Array.from(this.courseStateService.courseStates.values()).some(
             state => state.selected && 
@@ -409,7 +450,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
           }
         });
 
-        // Valider qu'un seul sous-module a été choisi
         if (selectedSubModules.length === 0) {
           const subModuleTitles = module.subModules.map(sm => this.extractSubModulePrefix(sm.title)).join(', ');
           errors.push(`Vous devez choisir un module parmi: ${subModuleTitles}`);
@@ -422,11 +462,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       }
     });
 
-    // Validation des crédits totaux
-    if (this.selectedCredits > this.totalCredits) {
-      errors.push('Le total des crédits ne peut pas dépasser le maximum autorisé.');
-    }
-
     // Validation Avantage Poly
     if (this.courseStateService.getAvantagePolyCredit() > this.AVANTAGE_POLY_MAX_CREDITS) {
       errors.push(
@@ -434,18 +469,73 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       );
     }
 
-    if (!this.courseStateService.isAllAvantagePolyGrade()) {
-      errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
-    }
+    // if (!this.courseStateService.isAllAvantagePolyGrade()) {
+    //   errors.push("Il manque la note d'un ou plusieurs cours avec Avantage Poly");
+    // }
 
-    // Afficher les erreurs ou soumettre le plan
+    return errors;
+  }
+
+  /**
+   * Soumet le plan d'études après validation et confirmation
+   */
+  async submitPlan() {
+    if (this.isViewMode) return;
+
+    // Effectuer la validation
+    const errors = this.performValidation();
+
     if (errors.length > 0) {
-      alert('Erreurs de validation:\n' + errors.join('\n'));
+      this.isValidated = false;
+      this.alertPopUp('Erreurs de validation:\n' + errors.join('\n'));
       return;
     }
 
-    if (this.state === 'modifyStudent') this.submitStudyPlan();
-    else this.sPS.updateStudyPlan();
+    // Demander confirmation avant de soumettre
+    const confirmed = await this.confirmSubmission();
+    
+    if (!confirmed) {
+      return;
+    }
+
+    if (this.state === 'modifyStudent' && this.authService.currentUser) {
+      this.submitStudyPlan();
+    } else if (this.state === 'correction') {
+      this.sPS.updateStudyPlan();
+    }
+  }
+
+  /**
+   * Affiche un dialog de confirmation pour la soumission
+   */
+  private async confirmSubmission(): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        title: 'Confirmation de soumission',
+        message: 'Êtes-vous sûr de vouloir soumettre votre plan d\'études?',
+        details: 'Une fois soumis, votre plan sera envoyé pour validation. Vous ne pourrez plus le modifier jusqu\'à ce qu\'il soit retourné en correction.',
+        firstButton: 'Annuler',
+        secondButton: 'Oui, soumettre',
+        confirmColor: 'primary',
+        icon: 'send',
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
+  private async alertPopUp(text: string): Promise<boolean> {
+    const { GsupDialog } = await import('@app/components/gsup-dialog/gsup-dialog');
+    const dialogRef = this.dialog.open(GsupDialog, {
+      data: {
+        message: text,
+        firstButton: 'Ok',
+        hideCancel: true,
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
   }
 
   private submitStudyPlan() {
@@ -471,11 +561,11 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
       this.apiService.submitStudyPlan(this.currentPlan).subscribe({
         next: (response) => {
           this.sPS.loadStudyPlan(response._id, true);
-          alert("Plan d'études soumis avec succès!");
+          this.alertPopUp("Plan d'études soumis avec succès!");
         },
         error: (error) => {
-          console.error("Erreur lors de la soumission du plan d'études:", error);
-          alert("Erreur lors de la soumission du plan d'études.");
+          console.error("Erreur lors de l'envoie du plan d'études:", error);
+          this.alertPopUp("Erreur lors de l'envoie du plan d'études.");
         },
       });
     }
@@ -488,7 +578,6 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // Ajouter cette méthode helper
   extractSubModulePrefix(subModuleTitle: string): string {
     const match = subModuleTitle.match(/\(([A-Z]\d+)\)/);
     return match ? match[1] : subModuleTitle;
@@ -508,5 +597,33 @@ export class StudyPlan implements OnInit, OnDestroy, OnChanges {
     return (this.program.type == "doctorat" || this.program.degree.includes("recherche")) 
       ? "Directeur de recherche" 
       : "Directeur d'étude";
+  }
+
+  private createComplementaryModule(): Module {
+    return {
+      title: "Cours complémentaire",
+      description: [],
+      rules: [
+        {
+          type: 'credits_minimum',
+          value: 0
+        }
+      ],
+      courses: [
+        {
+          description: "",
+          courses: [],
+          rules: [
+            {
+              type: 'director_approval',
+            },
+            {
+              type: 'credits_minimum', 
+              value: 0
+            }
+          ]
+        }
+      ]
+    }
   }
 }

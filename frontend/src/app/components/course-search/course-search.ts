@@ -29,6 +29,7 @@ export class CourseSearch implements OnInit, OnChanges {
 
   manualCourseSigle: string = '';
   manualCourseName: string = '';
+  manualCourseInstitution: string = 'Polytechnique de Montréal';
   manualCourseCredits: number | null = null;
   manualCourseError: string | null = null;
 
@@ -215,7 +216,6 @@ export class CourseSearch implements OnInit, OnChanges {
 
   addCourse(course: Course) {
     if (!this.canSelectCourse(course)) return;
-    console.log("je suiss la")
     if (this.pickMode) {
       this.courseSelectionChange.emit({ course, selected: true });
       return;
@@ -226,7 +226,6 @@ export class CourseSearch implements OnInit, OnChanges {
     this.selectedCourses.push(course);
     this.selectedCredits += course.credits;
     this.courseSelectionChange.emit({ course, selected: true });
-    console.log("je suis la en bas")
   }
 
   removeCourse(course: Course) {
@@ -247,10 +246,11 @@ export class CourseSearch implements OnInit, OnChanges {
 
     const sigle = (this.manualCourseSigle || '').trim().toUpperCase();
     const name = (this.manualCourseName || '').trim();
+    const institution = (this.manualCourseInstitution || '').trim();
     const rawCredits = this.manualCourseCredits;
 
-    if (!sigle || !name || rawCredits === null || rawCredits === undefined) {
-      this.manualCourseError = 'Renseignez le sigle, le titre et les crédits du cours.';
+    if (!sigle || !name || !institution || rawCredits === null || rawCredits === undefined) {
+      this.manualCourseError = "Renseignez le sigle, le titre, l'institution et les crédits du cours.";
       return;
     }
 
@@ -265,7 +265,7 @@ export class CourseSearch implements OnInit, OnChanges {
       return;
     }
 
-    const course: Course = { sigle, name, credits, trimester: [] };
+    const course: Course = { sigle, name, credits, trimester: [], institution };
 
     this.allCourses = [course, ...this.allCourses];
     this.filteredCourses = [course, ...this.filteredCourses];
@@ -274,6 +274,7 @@ export class CourseSearch implements OnInit, OnChanges {
 
     this.manualCourseSigle = '';
     this.manualCourseName = '';
+    this.manualCourseInstitution = 'Polytechnique de Montréal'
     this.manualCourseCredits = null;
   }
 }

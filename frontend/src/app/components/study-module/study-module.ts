@@ -46,7 +46,8 @@ export class StudyModule implements OnInit {
     if (ruleExact) this.credits = ruleExact?.value || 0;
     else {
       const ruleMax = this.module.rules?.find(rule => rule.type === 'credits_maximum');
-      this.credits = ruleMax?.value || 0
+      const ruleMin = this.module.rules?.find(rule => rule.type === 'credits_minimum');
+      this.credits = (ruleMax ? ruleMax?.value : ruleMin?.value) || 0
     }
     const creditsPattern = /\(\s*\d+\s*(?:à\s*\d+\s*)?crédits?\s*\)/gi;
     this.title = this.module.title.replace(creditsPattern, '').trim();

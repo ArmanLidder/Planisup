@@ -71,7 +71,6 @@ export class Login {
       this.authentificationService.login(loginRequest).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log(response);
           if (!response.success) {
             this.router.navigate(['/portail']);
             return;

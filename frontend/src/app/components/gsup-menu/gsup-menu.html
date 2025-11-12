@@ -1,8 +1,8 @@
 <div class="menu-container">
-  <img class="image" src="./../../../assets/more.png" (click)="openMenu()" alt="" />
+  <img class="image" src="assets/more.png" (click)="openMenu()" alt="" />
   <div class="container-dropdown" *ngIf="isMenuOpen">
     <div class="dropdown-option" (click)="navigateTo('login')" *ngIf="!this.currentUser">
-      <img src="./../../../assets/login.png" alt="" />
+      <img src="assets/login.png" alt="" />
       <p class="text">Se connecter</p>
     </div>
     <div
@@ -10,11 +10,11 @@
       (click)="navigateTo('accueil')"
       *ngIf="!isAdmin() && !isValidationForStudent() && !isStudent() && this.currentUser"
     >
-      <img src="./../../../assets/home.png" alt="" />
+      <img src="assets/home.png" alt="" />
       <p class="text">Accueil</p>
     </div>
     <div *ngIf="isRegistrar()" class="dropdown-option" (click)="redirectAddUserPage()">
-      <img src="./../../../assets/add_student.png" alt="" />
+      <img src="assets/add_student.png" alt="" />
       <p class="text">Ajouter un étudiant</p>
     </div>
     <div
@@ -22,15 +22,15 @@
       class="dropdown-option"
       (click)="openArchive()"
     >
-      <img src="./../../../assets/archive.png" alt="" />
+      <img src="assets/archive.png" alt="" />
       <p class="text">Archive</p>
     </div>
     <div class="dropdown-option" (click)="searchCourses()">
-      <img src="./../../../assets/search.png" alt="" />
+      <img src="assets/search.png" alt="" />
       <p class="text">Rechercher des cours</p>
     </div>
     <div class="dropdown-option" *ngIf="this.currentUser" (click)="logout()">
-      <img src="./../../../assets/logout.png" alt="" />
+      <img src="assets/logout.png" alt="" />
       <p class="text">Déconnexion</p>
     </div>
   </div>

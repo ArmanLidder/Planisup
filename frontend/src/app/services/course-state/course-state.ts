@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Course, Grade, Module, Section, SubModule, RuleDefinition } from '@common/program';
+import { Course, Grade, Module, Section, SubModule, RuleDefinition, Trimester } from '@common/program';
 import { SelectedModule, SerializedCourseState } from '@common/study-plan';
 
 export interface CourseState {
@@ -130,17 +130,19 @@ export class CourseStateService {
   }
 
   addCourseToStates(course: Course): void {
-    if (!this.courseStates.has(course.sigle)) {
-      this.courseStates.set(course.sigle, {
+    const courseCopy: Course = {
+      ...course,
+    }
+    if (!this.courseStates.has(courseCopy.sigle)) {
+      this.courseStates.set(courseCopy.sigle, {
         selected: false,
         selectedInModule: null,
         selectedInSubmodule: null,
         selectedInSection: null,
-        credits: course.credits,
-        course: course
+        credits: courseCopy.credits,
+        course: courseCopy
       });
     }
-    console.log(this.courseStates)
   }
 
   private isSubModuleExcluded(
@@ -490,15 +492,6 @@ export class CourseStateService {
           };
         }
         break;
-      
-      // case 'director_approval':
-      //   if (currentCredits + courseCredits > (rule.value || 0)) {
-      //     return {
-      //       canSelect: false,
-      //       reason: `Limite de crédits avec approbation atteinte (${currentCredits}/${rule.value})`
-      //     };
-      //   }
-      //   break;
     }
 
     return { canSelect: true };
@@ -570,7 +563,9 @@ export class CourseStateService {
   getSelectedCredits(): number {
     let credits = 0;
     this.courseStates.forEach((state) => {
-      if (state.selected) {
+      if (state.selected && 
+        !state.course.sigle.includes("CAP") &&
+        state.selectedInModule !== "Cours complémentaire") {
         credits += state.credits;
       }
     });
@@ -731,6 +726,20 @@ export class CourseStateService {
     if (grade) state.course.grade = grade;
   }
 
+  /**
+   * Définir le trimestre sélectionné pour un cours
+   */
+  setCourseTrimester(courseSigle: string, trimester: Trimester) {
+    const state = this.courseStates.get(courseSigle);
+    if (!state || !state.selected) return;
+
+    // Stocker le trimestre comme string dans le course
+    state.course.trimester = [trimester];
+    
+    // Mettre à jour le state
+    this.courseStates.set(courseSigle, state);
+  }
+
   getAvantagePolyCredit(): number {
     let credits = 0;
     this.courseStates.forEach((state) => {
@@ -749,5 +758,27 @@ export class CourseStateService {
       }
     });
     return isGrade;
+  }
+
+  validateTrimestersAndAPGrade(): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    this.courseStates.forEach((state, courseSigle) => {
+      if (state.selected && Array.isArray(state.course.trimester)) {
+        if (!state.course.trimester || state.course.trimester.length !== 1 || state.course.trimester[0].dayNight !== "selected")
+          errors.push(`Le cours ${courseSigle} n'a pas de trimestre sélectionné`);
+      }
+      if (state.selected && state.course.alreadyDone && !this.isGradeValide(state.course.grade))
+        errors.push(`La note du cours ${courseSigle} (${state.course.grade || "Aucune"}) est inférieure à B`);
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors: errors
+    };
+  }
+
+  isGradeValide(grade: Grade | undefined) {
+    return grade && (grade === Grade.AStar || grade === Grade.A || grade === Grade.BPlus || grade === Grade.B)
   }
 }

@@ -237,7 +237,7 @@ export class StudyPlanService {
   }
 
   private async saveNewStudyPlan(studyPlan: Partial<StudyPlan>) {
-    this.logger.info("Saving new study plan: " + JSON.stringify(studyPlan));
+    this.logger.info("Saving new study plan: ");
     try {
       // Will have to add ProgramType.MatrisePro
       if (studyPlan.programType === ProgramType.DESS)
@@ -245,6 +245,7 @@ export class StudyPlanService {
       else studyPlan.studyPlanStep = StudyPlanStep.DIRECTOR;
 
       studyPlan.status = StudyPlanStatus.LIVE;
+
       studyPlan.stepValidation = StepValidationStatus.IN_PROGRESS;
 
       const savedPlan = await StudyPlanModel.create(studyPlan);

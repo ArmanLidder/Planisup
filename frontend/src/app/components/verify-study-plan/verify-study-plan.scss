@@ -111,7 +111,7 @@
 .mat-mdc-cell {
   margin: 0;
   font-weight: bold;
-  font-size: clamp(2px, 2vw, 12px);
+  font-size: clamp(2px, 2vw, 10px);
   color: black;
 }
 
@@ -149,4 +149,8 @@
 }
 ::-webkit-scrollbar {
   width: 15px;
+}
+
+.highlighted-row {
+  background: #fbb5b5;
 }

@@ -34,6 +34,7 @@ export class GsupMenu {
 
   public logout(): void {
     this.authentificationService.logout();
+    this.sPS.resetStudyPlan();
     this.navigateTo('login');
   }
 

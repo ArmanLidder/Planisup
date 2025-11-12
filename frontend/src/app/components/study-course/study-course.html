@@ -30,9 +30,8 @@
                (change)="onAvantagePolyChange($event)"
                *ngIf="!isViewMode">
         <span class="avantage-checkmark" *ngIf="!isViewMode"></span>
-        <span class="avantage-poly-label" *ngIf="!isViewMode">Avantage Poly</span>
-        <span class="avantage-poly-label" *ngIf="currentGrade && isViewMode">Avantage Poly</span>
-        <span class="current-grade" *ngIf="currentGrade && isViewMode"> - {{ currentGrade }}</span>
+        <span class="avantage-poly-label" *ngIf="!isViewMode || (currentGrade && isViewMode && isAvantagePolyChecked)">Avantage Poly</span>
+        <span class="current-grade" *ngIf="currentGrade && isViewMode && isAvantagePolyChecked"> - {{ currentGrade }}</span>
       </label>
       
       <!-- Dropdown pour sélectionner la note -->
@@ -47,6 +46,25 @@
           </option>
         </select>
       </div>
+    </div>
+    
+    <!-- Sélection du trimestre -->
+    <div class="trimester-selector" *ngIf="needsTrimesterSelection">
+      <select 
+        class="trimester-dropdown"
+        [value]="selectedTrimesterValue"
+        (change)="onTrimesterSelect($event)">
+        <option value="" disabled>Choisir un trimestre</option>
+        <option *ngFor="let trimester of availableTrimesters"
+          [value]="trimester">
+          {{ trimester }}
+        </option>
+      </select>
+    </div>
+    
+    <!-- Affichage du trimestre sélectionné en mode view -->
+    <div class="trimester-display" *ngIf="isViewMode && isSelected && selectedTrimester">
+      <span class="trimester-label">📅 {{ selectedTrimester === '- 0' ? 'Aucun trimestre' : selectedTrimester }}</span>
     </div>
     
     <span class="course-credits" [class.disabled-text]="!canBeToggled()">{{ course.credits }} crédits</span>

@@ -1,64 +1,79 @@
-<div class="container">
-  <header>
-    <h1>Plan d'Études</h1>
-    <div class="total-credits">
-      <span class="credits-count">{{ selectedCredits }} / {{ totalCredits }}</span>
-      <span class="credits-label">Crédits sélectionnés</span>
-    </div>
-  </header>
-
-  <div class="module-info">
-    <h2>{{ program.degree }}</h2>
-    <h3 *ngIf="program.option">{{ program.option }}</h3>
-    <p class="description">{{ program.description }}</p>
-
-    <div class="conditions" *ngIf="program.modules.length > 0">
-      <p *ngFor="let module of program.modules">
-        <strong>{{ getModuleCreditRequired(module) }} crédits</strong> -
-        {{ getModuleTitleWithoutCredits(module.title) }}
-      </p>
-    </div>
-
-    <div class="selectors" *ngIf="this.authService.currentUser">
-      <div class="form-group">
-        <label for="director">{{ getTypeDirector() }}</label>
-        <p class="readonly-text">{{ director.firstName }} {{ director.lastName }}</p>
+@if (loadingService.isLoading$ | async) {
+<app-loading></app-loading>
+} @else {
+  <div class="container">
+    <header>
+      <h1>Plan d'Études</h1>
+      <div class="total-credits">
+        <span class="credits-count">{{ selectedCredits }} / {{ totalCredits }}</span>
+        <span class="credits-label">Crédits sélectionnés</span>
       </div>
-      <div class="form-group">
-        <label for="coordinator">Coodirecteurs :</label>
-        <p class="readonly-text" *ngFor="let codirector of codirectors">
-          {{ codirector.firstName }} {{ codirector.lastName }}
+    </header>
+
+    <div class="module-info">
+      <h2>{{ program.degree }}</h2>
+      <h3 *ngIf="program.option">{{ program.option }}</h3>
+      <p class="description">{{ program.description }}</p>
+
+      <div class="conditions" *ngIf="program.modules.length > 0">
+        <p *ngFor="let module of program.modules">
+          <strong>{{ getModuleCreditRequired(module) }} crédits</strong> -
+          {{ getModuleTitleWithoutCredits(module.title) }}
         </p>
       </div>
-      <div class="form-group">
-        <label for="coordinator">Coodonateur :</label>
-        <p class="readonly-text">{{ coodonator.firstName }} {{ coodonator.lastName }}</p>
+
+      <div class="selectors" *ngIf="this.authService.currentUser">
+        <div class="form-group">
+          <span class="member-icon">👤</span>
+          <label>{{ getTypeDirector() }} :</label>
+          <p class="readonly-text">{{ director.firstName }} {{ director.lastName }}</p>
+        </div>
+        <div class="form-group">
+          <span class="member-icon">👥</span>
+          <label>Coodirecteurs :</label>
+          <p class="readonly-text" *ngFor="let codirector of codirectors">
+            {{ codirector.firstName }} {{ codirector.lastName }}
+          </p>
+        </div>
+        <div class="form-group">
+          <span class="member-icon">📋</span>
+          <label>Coodonateur :</label>
+          <p class="readonly-text">{{ coodonator.firstName }} {{ coodonator.lastName }}</p>
+        </div>
       </div>
-    </div>
 
-    <div class="modules-container">
-      <app-study-module
-        *ngFor="let module of modules"
-        [module]="module"
-        [allCourses]="allCourses"
-        [progressStyle]="getProgressStyle()"
-        [isViewMode]="isViewMode"
-        (courseSelectionChange)="onCourseSelectionChange($event)"
-      >
-      </app-study-module>
-    </div>
+      <div class="modules-container">
+        <app-study-module
+          *ngFor="let module of modules"
+          [module]="module"
+          [allCourses]="allCourses"
+          [progressStyle]="getProgressStyle()"
+          [isViewMode]="isViewMode"
+          (courseSelectionChange)="onCourseSelectionChange($event)"
+        >
+        </app-study-module>
+      </div>
 
-    <div class="actions" *ngIf="!isViewMode && this.state === 'modifyStudent' && this.authService.currentUser">
-      <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
-    </div>
+      <div class="actions" *ngIf="!isViewMode && (this.state === 'modifyStudent' || state === 'correction')">
+        <button (click)="validatePlan()" class="btn-primary">Valider le plan d'études</button>
+        <button 
+          (click)="submitPlan()" 
+          class="btn-primary" 
+          [disabled]="!isValidated" 
+          [class.validated]="isValidated"
+          *ngIf="this.authService.currentUser">
+            Soumettre le plan d'études
+        </button>
+      </div>
 
-    <div class="actions" *ngIf="this.state === 'viewAdmin' && this.authService.currentUser">
-      <button (click)="modifyPlan()" class="btn-primary">Modifier le plan d'études</button>
-    </div>
+      <div class="actions" *ngIf="this.state === 'viewAdmin'">
+        <button (click)="modifyPlan()" class="btn-primary">Modifier le plan d'études</button>
+      </div>
 
-    <div class="actions" *ngIf="state === 'correction' && this.authService.currentUser">
-      <button (click)="validatePlan()" class="btn-primary">Soumettre</button>
-    </div>
+      <!-- <div class="actions" *ngIf="state === 'correction'">
+        <button (click)="validatePlan()" class="btn-primary">Soumettre</button>
+      </div> -->
 
+    </div>
   </div>
-</div>
+}

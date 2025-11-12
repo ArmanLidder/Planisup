@@ -5,17 +5,20 @@
         <h2>Programmes</h2>
       </div>
       <div class="header-actions">
-        <button mat-flat-button
-                class="palette-primary" (click)="createProgram()">
+        <button mat-flat-button class="palette-primary" (click)="createProgram()">
           <span class="icon-plus">+</span>
           Nouveau programme
         </button>
-        <span matTooltip="Sélectionnez un programme pour pouvoir le dupliquer."
-              [matTooltipDisabled]="!!selectedProgramId && !!programService.program">
-          <button mat-stroked-button
-                  class="palette-primary"
-                  (click)="duplicateProgram()"
-                  [disabled]="!selectedProgramId || !programService.program">
+        <span
+          matTooltip="Sélectionnez un programme pour pouvoir le dupliquer."
+          [matTooltipDisabled]="!!selectedProgramId && !!programService.program"
+        >
+          <button
+            mat-stroked-button
+            class="palette-primary"
+            (click)="duplicateProgram()"
+            [disabled]="!selectedProgramId || !programService.program"
+          >
             Dupliquer
           </button>
         </span>
@@ -44,20 +47,22 @@
   </div>
   <div class="container-right">
     <div *ngIf="!selectedProgramId" class="no-program-selected">
-      <img src="./../../../assets/image_select.png" alt="" />
+      <img src="assets/image_select.png" alt="" />
       <h3>
         Sélectionnez un programme dans la liste affichée afin d'interagir avec un plan d'étude.
       </h3>
-      <h3>
-        Appuyez sur le bouton d'ajout pour ajouter un
-        programme.
-      </h3>
+      <h3>Appuyez sur le bouton d'ajout pour ajouter un programme.</h3>
     </div>
 
     <ng-container *ngIf="selectedProgramId && (programService.program || editingDraft)">
       <div class="right-toolbar" *ngIf="isEditing">
         <div class="toolbar-left">
-          <button mat-flat-button class="palette-danger" *ngIf="!isCreatingNew" (click)="confirmDeleteProgram()">
+          <button
+            mat-flat-button
+            class="palette-danger"
+            *ngIf="!isCreatingNew"
+            (click)="confirmDeleteProgram()"
+          >
             Supprimer le programme
           </button>
         </div>
@@ -74,7 +79,9 @@
           >
             {{ isCreatingNew ? 'Créer le programme' : 'Enregistrer les modifications' }}
           </button>
-          <button mat-flat-button class="palette-danger" (click)="requestExit()">Quitter l'édition</button>
+          <button mat-flat-button class="palette-danger" (click)="requestExit()">
+            Quitter l'édition
+          </button>
         </div>
       </div>
 
@@ -97,4 +104,3 @@
     </ng-container>
   </div>
 </div>
-

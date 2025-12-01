@@ -5,7 +5,14 @@
       <h2>{{ title }}</h2>
     </div>
     <div class="module-credits">
-      <span class="credits-count">{{ selectedCredits }} / {{ credits }}</span>
+      <span class="credits-count">
+        <ng-container *ngIf="getMinimumCredits()?.type && getMaximumCredits()?.type; else simpleCredits">
+          {{ getMinimumCredits()?.number }} ≤ <span class="credit-value">{{ selectedCredits }}</span> ≤ {{ getMaximumCredits()?.number }}
+        </ng-container>
+        <ng-template #simpleCredits>
+          <span class="credit-value">{{ selectedCredits }}</span> / {{ credits }}
+        </ng-template>
+      </span>
       <span class="credits-label">Crédits</span>
     </div>
   </div>

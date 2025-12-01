@@ -66,6 +66,16 @@ export class StudyModule implements OnInit {
     return this.expandedSubModules.get(subModuleTitle) || false;
   }
 
+  getMinimumCredits(): {type: string, number: number} | null {
+    const ruleMin = this.module.rules?.find(rule => rule.type === 'credits_minimum');
+    return ruleMin ? {type: 'credits_minimum', number: ruleMin.value || 0} : null;
+  }
+
+  getMaximumCredits(): {type: string, number: number} | null {
+    const ruleMax = this.module.rules?.find(rule => rule.type === 'credits_maximum');
+    return ruleMax ? {type: 'credits_maximum', number: ruleMax.value || 0} : null;
+  }
+
   onCourseSelectionChange(event: {
     courseSigle: string, 
     selected: boolean, 

@@ -12,6 +12,32 @@ The platform was adopted by Polytechnique Montréal, who hired two team members 
 - CAS (Central Authentication Service) integration with Polytechnique's SSO
 - Web scraper that extracts, normalizes, and loads Polytechnique's full graduate course catalog into MongoDB
 
+## Previews
+
+### Student Workspace
+
+#### Study Plan Dashboard
+Shows the real-time validation progress of a student's study plan across all program modules (mandatory, basic, specialization, integration, and complementary courses).
+![Study Plan Dashboard](preview/student-dashboard.png)
+
+#### Course Selection & Integration
+Allows students to search the normalized course catalog and select courses under specific modules based on requirements.
+![Course Selection](preview/course-selection.png)
+
+#### Manual Course Addition
+Provides an interface for students to manually add external courses with custom codes, titles, and credit values.
+![Manual Course Addition](preview/manual-course-addition.png)
+
+### Administrator Dashboard
+
+#### Program Editor
+Enables coordinators and admins to manage all available degrees/specializations and modify their high-level metadata and modular structures.
+![Program Editor](preview/admin-program-editor.png)
+
+#### Validation Rules Configurator
+Enables deep customization of credit ranges, custom course lists, and validation rules for each module in a degree program.
+![Rules Configurator](preview/admin-rules-configurator.png)
+
 ## Tech Stack
 
 | Layer | Technology |

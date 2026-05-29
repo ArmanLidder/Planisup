@@ -56,40 +56,6 @@ Enables deep customization of credit ranges, custom course lists, and validation
 └── common/            # Shared types and interfaces
 ```
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- MongoDB
-- npm
-
-### Installation
-
-```bash
-# Install root dependencies
-npm install
-
-# Install frontend dependencies
-cd frontend && npm install
-
-# Install backend dependencies
-cd ../backend-express && npm install
-```
-
-### Running the App
-
-```bash
-# Start the backend
-cd backend-express
-npm start
-
-# Start the frontend (separate terminal)
-cd frontend
-npm start
-```
-
-The app will be available at `http://localhost:4200`.
 
 ## Team
 
